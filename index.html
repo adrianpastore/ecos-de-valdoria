@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Ecos de Valdoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Alegreya+Sans:wght@400;500;700;800&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+<div id="game">
+<canvas id="cv"></canvas>
+<div id="hud" class="hidden">
+ <div id="pframe" class="frame"><canvas id="portrait" width="16" height="16"></canvas>
+  <div class="pinfo"><div class="pname"><span id="pName"></span> <small>Nv <b id="pLvl">1</b></small></div>
+   <div class="bar hp"><i id="hpFill"></i><span id="hpTxt"></span></div>
+   <div class="bar mp"><i id="mpFill"></i><span id="mpTxt"></span></div>
+   <div class="bar xp"><i id="xpFill"></i></div></div></div>
+ <div id="tframe" class="frame hidden"><div class="tname" id="tName"></div><div class="bar hp"><i id="tFill"></i><span id="tTxt"></span></div></div>
+ <div id="mapbox" class="frame"><canvas id="mini" width="360" height="270"></canvas><div id="zoneName"></div></div>
+ <div id="log"></div>
+ <div id="quest" class="frame hidden"></div>
+ <button id="prompt" class="frame hidden"></button>
+ <div id="hotbar" class="frame"></div>
+ <div id="side"><div id="goldBox" class="frame">🪙 <span id="gold">0</span></div>
+  <button class="frame ib" id="bagBtn" aria-label="Bolsa">🎒<small>I</small></button>
+  <button class="frame ib" id="treeBtn" aria-label="Árvore de habilidades">🌟<small>T</small><b id="treeBadge" class="badge"></b></button>
+  <button class="frame ib" id="helpBtn" aria-label="Ajuda">❓</button></div>
+ <div id="banner"><b id="bT"></b><span id="bS"></span></div>
+</div>
+
+<div id="bag" class="panel frame hidden">
+ <div class="phead"><h2>Personagem e bolsa</h2><button class="x" data-close="bag" aria-label="Fechar">✕</button></div>
+ <div class="bagbody">
+  <div><div class="doll">
+    <div></div><button class="slot" data-eq="elmo"></button><div></div>
+    <button class="slot" data-eq="arma"></button><div class="big"><img id="dollImg" alt=""></div><button class="slot" data-eq="anel"></button>
+    <div></div><div></div>
+    <div></div><button class="slot" data-eq="peito"></button><div></div>
+   </div>
+   <div class="doll" style="grid-template-rows:58px;margin-top:6px"><div></div><button class="slot" data-eq="botas"></button><div></div></div>
+   <div class="stats" id="statsBox"></div></div>
+  <div><div class="invhead"><span id="invCount"></span><button class="btn sm" id="sortBtn">Organizar</button></div>
+   <div class="grid" id="invGrid"></div>
+   <div class="detail" id="detail"></div></div>
+ </div>
+</div>
+
+<div id="shop" class="panel frame hidden">
+ <div class="phead"><h2>Mercador Bento</h2><button class="x" data-close="shop" aria-label="Fechar">✕</button></div>
+ <p class="flav">"Poções frescas e ouro justo pelo seu saque, aventureiro!"</p>
+ <div class="shoprow"><span>🧪 Poção de vida<br><small>Recupera 45% da vida</small></span><button class="btn sm" data-buy="hp,1">20g</button><button class="btn sm" data-buy="hp,5">5 por 90g</button></div>
+ <div class="shoprow"><span>💧 Poção de mana<br><small>Recupera 45% da mana</small></span><button class="btn sm" data-buy="mp,1">20g</button><button class="btn sm" data-buy="mp,5">5 por 90g</button></div>
+ <div class="shoprow"><button class="btn" data-sell="0">Vender itens comuns</button><button class="btn" data-sell="1">Vender comuns e incomuns</button></div>
+ <div class="shoprow"><button class="btn gold" id="shopBag">Abrir a bolsa para vender um item</button></div>
+</div>
+
+<div id="help" class="panel frame hidden">
+ <div class="phead"><h2>Como jogar</h2><button class="x" data-close="help" aria-label="Fechar">✕</button></div>
+ <ul>
+  <li><kbd>WASD</kbd> ou setas para andar, ou clique/toque no chão</li>
+  <li>Clique num monstro para atacar; <kbd>Espaço</kbd> ataca o mais próximo</li>
+  <li><kbd>1</kbd> a <kbd>6</kbd> habilidades • <kbd>Tab</kbd> troca de alvo</li>
+  <li><kbd>Q</kbd> poção de vida • <kbd>R</kbd> poção de mana</li>
+  <li><kbd>E</kbd> abre baús e fala com o mercador</li>
+  <li><kbd>T</kbd> árvore de habilidades • <kbd>I</kbd> bolsa • <kbd>Esc</kbd> fecha janelas</li>
+ </ul>
+ <p>Quanto mais longe da vila, mais fortes os monstros e melhores os baús. Os baús dourados no minimapa guardam saque. Cuidado: alguns baús mordem. No canto nordeste dorme o Wyrm Carmesim.</p>
+ <p>Círculos vermelhos no chão avisam golpes fortes: saia de dentro deles. O progresso é salvo neste navegador.</p>
+</div>
+
+<div id="tree" class="panel frame hidden"><div class="phead"><h2>Árvore de habilidades</h2><span id="treePts" class="pts"></span><button class="x" data-close="tree" aria-label="Fechar">✕</button></div><div id="treeTabs" class="tabs"></div><div id="treeBody"></div><div id="treeDet" class="detail"></div></div>
+<div id="mentor" class="panel frame hidden"><div class="phead"><h2>Mestra Elara</h2><button class="x" data-close="mentor" aria-label="Fechar">✕</button></div><div id="mentorBody"></div></div>
+<div id="loading" class="hidden"><div class="ld"><small>Viajando para</small><b id="ldName"></b><span id="ldSub"></span><div class="ldbar"><i></i></div></div></div>
+<div id="death" class="overlay hidden"><div class="startbox small"><h2>Você foi derrotado</h2><p id="deathTxt"></p><button id="respBtn" class="btn gold">Renascer na vila</button></div></div>
+
+<div id="start" class="overlay"><div class="startbox">
+ <h1 class="title">Ecos de Valdoria</h1>
+ <p class="sub">Explore florestas, pântanos e ruínas, derrote monstros e saqueie baús atrás de equipamentos lendários.</p>
+ <div id="contBox" class="frame hidden"></div>
+ <div class="classes" id="classes"></div>
+ <div class="namerow"><input id="nameIn" maxlength="14" placeholder="Nome do herói" autocomplete="off" aria-label="Nome do herói"><button id="goBtn" class="btn gold">Começar aventura</button></div>
+</div></div>
+</div>
+<script src="js/01-nucleo-sprites-e-mundo.js"></script>
+<script src="js/02-jogador-monstros-e-combate.js"></script>
+<script src="js/03-habilidades-e-especializacoes.js"></script>
+<script src="js/04-arvore-e-mentora.js"></script>
+<script src="js/05-boneco-em-camadas.js"></script>
+<script src="js/06-guerreiro.js"></script>
+<script src="js/07-arqueira.js"></script>
+<script src="js/08-mapas-e-portais.js"></script>
+<script src="js/09-regiao-pinheiral.js"></script>
+<script src="js/10-chefes-mvp.js"></script>
+<script src="js/99-interface-e-inicio.js"></script>
+</body>
+</html>
