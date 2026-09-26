@@ -42,7 +42,7 @@ const mproj=[];
 function monSpecial(m,dt,dP){const d=m.d;if(d.clone){m.life=(m.life??12)-dt;if(m.life<=0||!m.fake||m.fake.dead){m.dead=true;burst(m.x,m.y-12,'#c8c8c8',14,40);return true;}}if(d.ai&&bossAI(m,dt,dP))return true;
  if(m.disguise){m.disguise=null;m.name=d.n+(m.elite?' Elite':'');burst(m.x,m.y-8,'#c8c8c8',16,50);addText(m.x,m.y-22,'!','#ffd24a',true);}
  if(d.ranged&&!P.dead&&dP<=d.ranged&&dP>24){m.moving=false;m.face=P.x>m.x?1:-1;
-  if(m.atkT<=0){m.atkT=d.cd;const a=Math.atan2(P.y-8-(m.y-mh(m)/2),P.x-m.x);mproj.push({x:m.x,y:m.y-mh(m)/2,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1.4,m,c:'#9ad8ff'});}return true;}
+  if(m.atkT<=0){m.atkT=d.cd;const a=Math.atan2(P.y-8-(m.y-mh(m)/2),P.x-m.x);mproj.push({x:m.x,y:m.y-mh(m)/2,vx:Math.cos(a)*120,vy:Math.sin(a)*120,life:1.4,m,c:d.projC||'#9ad8ff',arrow:d.arrow});}return true;}
  if(d.fly&&dP>m.r+6){if(m.rootT>0)return true;const spd=m.spd*(m.slowT>0?.45:1);m.x+=(P.x-m.x)/dP*spd*dt;m.y+=(P.y-m.y)/dP*spd*dt;m.face=P.x>m.x?1:-1;m.moving=true;return true;}
  return false;}
 function onMonHit(m,d){if(!m||P.dead)return;
@@ -54,4 +54,4 @@ function tickPay(dt){
  for(let i=mproj.length-1;i>=0;i--){const p=mproj[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(R()<.5)parts.push({x:p.x,y:p.y,vx:0,vy:0,g:0,life:.25,max:.25,color:p.c,s:1});
   if(!P.dead&&hyp(p.x-P.x,p.y-(P.y-8))<8){mproj.splice(i,1);hurtPlayer(p.m.atk*weakOf(p.m),p.m,p.mult||1.2);burst(p.x,p.y,p.c,8,40);continue;}
   if(p.life<=0||blocked(p.x,p.y+8,1))mproj.splice(i,1);}}
-function drawMProj(){for(const p of mproj){ctx.globalAlpha=.45;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,4,0,6.29);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,6.29);ctx.fill();}}
+function drawMProj(){for(const p of mproj){if(p.arrow){const sp=hyp(p.vx,p.vy);ctx.strokeStyle=p.c;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-p.vx/sp*7,p.y-p.vy/sp*7);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(p.x-.5,p.y-.5,1,1);continue;}ctx.globalAlpha=.45;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,4,0,6.29);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,6.29);ctx.fill();}}

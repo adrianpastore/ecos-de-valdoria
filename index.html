@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Alegreya+Sans:wght@400;500;700;800&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/estilo.css">
+<script>/* modo de teste (index.html?teste): anota erros desde o carregamento */if(/[?&]teste\b/.test(location.search)){window.__errs=[];addEventListener('error',e=>__errs.push(e.message+' ('+(e.filename||'').split('/').pop()+':'+e.lineno+')'));}</script>
 </head>
 <body>
 <div id="game">
@@ -93,6 +94,8 @@
 <script src="js/08-mapas-e-portais.js"></script>
 <script src="js/09-regiao-pinheiral.js"></script>
 <script src="js/10-chefes-mvp.js"></script>
+<script src="js/11-caverna.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
+<script>if(window.__errs){const s=document.createElement('script');s.src='tests/smoke.js';document.body.append(s);}</script>
 </body>
 </html>

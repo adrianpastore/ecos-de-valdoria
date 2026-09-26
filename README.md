@@ -24,7 +24,7 @@ O progresso é salvo automaticamente no navegador de cada jogador.
 ## Conteúdo
 
 - **3 classes e 9 especializações:** Mago (Bruxo, Necromante, Druida), Guerreiro (Paladino, Berserker, Cavaleiro) e Arqueira (Caçadora, Patrulheira, Assassina), com provas no nível 10 e promoção no nível 25.
-- **Mundo em mapas:** Vila de Valdor, Floresta Verdejante, Pântano Sombrio, Ruínas Esquecidas, Covil do Wyrm, Estrada do Sul, Aldeia de Pinheiral e as Encostas de Pinheiral 01 a 07.
+- **Mundo em mapas:** Vila de Valdor, Floresta Verdejante, Pântano Sombrio, Ruínas Esquecidas, Covil do Wyrm, Estrada do Sul, Aldeia de Pinheiral, as Encostas de Pinheiral 01 a 07 e a Caverna de Pinheiral (três andares no escuro, só com a luz da tocha).
 - **Chefes MVP:** Wyrm Carmesim, Mestre das Máscaras, Grande Totem Ancião e Raposa Anciã de Nove Caudas.
 - **Equipamentos visíveis no personagem**, com 5 raridades (comum a lendário).
 
@@ -46,7 +46,9 @@ Os scripts são carregados **em ordem** pelo `index.html` e compartilham o mesmo
 | `js/08-mapas-e-portais.js` | Troca de mapas, portais e tela de carregamento |
 | `js/09-regiao-pinheiral.js` | Pinheiral, Encostas e monstros com comportamentos especiais |
 | `js/10-chefes-mvp.js` | Chefes MVP e suas mecânicas |
+| `js/11-caverna.js` | Caverna de Pinheiral: andares em corredores e escuridão |
 | `js/99-interface-e-inicio.js` | Renderização, interface, controles e inicialização (sempre por último) |
+| `tests/` | Teste de fumaça: abra `tests/smoke.html` para conferir se tudo carrega e funciona |
 
 Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e inclua a tag `<script>` no `index.html`, antes do `99-interface-e-inicio.js`.
 
@@ -58,7 +60,9 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 
 ## Próximos passos
 
-- [ ] Caverna de Pinheiral: três andares escuros, com o chefe Senhor dos Ossos
+- [x] Caverna de Pinheiral: três andares escuros em corredores
+- [x] Monstros da caverna: morcegos em bando, esqueletos arqueiros e zumbis mineiros
+- [ ] Chefe da caverna: Senhor dos Ossos
 - [ ] Exportar/importar save (para levar o progresso entre navegadores)
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas

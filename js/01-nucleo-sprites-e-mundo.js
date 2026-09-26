@@ -98,30 +98,47 @@ const toRGB=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k,v.map(hexRGB
 const GPr=toRGB(GP),PCr=toRGB(PC),WCr=toRGB(WC),PLZ=['#8d8778','#6d685c','#a09a8a'].map(hexRGB);
 const mapC=cnv(MW,MH),miniBase=cnv(W,H);
 const MINIC={obj:['#2f6e34','#2a6430','#384826','#7a3a1c','#2a1c16','#244a2c','#285030']};
-const CLF_C=['#6f6a60','#4f4a42','#35312c','#9a9488','#86806f'].map(hexRGB);
+const CLF_C=['#6f6a60','#4f4a42','#35312c','#9a9488','#86806f'].map(hexRGB),CLFT={}; // CLFT[tema]: cores de paredão próprias (a caverna usa)
 let CUR='valdor';
 const MAPS={
- valdor:{n:'Vila de Valdor',s:'Zona segura • mercador, mentora e fonte de cura',town:1,theme:0,seed:101,color:'#3a5a2a',exits:{w:'floresta',e:'pantano',s:'estrada'}},
- floresta:{n:'Floresta Verdejante',s:'Nível 1 a 9',theme:1,seed:202,color:'#2f5a2a',lv:[1,9],home:'e',exits:{e:'valdor'},count:30,chests:8},
- pantano:{n:'Pântano Sombrio',s:'Nível 9 a 16',theme:2,seed:303,color:'#23352c',lv:[9,16],home:'w',exits:{w:'valdor',e:'ruinas'},count:28,chests:7},
- ruinas:{n:'Ruínas Esquecidas',s:'Nível 16 a 20',theme:3,seed:404,color:'#5a4a30',lv:[16,20],home:'w',exits:{w:'pantano',n:'covil'},count:26,chests:7},
- covil:{n:'Covil do Wyrm',s:'Chefe • nível 22',theme:4,seed:505,color:'#4a1a14',lv:[22,22],home:'s',exits:{s:'ruinas'},boss:'wyrm',lair:1,chests:0},
- estrada:{n:'Estrada do Sul',s:'Nível 2 a 6',theme:1,seed:606,color:'#2f5a2a',lv:[2,6],home:'n',exits:{n:'valdor',s:'pinheiral'},count:18,chests:4,tier:1,mons:[['slime',.45],['esquilo',.8],['esporinho',1]]},
- pinheiral:{n:'Aldeia de Pinheiral',s:'Zona segura • mercador, mentora e fonte de cura',town:1,theme:6,seed:707,color:'#23402f',lanterns:1,houses:[[TC.x-7,TC.y+4,'house3'],[TC.x+6,TC.y+4,'house4'],[TC.x-7,TC.y-3,'house4'],[TC.x+6,TC.y-3,'house3']],exits:{n:'estrada',e:'encosta1'}},
- encosta1:{n:'Encosta de Pinheiral 01',s:'Nível 1 a 5',theme:5,seed:811,color:'#23402f',plateau:.62,lv:[1,5],home:'w',exits:{w:'pinheiral',e:'encosta2'},count:26,chests:6,tier:1,mons:[['slime',.35],['esporinho',.7],['esquilo',1]]},
- encosta2:{n:'Encosta de Pinheiral 02',s:'Nível 5 a 9',theme:5,seed:812,color:'#23402f',plateau:.62,lv:[5,9],home:'w',exits:{w:'encosta1',n:'encosta3'},count:26,chests:6,tier:1,mons:[['lobo',.35],['verme',.7],['esporov',1]]},
- encosta3:{n:'Encosta de Pinheiral 03',s:'Nível 9 a 13',theme:5,seed:813,color:'#23402f',plateau:.62,lv:[9,13],home:'s',exits:{s:'encosta2',e:'encosta4'},count:26,chests:6,tier:2,mons:[['salgueiro',.35],['guaxinim',.65],['jiboia',1]]},
- encosta4:{n:'Encosta de Pinheiral 04',s:'Nível 13 a 16',theme:5,seed:814,color:'#23402f',plateau:.62,lv:[13,16],home:'w',exits:{w:'encosta3',e:'encosta5'},count:26,chests:6,tier:2,mons:[['salgueiroA',.35],['pegrande',.65],['lanterna',1]]},
- encosta5:{n:'Encosta de Pinheiral 05',s:'Nível 16 a 19',theme:5,seed:815,color:'#23402f',plateau:.62,lv:[16,19],home:'w',exits:{w:'encosta4',n:'encosta6'},count:26,chests:6,tier:3,mons:[['duende',.4],['totem',.6],['pegrande',1]]},
- encosta6:{n:'Encosta de Pinheiral 06',s:'Nível 19 a 22',theme:5,seed:816,color:'#23402f',plateau:.62,lv:[19,22],home:'s',exits:{s:'encosta5',e:'encosta7'},count:26,chests:6,tier:3,mons:[['salgueiroA',.2],['pegrande',.4],['lanterna',.6],['duende',.8],['totem',1]],elite:.15},
- encosta7:{n:'Encosta de Pinheiral 07',s:'Nível 22 a 26',theme:5,seed:817,color:'#23402f',plateau:.62,lv:[22,26],home:'w',exits:{w:'encosta6'},count:26,chests:6,tier:3,mons:[['raposa',.45],['duende',.75],['totem',1]],elite:.1}};
-const EDGE={w:[1,H>>1],e:[W-2,H>>1],n:[W>>1,1],s:[W>>1,H-2]},INW={w:[1,0],e:[-1,0],n:[0,1],s:[0,-1]};
-const portalPt=s=>({x:(EDGE[s][0]+.5)*TILE,y:(EDGE[s][1]+.5)*TILE});
-function lvlAt(tx,ty){const M=MAPS[CUR];if(!M.lv)return 1;if(M.lv[0]===M.lv[1])return M.lv[0];const h=EDGE[M.home||'w'];return Math.round(M.lv[0]+(M.lv[1]-M.lv[0])*clamp(hyp(tx-h[0],ty-h[1])/(hyp(W,H)*.75),0,1));}
+ // portals: {destino: [tx, ty, noPlatô?]} • road: estrada até cada portal • home: portal de onde o nível cresce
+ valdor:{n:'Vila de Valdor',s:'Zona segura • mercador, mentora e fonte de cura',town:1,road:1,theme:0,seed:101,color:'#3a5a2a',portals:{floresta:[1,20],pantano:[78,42],estrada:[48,58]}},
+ floresta:{n:'Floresta Verdejante',s:'Nível 1 a 9',theme:1,seed:202,color:'#2f5a2a',lv:[1,9],home:'valdor',portals:{valdor:[78,20]},count:30,chests:8},
+ pantano:{n:'Pântano Sombrio',s:'Nível 9 a 16',theme:2,seed:303,color:'#23352c',lv:[9,16],home:'valdor',portals:{valdor:[1,42],ruinas:[78,12]},count:28,chests:7},
+ ruinas:{n:'Ruínas Esquecidas',s:'Nível 16 a 20',theme:3,seed:404,color:'#5a4a30',lv:[16,20],home:'pantano',portals:{pantano:[1,12],covil:[58,8]},count:26,chests:7},
+ covil:{n:'Covil do Wyrm',s:'Chefe • nível 22',theme:4,seed:505,color:'#4a1a14',lv:[22,22],home:'ruinas',portals:{ruinas:[24,56]},boss:'wyrm',lair:1,chests:0},
+ estrada:{n:'Estrada do Sul',s:'Nível 2 a 6',road:1,theme:1,seed:606,color:'#2f5a2a',lv:[2,6],home:'valdor',portals:{valdor:[48,1],pinheiral:[32,58]},count:18,chests:4,tier:1,mons:[['slime',.45],['esquilo',.8],['esporinho',1]]},
+ pinheiral:{n:'Aldeia de Pinheiral',s:'Zona segura • mercador, mentora e fonte de cura',town:1,road:1,theme:6,seed:707,color:'#23402f',lanterns:1,houses:[[TC.x-7,TC.y+4,'house3'],[TC.x+6,TC.y+4,'house4'],[TC.x-7,TC.y-3,'house4'],[TC.x+6,TC.y-3,'house3']],portals:{estrada:[32,1],encosta1:[78,38]}},
+ encosta1:{n:'Encosta de Pinheiral 01',s:'Nível 1 a 5',road:1,theme:5,seed:811,color:'#23402f',plateau:.62,lv:[1,5],home:'pinheiral',portals:{pinheiral:[1,38],encosta2:[78,24]},count:26,chests:6,tier:1,mons:[['slime',.35],['esporinho',.7],['esquilo',1]]},
+ encosta2:{n:'Encosta de Pinheiral 02',s:'Nível 5 a 9',theme:5,seed:812,color:'#23402f',plateau:.62,lv:[5,9],home:'encosta1',portals:{encosta1:[1,24],encosta3:[40,9,1]},count:26,chests:6,tier:1,mons:[['lobo',.35],['verme',.7],['esporov',1]]},
+ encosta3:{n:'Encosta de Pinheiral 03',s:'Nível 9 a 13',theme:5,seed:813,color:'#23402f',plateau:.62,lv:[9,13],home:'encosta2',portals:{encosta2:[40,58],encosta4:[78,30]},count:26,chests:6,tier:2,mons:[['salgueiro',.35],['guaxinim',.65],['jiboia',1]]},
+ encosta4:{n:'Encosta de Pinheiral 04',s:'Nível 13 a 16',theme:5,seed:814,color:'#23402f',plateau:.62,lv:[13,16],home:'encosta3',portals:{encosta3:[1,30],encosta5:[78,46]},count:26,chests:6,tier:2,mons:[['salgueiroA',.35],['pegrande',.65],['lanterna',1]]},
+ encosta5:{n:'Encosta de Pinheiral 05',s:'Nível 16 a 19',theme:5,seed:815,color:'#23402f',plateau:.62,lv:[16,19],home:'encosta4',portals:{encosta4:[1,46],encosta6:[56,9,1]},count:26,chests:6,tier:3,mons:[['duende',.4],['totem',.6],['pegrande',1]]},
+ encosta6:{n:'Encosta de Pinheiral 06',s:'Nível 19 a 22',theme:5,seed:816,color:'#23402f',plateau:.62,lv:[19,22],home:'encosta5',portals:{encosta5:[56,58],encosta7:[78,16]},count:26,chests:6,tier:3,mons:[['salgueiroA',.2],['pegrande',.4],['lanterna',.6],['duende',.8],['totem',1]],elite:.15},
+ encosta7:{n:'Encosta de Pinheiral 07',s:'Nível 22 a 26',theme:5,seed:817,color:'#23402f',plateau:.62,lv:[22,26],home:'encosta6',portals:{encosta6:[1,16]},count:26,chests:6,tier:3,mons:[['raposa',.45],['duende',.75],['totem',1]],elite:.1}};
+const homeOf=M=>M.portals[M.home]||Object.values(M.portals)[0];
+const portalPt=to=>{const p=MAPS[CUR].portals[to];return{x:(p[0]+.5)*TILE,y:(p[1]+.5)*TILE};};
+function lvlAt(tx,ty){const M=MAPS[CUR];if(!M.lv)return 1;if(M.lv[0]===M.lv[1])return M.lv[0];const h=homeOf(M);return Math.round(M.lv[0]+(M.lv[1]-M.lv[0])*clamp(hyp(tx-h[0],ty-h[1])/(hyp(W,H)*.75),0,1));}
 const REACH=new Uint8Array(W*H);
-function computeReach(M){REACH.fill(0);const E=EDGE[Object.keys(M.exits)[0]],q=[E[1]*W+E[0]];REACH[q[0]]=1;
+function computeReach(M){REACH.fill(0);const E=homeOf(M),q=[E[1]*W+E[0]];REACH[q[0]]=1;
  while(q.length){const i=q.pop(),x=i%W,y=(i/W)|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,j=Y*W+X;if(X<0||Y<0||X>=W||Y>=H||REACH[j]||solid[j])continue;REACH[j]=1;q.push(j);}}}
-function fixReach(M){const E=EDGE[Object.keys(M.exits)[0]];
+// tile livre e alcançável mais perto de (tx,ty); com hi definido, prefere o mesmo nível (em cima ou embaixo do platô)
+function freeNear(tx,ty,hi){for(const same of hi==null?[0]:[1,0])for(let r=0;r<12;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(Math.max(Math.abs(dx),Math.abs(dy))!==r)continue;
+  const X=tx+dx,Y=ty+dy,j=Y*W+X;if(X<1||Y<1||X>=W-1||Y>=H-1||solid[j]||!REACH[j])continue;if(same&&(ground[j]===G.HIGH)!==hi)continue;return{x:(X+.5)*TILE,y:(Y+.5)*TILE};}
+ return{x:(TC.x+.5)*TILE,y:(TC.y+.5)*TILE};}
+// sem estrada, um portal pode ficar cercado: abre a brecha mais barata (árvore/pedra < água/paredão) até a área alcançável
+function linkReach(M){if(M.town)return;
+ const cost=j=>!solid[j]?0:(ground[j]===G.WATER||ground[j]===G.CLIFF)?3:1;
+ let mid=TC.y*W+TC.x;for(let r=0;solid[mid]&&r<20;r++)for(let dy=-r;dy<=r&&solid[mid];dy++)for(let dx=-r;dx<=r;dx++){const j=(TC.y+dy)*W+TC.x+dx;if(!solid[j]){mid=j;break;}}
+ for(const s of[...Object.values(M.portals).map(p=>p[1]*W+p[0]),mid]){if(REACH[s])continue;
+  const dist=new Int32Array(W*H).fill(1e9),prev=new Int32Array(W*H).fill(-1),B=[[s]];dist[s]=0;let end=-1;
+  for(let d=0;d<B.length&&end<0;d++){const b=B[d];if(!b)continue;for(const i of b){if(dist[i]!==d)continue;if(REACH[i]){end=i;break;}
+    const x=i%W,y=(i/W)|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(X<1||Y<1||X>=W-1||Y>=H-1)continue;const j=Y*W+X,nd=d+cost(j);if(nd<dist[j]){dist[j]=nd;prev[j]=i;(B[nd]||(B[nd]=[])).push(j);}}}}
+  for(let i=end;i>=0;i=prev[i]){if(!solid[i])continue;const x=i%W,y=(i/W)|0,r=objRows[y];
+   if(ground[i]===G.WATER)ground[i]=G.GRASS;else if(ground[i]===G.CLIFF)ground[i]=G.RAMP;
+   for(let k=r.length-1;k>=0;k--)if(r[k].tx===x)r.splice(k,1);solid[i]=0;}
+  computeReach(M);}}
+function fixReach(M){const E=homeOf(M);
  for(let it=0;it<60;it++){const seen=new Uint8Array(W*H),q=[E[1]*W+E[0]];seen[q[0]]=1;
   while(q.length){const i=q.pop(),x=i%W,y=(i/W)|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,j=Y*W+X;if(X<0||Y<0||X>=W||Y>=H||seen[j]||solid[j])continue;seen[j]=1;q.push(j);}}
   let fixed=false;
@@ -131,14 +148,19 @@ function fixReach(M){const E=EDGE[Object.keys(M.exits)[0]];
   if(!fixed)break;}}
 function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const n1=makeNoise(rng,10),n2=makeNoise(rng,5),nf=makeNoise(rng,3);
  ground.fill(0);solid.fill(0);zoneMap.fill(z);for(const r of objRows)r.length=0;
- const road=new Uint8Array(W*H),amp=M.town?0:4;
- const paint=(x,y)=>{for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){const X=x+i,Y=y+j;if(X>0&&Y>0&&X<W-1&&Y<H-1)road[Y*W+X]=1;}};
+ const road=new Uint8Array(W*H),amp=M.town?1.5:4;
+ const paint=(x,y,w=1)=>{for(let j=-w;j<=w;j++)for(let i=-w;i<=w;i++){const X=x+i,Y=y+j;if(X>0&&Y>0&&X<W-1&&Y<H-1)road[Y*W+X]=1;}};
  const carve=(x1,y1,wob)=>{const x0=TC.x,y0=TC.y,L=hyp(x1-x0,y1-y0)||1,st=Math.ceil(L*2),nx=-(y1-y0)/L,ny=(x1-x0)/L;for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2.5+wob)*amp*Math.sin(t*Math.PI);paint(Math.round(x0+(x1-x0)*t+nx*off),Math.round(y0+(y1-y0)*t+ny*off));}};
- for(const s in M.exits)carve(EDGE[s][0],EDGE[s][1],rng()*6);
- const ex=Object.keys(M.exits).map(s=>EDGE[s]),nearP=(x,y)=>ex.some(e=>hyp(x-e[0],y-e[1])<2.6);
+ // quando o mapa vizinho tem estrada, ela ainda entra alguns passos por este portal e some no mato
+ const stub=(x1,y1,wob)=>{const L0=hyp(TC.x-x1,TC.y-y1)||1,dx=(TC.x-x1)/L0,dy=(TC.y-y1)/L0,L=9;
+  for(let s=0;s<=L*2;s++){const t=s/2,off=Math.sin(t*.7+wob)*1.2*t/L,X=Math.round(x1+dx*t-dy*off),Y=Math.round(y1+dy*t+dx*off);if(t<4)paint(X,Y);else if(rng()<1-(t-4)/(L-4))paint(X,Y,0);}};
+ for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(M.road)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);}
+ const ex=Object.values(M.portals),nearP=(x,y)=>ex.some(e=>hyp(x-e[0],y-e[1])<2.6);
+ const CAV=M.cave?caveMask(M,rng):null; // cavernas: salões e corredores cavados na rocha (11-caverna.js)
  let HI=null,CLF=null,CLR=null;
  if(M.plateau){const np=makeNoise(rng,7);HI=new Uint8Array(W*H);CLF=new Uint8Array(W*H);CLR=new Uint8Array(W*H);
   for(let y=5;y<H-5;y++)for(let x=5;x<W-5;x++){const i=y*W+x;if(!road[i]&&!nearP(x,y)&&hyp(x-TC.x,y-TC.y)>4&&np(x,y)>M.plateau)HI[i]=1;}
+  for(const p of ex)if(p[2])for(let y=p[1]-5;y<=p[1]+5;y++)for(let x=p[0]-5;x<=p[0]+5;x++)if(x>=5&&y>=5&&x<W-5&&y<H-5&&hyp(x-p[0],(y-p[1])*1.2)<4.6)HI[y*W+x]=1;
   const hi=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&HI[y*W+x];
   for(let i=0;i<W*H;i++)if(HI[i]){const x=i%W,y=(i/W)|0;if(!hi(x+1,y)||!hi(x-1,y)||!hi(x,y+1)||!hi(x,y-1))CLF[i]=1;}
   const seen=new Uint8Array(W*H);
@@ -151,21 +173,23 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
     for(const[dx,dy]of[[0,1],[0,2],[-1,1],[1,1]]){const X=x+dx,Y=y+dy;if(X>0&&Y>0&&X<W&&Y<H&&!HI[Y*W+X])CLR[Y*W+X]=1;}
     if(hi(x,y-1)&&CLF[(y-1)*W+x]===1)CLF[(y-1)*W+x]=2;}}}
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng();let g=G.GRASS,obj=null;
-  if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05)obj='tree';}
+  if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
+  else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
   else if(M.town){const d=hyp(x-TC.x,(y-TC.y)*1.3);g=d<6.5?G.PLAZA:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&c<.04)obj='tree';}
-  else if(road[i]||nearP(x,y))g=G.PATH;
+  else if(road[i])g=G.PATH;
+  else if(nearP(x,y)){}
   else if(CLR&&CLR[i]){}
   else if(M.lair){const d=hyp(x-TC.x,y-TC.y);if(d>10&&d<12.5&&c<.45)obj=c<.3?'pillar':'pillar2';else if(d>14&&c<.1)obj=c<.05?'rock':'tree';}
   else if(z===1){if(a>.72)g=G.WATER;else if((b>.58&&c<.55)||c<.035)obj='tree';else if(c<.045)obj='rock';}
   else if(z===2){if(a>.62)g=G.WATER;else if((b>.6&&c<.45)||c<.03)obj=rng()<.35?'dead':'tree';else if(c<.04)obj='rock';}
   else{if(a>.78)g=G.WATER;else if(b>.62&&c<.35)obj='tree';else if(c<.03)obj=rng()<.5?'pillar':'pillar2';else if(c<.05)obj='rock';}
-  if((x<2||y<2||x>=W-2||y>=H-2)&&!nearP(x,y)){obj='tree';g=G.GRASS;}
+  if(!CAV&&(x<2||y<2||x>=W-2||y>=H-2)&&!nearP(x,y)){obj='tree';g=G.GRASS;}
   ground[i]=g;if(g===G.WATER||g===G.CLIFF)solid[i]=1;
   if(obj){solid[i]=1;addObj(x,y,obj==='tree'?`tree${z}_${Math.floor(rng()*4)}`:obj);}}
  if(M.town){(M.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).forEach(([hx,hy,s])=>{for(const[dx,dy]of[[0,0],[1,0],[0,-1],[1,-1]])solid[(hy+dy)*W+hx+dx]=1;addObj(hx,hy,s,true);});
   solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}}
  if(M.plateau)fixReach(M);
- computeReach(M);
+ computeReach(M);linkReach(M);
  // pintura dos pixels
  const mx=mapC.getContext('2d'),img=mx.createImageData(MW,MH),D=img.data;
  const put=(X,Y,c)=>{const o=(Y*MW+X)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2];D[o+3]=255;};
@@ -176,9 +200,10 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
    else if(g===G.HIGH){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.5?gp[3]:gp[1];if(rng()<.06)col=gp[2];}
-   else if(g===G.CLIFF){const gb=ty+1<H?ground[(ty+1)*W+tx]:0,sb=gb!==G.HIGH&&gb!==G.CLIFF&&gb!==G.RAMP;
-    if(sb&&py>=4){col=(px%5===0||rng()<.08)?CLF_C[1]:CLF_C[0];if(py>=14)col=CLF_C[2];}else{col=rng()<.15?CLF_C[3]:CLF_C[4];if(sb&&py>=3)col=CLF_C[3];}}
-   else if(g===G.RAMP){col=(py%4<2)?CLF_C[4]:CLF_C[1];if(px<2||px>13)col=CLF_C[0];}
+   else if(g===G.CLIFF){const gb=ty+1<H?ground[(ty+1)*W+tx]:0,sb=gb!==G.HIGH&&gb!==G.CLIFF&&gb!==G.RAMP,cc=CLFT[z]||CLF_C;
+    if(CAV&&!sb&&deepRock(tx,ty))col=rng()<.1?cc[5]:cc[6];
+    else if(sb&&py>=4){col=(px%5===0||rng()<.08)?cc[1]:cc[0];if(py>=14)col=cc[2];}else{col=rng()<.15?cc[3]:cc[4];if(sb&&py>=3)col=cc[3];}}
+   else if(g===G.RAMP){const cc=CLFT[z]||CLF_C;col=(py%4<2)?cc[4]:cc[1];if(px<2||px>13)col=cc[0];}
    else if(g===G.PLAZA){const row=Math.floor(Y/5),mort=Y%5===0||(X+(row%2)*4)%9===0;col=mort?PLZ[1]:(rng()<.1?PLZ[2]:PLZ[0]);const e=edge(tx,ty,px,py,g);if(e<2&&rng()<.5)col=gp[0];}
    else{const w=WCr[z];col=w[0];if(((X+Y*3)>>2)%9===0&&rng()<.35)col=w[1];const e=edge(tx,ty,px,py,g);if(e<1)col=w[2];else if(e<3&&rng()<.5)col=w[1];}
    put(X,Y,col);}}
@@ -188,12 +213,13 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   if(g===G.GRASS&&(z<=1)){if(r<.05){const fc=pick(['#ffd84a','#ff6b8a','#ffffff','#b98cff']);const ox=X+ri(3,11),oy=Y+ri(3,11);mx.fillStyle=fc;mx.fillRect(ox-1,oy,3,1);mx.fillRect(ox,oy-1,1,3);mx.fillStyle='#ffe98a';mx.fillRect(ox,oy,1,1);}
    else if(r<.2){mx.fillStyle='#3a7a34';const ox=X+ri(2,12),oy=Y+ri(4,13);mx.fillRect(ox,oy,1,2);mx.fillRect(ox+2,oy,1,2);mx.fillRect(ox+1,oy-1,1,3);}}
   else if(g===G.GRASS&&z===2&&r<.05){const ox=X+ri(4,10),oy=Y+ri(5,11);mx.fillStyle='#e8e0d0';mx.fillRect(ox+1,oy+2,2,2);mx.fillStyle='#c0303a';mx.fillRect(ox,oy,4,2);mx.fillStyle='#fff';mx.fillRect(ox+1,oy,1,1);}
-  else if(g===G.GRASS&&z>=5&&r<.08){if(r<.03){mx.fillStyle='#8a8a86';const ox=X+ri(3,11),oy=Y+ri(5,12);mx.fillRect(ox,oy,3,2);mx.fillStyle='#b0b0aa';mx.fillRect(ox,oy,2,1);}else{mx.fillStyle='#2f6a36';const ox=X+ri(2,12),oy=Y+ri(4,13);mx.fillRect(ox,oy,1,2);mx.fillRect(ox+2,oy,1,2);mx.fillRect(ox+1,oy-1,1,3);}}
+  else if(g===G.GRASS&&z===7&&r<.06){const ox=X+ri(3,11),oy=Y+ri(4,12);if(r<.02){mx.fillStyle='#d8d0bc';mx.fillRect(ox,oy,4,1);mx.fillRect(ox,oy-1,1,3);mx.fillRect(ox+3,oy-1,1,3);}else{mx.fillStyle='#6a5d52';mx.fillRect(ox,oy,2,1);mx.fillStyle='#2a2320';mx.fillRect(ox,oy+1,2,1);}}
+  else if(g===G.GRASS&&z>=5&&z<=6&&r<.08){if(r<.03){mx.fillStyle='#8a8a86';const ox=X+ri(3,11),oy=Y+ri(5,12);mx.fillRect(ox,oy,3,2);mx.fillStyle='#b0b0aa';mx.fillRect(ox,oy,2,1);}else{mx.fillStyle='#2f6a36';const ox=X+ri(2,12),oy=Y+ri(4,13);mx.fillRect(ox,oy,1,2);mx.fillRect(ox+2,oy,1,2);mx.fillRect(ox+1,oy-1,1,3);}}
   else if(g===G.GRASS&&z>=3&&z<=4&&r<.04){mx.fillStyle='#ddd6c0';const ox=X+ri(3,11),oy=Y+ri(4,12);mx.fillRect(ox,oy,4,1);mx.fillRect(ox,oy-1,1,3);mx.fillRect(ox+3,oy-1,1,3);}
  }
  // minimapa base
  const mc=miniBase.getContext('2d'),mi=mc.createImageData(W,H);
- for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?CLF_C[1]:g===G.RAMP?CLF_C[4]:g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}
+ for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?(CAV?[14,11,10]:CLF_C[1]):g===G.RAMP?CLF_C[4]:g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}
  mc.putImageData(mi,0,0);
 }
 genWorld('valdor');
