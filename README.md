@@ -51,7 +51,7 @@ Os scripts são carregados **em ordem** pelo `index.html` e compartilham o mesmo
 | `js/11-caverna.js` | Caverna de Pinheiral: andares em corredores e escuridão |
 | `js/12-inventario.js` | Bolsa em abas, peso e materiais deixados pelos monstros |
 | `js/13-guilda.js` | Interiores, a Guilda de Valdor e o mural de missões |
-| `js/14-valdor.js` | Vila de Valdor: muralha, portões com torres, bancas e poço |
+| `js/14-valdor.js` | Muralhas (pedra ou paliçada), bancas e poço de Valdor, cabanas de Pinheiral |
 | `js/99-interface-e-inicio.js` | Renderização, interface, controles e inicialização (sempre por último) |
 | `tests/` | Teste de fumaça: abra `tests/smoke.html` para conferir se tudo carrega e funciona |
 
@@ -75,6 +75,7 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 - [ ] Cartas de monstros para encaixar nos equipamentos
 - [x] Guildas em Valdor e Pinheiral, com interior e mural de missões (traga materiais, ganhe ouro e XP)
 - [x] Vila de Valdor com muralha, portões com torres, bancas de mercado e poço
-- [x] Casa da Mestra Elara e ferreiro com refinamento até +10 em Valdor
+- [x] Casa da Mestra Elara e ferreiro com refinamento até +10, em toda cidade principal
+- [x] Estilo próprio de cada cidade: Valdor de pedra, Pinheiral com cabanas de toras e paliçada
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas

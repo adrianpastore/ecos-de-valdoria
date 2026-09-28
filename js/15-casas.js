@@ -2,9 +2,12 @@
 'use strict';
 // ================== SPRITES ==================
 // casa com placa: o símbolo na placa diz o que tem lá dentro (o nome só aparece com o mouse)
-function signHouse(roof,roofD,board,sym){const g=genHouse(roof,roofD),x=g.getContext('2d'),f=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h);};
+// base: genHouse (casa de Valdor) ou genCabin (cabana rústica, em 13); o símbolo da placa é o mesmo em todas as cidades
+function signHouse(roof,roofD,board,sym,base=genHouse){const g=base(roof,roofD),x=g.getContext('2d'),f=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h);};
  f(K,10,14,12,7);f(board,11,15,10,5);f('#00000033',11,19,10,1);sym(f);return g;}
-reg('casaElara',signHouse('#6a8a3a','#4a6a24','#5a3a7a',f=>{f('#ffe070',15,15,2,5);f('#ffe070',13,17,6,1);f('#ffe070',14,16,4,3);f('#fff8c0',15,17,2,1);}));
+const SYM_ESTRELA=f=>{f('#ffe070',15,15,2,5);f('#ffe070',13,17,6,1);f('#ffe070',14,16,4,3);f('#fff8c0',15,17,2,1);};
+const SYM_BIGORNA=f=>{f('#c8c8d0',12,16,8,2);f('#e8e8f0',12,16,8,1);f('#c8c8d0',14,18,4,1);f('#9a98a0',13,19,6,1);f('#4a3222',19,15,1,3);f('#9a98a0',18,15,3,1);};
+reg('casaElara',signHouse('#6a8a3a','#4a6a24','#5a3a7a',SYM_ESTRELA));reg('casaElaraR',signHouse('#5a7a3a','#3e5a28','#5a3a7a',SYM_ESTRELA,genCabin));
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
  // estante de livros e a mesa com bola de cristal da Elara
  reg('estante',box(16,26,f=>{f(K,1,0,14,26);f('#6a4222',2,1,12,24);for(const y of[2,9,16]){f('#3a2414',3,y,10,6);
@@ -20,30 +23,19 @@ function houseInterior({id,city,at,sprite,name,room,deco,seed,extra}){const C=MA
  C.portals[id]=[hx+.5,hy+1,'porta'];
  MAPS[id]=Object.assign({n:name,s:'',interior:1,city,theme:8,seed,color:'#2a1c12',home:city,room,portals:{[city]:[TC.x,TC.y+(room[1]>>1),'porta']},deco},extra);}
 
-// A Mestra Elara atende na casa verde, à esquerda da praça de Valdor (em Pinheiral ela continua na praça).
-// mentorAt: onde a Elara fica neste mapa; null = não fica aqui (08 usa isso ao trocar de mapa).
-houseInterior({id:'casaElara',city:'valdor',at:[TC.x-7,TC.y-3],sprite:'casaElara',name:'Casa da Mestra Elara',room:[12,8],seed:1011,
- deco:[[TC.x-5,TC.y-4,'estante'],[TC.x-4,TC.y-4,'estante'],[TC.x+3,TC.y-4,'estante'],[TC.x+4,TC.y-4,'estante'],[TC.x-1,TC.y-4,'mesaCristal',1]],
- extra:{s:'Mentora de todas as classes',mentorAt:[TC.x,TC.y-2]}});
-MAPS.valdor.mentorAt=null;
-// o mapa inicial (Valdor) não passa por switchMapNow num herói novo: tira a Elara da praça já no carregamento
-if(MAPS[CUR].mentorAt===null){MENTOR.x=-9999;MENTOR.y=-9999;}
 
 // ================== FERREIRO (REFINAMENTO) ==================
 // A casa azul, embaixo à direita da praça de Valdor, com bigorna na placa. Regras aprovadas pelo dono (28/09/2026):
 // arma usa Minério Bruto (Zumbi Mineiro); armaduras e acessórios usam Núcleo de Pedra (Golem). 1 material + ouro por tentativa.
 // Ouro: 100 no +1 e dobra a cada nível. +1 a +5 sempre dão certo; +6..+10: 60/55/50/40/35%. Na falha, 50% de o item quebrar.
 // Cada + dá +5% nos atributos do item (com pelo menos +1 a cada 2 níveis, para atributos pequenos) e o nome mostra o nível.
-reg('ferraria',signHouse('#3a6ab8','#244a8a','#8a5a30',f=>{f('#c8c8d0',12,16,8,2);f('#e8e8f0',12,16,8,1);f('#c8c8d0',14,18,4,1);f('#9a98a0',13,19,6,1);f('#4a3222',19,15,1,3);f('#9a98a0',18,15,3,1);}));
+reg('ferraria',signHouse('#3a6ab8','#244a8a','#8a5a30',SYM_BIGORNA));reg('ferrariaR',signHouse('#4a5a6a','#323e4a','#8a5a30',SYM_BIGORNA,genCabin));
 def('ferreiro',["......kkkk......",".....kHHHHk.....","....kssssssk....","....kseSSesk....","....kBBBBBBk....",".....kBBBBk.....","..kkssAAAAsskk..",".ksskAAAAAAksk..",".ksskAAgAAAksww.","..kkkAAAAAAkkww.","....kAAAAAAk.y..","....kPPPPPPk.y..","....kPPkkPPk....","....kPPk.kPPk...","....kbbk.kbbk...","....kkk..kkk...."],
  {H:'#b8423a',s:'#e0a878',e:K,S:'#c8906c',B:'#8a4a22',A:'#5a3a22',g:'#e8b43c',w:'#8d8a86',y:'#6a4526',P:'#3a3552',b:'#4a3222'});
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
  reg('bigorna',box(16,12,f=>{f(K,0,1,16,4);f('#6d6a70',1,2,14,2);f('#9a98a0',1,2,14,1);f(K,5,5,6,3);f('#5d5a60',6,5,4,3);f(K,3,8,10,4);f('#4d4a50',4,9,8,2);}));
  reg('forja',box(32,28,f=>{f(K,11,0,10,7);f('#6d685c',12,1,8,6);f(K,1,6,30,22);f('#8d8778',2,7,28,20);f('#6d685c',2,11,28,1);f('#6d685c',2,23,28,1);
   f(K,8,12,16,10);f('#3a1a0a',9,13,14,8);f('#ff6a1a',10,16,12,5);f('#ffd24a',12,17,8,3);f('#fff3b0',14,18,4,1);f('#5d584c',2,26,28,1);}));}
-houseInterior({id:'ferraria',city:'valdor',at:[TC.x+6,TC.y+4],sprite:'ferraria',name:'Ferreiro',room:[14,8],seed:1021,
- deco:[[TC.x-2,TC.y-2,'ferreiro'],[TC.x,TC.y-2,'bigorna'],[TC.x+2,TC.y-4,'forja',1],[TC.x-6,TC.y-4,'barril'],[TC.x+5,TC.y-4,'barril']],
- extra:{s:'Refinamento de equipamentos',smith:[TC.x-2,TC.y-2]}});
 const SMITH={x:-9999,y:-9999},REF_OK=[1,1,1,1,1,.6,.55,.5,.4,.35];
 const refCost=r=>100*2**r,refMat=it=>it.slot==='arma'?'zumbi':'golem';
 const refVal=(b,r)=>Math.max(b+Math.floor(r/2),Math.round(b*(1+.05*r)));
@@ -74,3 +66,22 @@ function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).fi
     `<div class="acts"><button class="btn sm gold" id="refBtn"${P.gold<refCost(r)||!have?' disabled':''}>Refinar</button></div>`;}
   h+='</div>';}
  B.innerHTML=h;B.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{smithSel=list[+b.dataset.i];renderSmith();});const rb=$('refBtn');if(rb)rb.onclick=()=>refine(smithSel);}
+
+// ================== SERVIÇOS PADRÃO DE CADA CIDADE PRINCIPAL ==================
+// Regra do dono (28/09/2026): toda cidade principal tem o Mercador Bento (na praça), a Guilda (13, guildHall),
+// a casa da Mestra Elara (placa com estrela, à esquerda da praça) e o ferreiro (placa com bigorna, embaixo à direita).
+// Mesmos lugares e mesmos símbolos em todas, para o jogador reconhecer de longe.
+// Cidade nova: town:1 no MAPS, guildHall(...) no 13, cityHouses(...) aqui e missões com o seu city.
+// mentorAt: onde a Elara fica em cada mapa; null = não fica ali (08 usa isso ao trocar de mapa).
+function cityHouses(city,sfx,seed,rustico){const R_=rustico?'R':''; // rustico: cabanas (vilas florestais)
+ houseInterior({id:'casaElara'+sfx,city,at:[TC.x-7,TC.y-3],sprite:'casaElara'+R_,name:'Casa da Mestra Elara',room:[12,8],seed,
+  deco:[[TC.x-5,TC.y-4,'estante'],[TC.x-4,TC.y-4,'estante'],[TC.x+3,TC.y-4,'estante'],[TC.x+4,TC.y-4,'estante'],[TC.x-1,TC.y-4,'mesaCristal',1]],
+  extra:{s:'Mentora de todas as classes',mentorAt:[TC.x,TC.y-2]}});
+ houseInterior({id:'ferraria'+sfx,city,at:[TC.x+6,TC.y+4],sprite:'ferraria'+R_,name:'Ferreiro',room:[14,8],seed:seed+10,
+  deco:[[TC.x-2,TC.y-2,'ferreiro'],[TC.x,TC.y-2,'bigorna'],[TC.x+2,TC.y-4,'forja',1],[TC.x-6,TC.y-4,'barril'],[TC.x+5,TC.y-4,'barril']],
+  extra:{s:'Refinamento de equipamentos',smith:[TC.x-2,TC.y-2]}});
+ MAPS[city].mentorAt=null;}
+cityHouses('valdor','',1011); // Valdor sem sufixo: saves já podem estar nos mapas 'casaElara' e 'ferraria'
+cityHouses('pinheiral','Pinheiral',1031,true);
+// o mapa inicial (Valdor) não passa por switchMapNow num herói novo: tira a Elara da praça já no carregamento
+if(MAPS[CUR].mentorAt===null){MENTOR.x=-9999;MENTOR.y=-9999;}

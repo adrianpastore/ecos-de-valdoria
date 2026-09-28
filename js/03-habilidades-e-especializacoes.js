@@ -152,7 +152,7 @@ let nascs=[];
 function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.lvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false};
  if(spec==='druida'&&CUR==='floresta')placeNascs();banner('Prova: '+SPECS[spec].ap,T.t);log('Nova prova: '+T.t+'.','#ffe3a0');save();}
 function abandonTrial(){P.quest=null;nascs=[];save();log('Você abandonou a prova.','#cccccc');}
-function questCheck(){const q=P.quest;if(q&&!q.done&&q.prog>=q.goal){q.prog=q.goal;q.done=true;banner('Prova concluída!','Volte à Mestra Elara (em Valdor, na casa da estrela).');log('Prova concluída! Fale com a Mestra Elara.','#ffd24a');save();}}
+function questCheck(){const q=P.quest;if(q&&!q.done&&q.prog>=q.goal){q.prog=q.goal;q.done=true;banner('Prova concluída!','Volte à Mestra Elara, na casa com a estrela na placa.');log('Prova concluída! Fale com a Mestra Elara.','#ffd24a');save();}}
 function completeTrial(){const q=P.quest;if(!q||!q.done)return;P.spec=q.spec;P.promo=1;P.quest=null;nascs=[];recalc();
  banner(SPECS[P.spec].ap,'Um novo ramo se abriu na sua árvore de habilidades.');log(`Você agora é ${SPECS[P.spec].ap}! Abra a árvore (T) para gastar seus pontos.`,'#ffd24a');
  for(let i=0;i<30;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:1,max:1,color:SPECS[P.spec].cor,s:2});buildHotbar();save();}

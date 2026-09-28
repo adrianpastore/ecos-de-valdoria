@@ -28,10 +28,28 @@ function buildWalls(M,road){const[x0,y0,x1,y1]=M.walls,on=(x,y)=>(x===x0||x===x1
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!on(x,y)||gate(x,y))continue;const i=y*W+x,r=objRows[y];
   for(let k=r.length-1;k>=0;k--)if(r[k].tx===x)r.splice(k,1); // tira árvores que estavam no caminho do muro
   const corner=(x===x0||x===x1)&&(y===y0||y===y1),byGate=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>gate(x+dx,y+dy));
-  solid[i]=1;addObj(x,y,corner||byGate?'torre':y===y0||y===y1?'muroH':'muroV');}}
+  const st=WALLSTY[M.wallStyle||'pedra'];solid[i]=1;addObj(x,y,corner||byGate?st.t:y===y0||y===y1?st.h:st.v);}}
+// estilos de muralha: pedra (Valdor) e madeira (paliçada de vilas florestais, como Pinheiral)
+const WALLSTY={pedra:{h:'muroH',v:'muroV',t:'torre'},madeira:{h:'paliH',v:'paliV',t:'torreM'}};
+{const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
+ const TR='#8a5a30',TRC='#a8743c',TRE='#5a3820';
+ // paliçada: toras de pé com pontas afiadas, amarradas por duas faixas
+ reg('paliH',box(16,22,f=>{for(const lx of[0,4,8,12]){f(K,lx,3,4,19);f(TR,lx+1,4,2,17);f(TRC,lx+1,4,1,17);f(K,lx+1,0,2,4);f(TRC,lx+1,1,1,3);}f(TRE,0,9,16,1);f(TRE,0,16,16,1);}));
+ reg('paliV',box(16,22,f=>{f(K,4,0,8,22);f(TR,5,1,6,20);f(TRC,5,1,2,20);f(TRE,5,6,6,1);f(TRE,5,13,6,1);}));
+ // torre de vigia de madeira sobre estacas, com telhado de palha e o estandarte verde de Pinheiral
+ reg('torreM',box(24,48,f=>{f('#4a3222',11,0,2,10);f(K,13,1,8,6);f('#2f6a4a',13,2,7,4);f('#e8b43c',15,3,2,2);
+  for(let y=4;y<14;y++){const hw=Math.min(12,y-2);f(K,12-hw-1,y,hw*2+2,1);f(y%2?'#a88a4a':'#8a6a2a',12-hw,y,hw*2,1);}
+  f(K,1,14,22,11);f(TR,2,15,20,9);f(TRE,2,18,20,1);f(TRE,2,21,20,1);f(K,9,16,6,5);f('#2a2016',10,17,4,3);
+  f(K,3,25,4,23);f(TRE,4,25,2,23);f(K,17,25,4,23);f(TRE,18,25,2,23);f(TRE,6,30,12,1);f(TRE,6,38,12,1);for(let i=0;i<10;i++){f(TRE,6+i,31+i*.7|0,1,1);f(TRE,17-i,31+i*.7|0,1,1);}}));}
 
 // ================== VALDOR ==================
 Object.assign(MAPS.valdor,{walls:[27,19,53,41],lanterns:1,deco:[[TC.x-4,TC.y-6,'banca',1],[TC.x+3,TC.y-6,'banca2',1],[TC.x-3,TC.y+7,'poco']]});
 // casas comuns, sem interior: só para a vila parecer habitada (telhados marrom e ardósia são novos)
 reg('house5',genHouse('#8a5a3a','#6a4226'));reg('house6',genHouse('#5a6a7a','#3e4a58'));
 MAPS.valdor.houses.push([29,21,'house5'],[50,21,'house6'],[39,21,'house3'],[29,39,'house4'],[50,39,'house5']);
+
+// ================== ALDEIA DE PINHEIRAL ==================
+// Vila florestal e menor: cabanas rústicas de toras (genCabin, em 13) e paliçada de madeira com torres de vigia.
+reg('cabana1',genCabin('#b8944a','#8a6a2a'));reg('cabana2',genCabin('#6a4a2a','#4a321a'));
+Object.assign(MAPS.pinheiral,{walls:[28,20,52,40],wallStyle:'madeira'});
+MAPS.pinheiral.houses=MAPS.pinheiral.houses.map(h=>/^house/.test(h[2])?[h[0],h[1],(h[0]+h[1])%2?'cabana1':'cabana2']:h).concat([[30,22,'cabana2'],[49,38,'cabana1']]);

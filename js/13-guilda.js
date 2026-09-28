@@ -12,10 +12,19 @@ function roomMask(M){const C=new Uint8Array(W*H),[w,h]=M.room,x0=TC.x-(w>>1),y0=
  for(const p of Object.values(M.portals))C[Math.round(p[1])*W+Math.round(p[0])]=1;return C;}
 
 // ================== SPRITES ==================
+// cabana rústica de toras (vilas florestais como Pinheiral): mesmo tamanho e porta da genHouse, para as placas caberem igual
+function genCabin(roof,roofD){const c=cnv(32,32),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
+ f(K,3,14,26,18);for(let y=15;y<31;y+=3){f('#7a4e2c',4,y,24,2);f('#5a3820',4,y+2,24,1);}
+ for(const lx of[2,28])for(let y=15;y<31;y+=3){f(K,lx,y,2,2);f('#b8844c',lx,y,1,1);}
+ f(K,12,21,8,11);f('#5a3820',13,22,6,10);f('#4a2e18',15,22,1,10);f('#e8b43c',17,26,1,1);
+ f(K,4,18,6,6);f('#ffd86a',5,19,4,4);f('#6a4222',7,19,1,4);f(K,22,18,6,6);f('#ffd86a',23,19,4,4);f('#6a4222',25,19,1,4);
+ f(K,21,0,5,8);f('#8d8778',22,1,3,7);
+ for(let y=0;y<15;y++){const hw=Math.min(15,2+y);f(K,16-hw-1,y+1,hw*2+2,1);f(y%2?roofD:roof,16-hw,y+1,hw*2,1);if(y%3===1)for(let i=16-hw+1;i<16+hw;i+=3)f(roofD,i,y+1,1,1);}
+ return c;}
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
- // a casa da Guilda: uma placa com espadas cruzadas sobre a porta; o telhado muda por cidade (Valdor roxo, Pinheiral verde-pinho)
- for(const[nm,roof,roofD]of[['guilda','#6a3a8a','#4a2468'],['guilda2','#2f6a4a','#1f4a34']]){
-  const g=genHouse(roof,roofD),x=g.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
+ // a casa da Guilda: uma placa com espadas cruzadas sobre a porta; o estilo muda por cidade (Valdor: casa de telhado roxo; Pinheiral: cabana verde-pinho)
+ for(const[nm,roof,roofD,base]of[['guilda','#6a3a8a','#4a2468',genHouse],['guilda2','#2f6a4a','#1f4a34',genCabin]]){
+  const g=base(roof,roofD),x=g.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
   f(K,10,14,12,7);f('#c8a060',11,15,10,5);f('#8a6a3a',11,19,10,1);
   for(let i=0;i<6;i++){f('#dfe6ef',13+i,15+i*.66|0,1,1);f('#dfe6ef',18-i,15+i*.66|0,1,1);}f('#e8b43c',15,19,2,1);
   reg(nm,g);}

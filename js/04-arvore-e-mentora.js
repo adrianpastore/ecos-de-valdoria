@@ -25,9 +25,9 @@ function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx
 function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!q);
- if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara (em Valdor, na casa da estrela).`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
+ if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara, na casa com a estrela na placa.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
  const f=ptsFree();$('treeBadge').textContent=f>0?f:'';
- if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log('A Mestra Elara quer falar com você sobre o seu futuro. Em Valdor, ela atende na casa com a estrela na placa.','#d9a0ff');}}
+ if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log('A Mestra Elara quer falar com você sobre o seu futuro. Ela atende na casa com a estrela na placa, em qualquer cidade.','#d9a0ff');}}
 
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;
