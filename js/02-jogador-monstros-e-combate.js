@@ -71,7 +71,7 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 const xpNeed=l=>Math.floor(50*Math.pow(l,1.6));
@@ -84,7 +84,7 @@ function gainJob(x){const cap=jobCap();if(P.jlvl>=cap){P.jxp=0;return false;}P.j
  if(P.jlvl>=cap){P.jxp=0;if(up)log(P.spec?'Você chegou ao nível máximo de Classe.':'Nível de Classe 10! A Mestra Elara quer falar com você.','#8fd0ff');}
  return up;}
 function gainXp(x){const jup=gainJob(x),lv0=P.lvl;P.xp+=x;while(P.xp>=xpNeed(P.lvl)&&P.lvl<50){P.xp-=xpNeed(P.lvl);P.lvl++;recalc();P.hp=P.st.hp;P.mp=P.st.mp;
- banner(`Nível ${P.lvl}!`,'Vida e mana restauradas.');log(`Você alcançou o nível ${P.lvl}!`,'#ffd24a');
+ banner(`Nível ${P.lvl}!`,`Vida e mana restauradas. +${attrGain(P.lvl)} pontos de atributo (P).`);log(`Você alcançou o nível ${P.lvl}!`,'#ffd24a');
  fx.push({k:'ring',x:P.x,y:P.y-4,r0:4,r1:50,t:0,max:.6,color:'#ffd24a',w:3});for(let i=0;i<40;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:rf(.6,1.2),max:1.2,color:pick(['#ffd24a','#fff3b0','#ffb020']),s:rf(1,2)});save();}
  if(jup&&P.lvl===lv0){banner(`Nível de Classe ${P.jlvl}!`,'Um ponto de habilidade para a árvore (T).');save();}}
 function hurtPlayer(atk,m,mult=1){if(P.dead)return;let d=Math.max(1,Math.round(atk*mult*rf(.9,1.1)*60/(60+P.st.def)));d=preHurt(d,m,mult);if(d<=0)return;P.hp-=d;onMonHit(m,d);P.hitT=.15;P.combatT=time;
@@ -100,7 +100,7 @@ function nearestMon(range){let b=null,bd=range;for(const m of mons){if(m.dead)co
 function killMonster(m,src){m.dead=true;if(m.d.clone){burst(m.x,m.y-12,'#c8c8c8',18,50);addText(m.x,m.y-26,'Falso!','#cccccc');if(P.target===m){P.target=null;P.auto=false;}return;}onKill(m,src);let xp=Math.round(m.d.xp*1.5*(1+.35*(m.lvl-1))*(m.elite?3:1));const diff=P.lvl-m.lvl;if(diff>5)xp=Math.max(1,Math.round(xp*Math.max(.1,1-(diff-5)*.2)));
  addText(m.x,m.y-mh(m)-12,'+'+xp+' XP','#d6a8ff');gainXp(xp);
  dropLoot(m.x,m.y,{kind:'gold',amt:Math.round(ri(2,5)*(1+m.lvl*.6)*(m.elite?3:1)*(m.boss?10:1))+(m.stolen||0)});dropMat(m);
- let n=0,b=0,min=0;if(m.boss){n=3;b=3;min=2;}else if(m.type==='mimico'){n=ri(2,3);b=m.lootBonus;}else if(m.elite){n=ri(1,2);b=1.2;}else if(R()<.2)n=1;
+ let n=0,b=0,min=0;if(m.boss){n=3;b=3;min=2;}else if(m.type==='mimico'){n=ri(2,3);b=m.lootBonus;}else if(m.elite){n=ri(1,2);b=1.2;}else if(R()<.2*luckMul())n=1;
  for(let i=0;i<n;i++)dropLoot(m.x,m.y,{kind:'item',item:genItem(m.lvl,b,null,min)});
  if(R()<(m.boss?1:.12))dropLoot(m.x,m.y,{kind:'pot',pot:R()<.6?'hp':'mp'});
  burst(m.x,m.y-mh(m)/2,m.type==='slime'?'#5fcf5a':m.type==='golem'?'#b8b2a4':'#c0303a',14,60);
@@ -136,7 +136,7 @@ function update(dt){time+=dt;const st=P.st;
  const z=zoneMap[Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE)];if(z!==P.zone)P.zone=z;
  if(!P.dead){const town=!!MAPS[CUR].town,ooc=time-P.combatT>6;
   const rg=town||wRatio()<=.5?dt:0; // acima de 50% do peso, sem regeneração natural
-  P.hp=Math.min(st.hp,P.hp+st.hp*(town?.1:ooc?.02:.004)*rg);P.mp=Math.min(st.mp,P.mp+st.mp*(town?.1:ooc?.03:.012)*rg);
+  P.hp=Math.min(st.hp,P.hp+st.hp*(town?.1:ooc?.02:.004)*rg*(1+st.regen));P.mp=Math.min(st.mp,P.mp+st.mp*(town?.1:ooc?.03:.012)*rg*(1+st.mregen));
   let ix=0,iy=0;if(keys.a||keys.arrowleft)ix--;if(keys.d||keys.arrowright)ix++;if(keys.w||keys.arrowup)iy--;if(keys.s||keys.arrowdown)iy++;
   const spd=70*(1+st.spd/100);P.moving=false;
   if(P.target&&P.target.dead){P.target=null;P.auto=false;P.queued=null;}
@@ -198,5 +198,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:4,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:4,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

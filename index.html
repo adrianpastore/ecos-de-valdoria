@@ -28,6 +28,7 @@
  <div id="side"><div id="goldBox" class="frame">🪙 <span id="gold">0</span></div>
   <button class="frame ib" id="bagBtn" aria-label="Bolsa">🎒<small>I</small></button>
   <button class="frame ib" id="treeBtn" aria-label="Árvore de habilidades">🌟<small>T</small><b id="treeBadge" class="badge"></b></button>
+  <button class="frame ib" id="attrBtn" aria-label="Atributos">📊<small>P</small><b id="attrBadge" class="badge"></b></button>
   <button class="frame ib" id="helpBtn" aria-label="Ajuda">❓</button></div>
  <div id="banner"><b id="bT"></b><span id="bS"></span></div>
  <div id="tip" class="frame hidden"></div>
@@ -72,7 +73,8 @@
   <li><kbd>E</kbd> abre baús e fala com o mercador</li>
   <li>Na <b>Guilda de Valdor</b>, o mural tem missões: traga materiais dos monstros e ganhe ouro e XP</li>
   <li>A bolsa tem 3 abas e um limite de <b>peso</b>: acima de 50% você não regenera, acima de 90% não luta</li>
-  <li><kbd>T</kbd> árvore de habilidades • <kbd>I</kbd> bolsa • <kbd>Esc</kbd> fecha janelas</li>
+  <li><kbd>T</kbd> árvore de habilidades • <kbd>P</kbd> atributos • <kbd>I</kbd> bolsa • <kbd>Esc</kbd> fecha janelas</li>
+  <li>Dois níveis: o de <b>Base</b> dá pontos de atributo (P) e o de <b>Classe</b> dá pontos de habilidade (T)</li>
  </ul>
  <p>Quanto mais longe da vila, mais fortes os monstros e melhores os baús. Os baús dourados no minimapa guardam saque. Cuidado: alguns baús mordem. No canto nordeste dorme o Wyrm Carmesim.</p>
  <p>Círculos vermelhos no chão avisam golpes fortes: saia de dentro deles. O progresso é salvo neste navegador.</p>
@@ -81,6 +83,7 @@
 <div id="tree" class="panel frame hidden"><div class="phead"><h2>Árvore de habilidades</h2><span id="treePts" class="pts"></span><button class="x" data-close="tree" aria-label="Fechar">✕</button></div><div id="treeTabs" class="tabs"></div><div id="treeBody"></div><div id="treeDet" class="detail"></div></div>
 <div id="board" class="panel frame hidden"><div class="phead"><h2>Mural de Missões</h2><button class="x" data-close="board" aria-label="Fechar">✕</button></div><div id="boardBody"></div></div>
 <div id="smith" class="panel frame hidden"><div class="phead"><h2>Ferreiro Gorvan</h2><button class="x" data-close="smith" aria-label="Fechar">✕</button></div><div id="smithBody"></div></div>
+<div id="attr" class="panel frame hidden"><div class="phead"><h2>Atributos</h2><span id="attrPts" class="pts"></span><button class="x" data-close="attr" aria-label="Fechar">✕</button></div><div id="attrBody"></div></div>
 <div id="mentor" class="panel frame hidden"><div class="phead"><h2>Mestra Elara</h2><button class="x" data-close="mentor" aria-label="Fechar">✕</button></div><div id="mentorBody"></div></div>
 <div id="loading" class="hidden"><div class="ld"><small>Viajando para</small><b id="ldName"></b><span id="ldSub"></span><div class="ldbar"><i></i></div></div></div>
 <div id="death" class="overlay hidden"><div class="startbox small"><h2>Você foi derrotado</h2><p id="deathTxt"></p><button id="respBtn" class="btn gold">Renascer na vila</button></div></div>
@@ -108,6 +111,7 @@
 <script src="js/13-guilda.js"></script>
 <script src="js/14-valdor.js"></script>
 <script src="js/15-casas.js"></script>
+<script src="js/16-atributos.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
 <script>if(window.__errs){const s=document.createElement('script');s.src='tests/smoke.js';document.body.append(s);}</script>
 </body>

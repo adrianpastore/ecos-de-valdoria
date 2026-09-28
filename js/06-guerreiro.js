@@ -48,6 +48,7 @@ function initSkills(){const ct=CLASS_TREE[P.cls];
 function trialKill(T,m,src){return T.kind==='skill'?(src==='skill'||src==='corpse'):T.kind==='type'?m.type===T.typ:T.kind==='elite'?(m.elite||m.boss):T.kind==='lowhp'?P.hp<P.st.hp*.5:T.kind==='clean'?!m.hurtP:false;}
 function hitCount(){const q=P.quest;if(q&&!q.done&&SPECS[q.spec].trial.kind==='hits'){q.prog++;questCheck();}}
 function preHurt(d,m,mult){if(m)m.hurtP=true;
+ if(P.st.dodge&&R()<P.st.dodge){addText(P.x,P.y-22,'Esquiva!','#c8f0ff');return 0;} // Agilidade
  if(mult===1&&m&&P.st.block&&R()<P.st.block){addText(P.x,P.y-22,'Bloqueado!','#9fd0ff');burst(P.x+P.face*6,P.y-8,'#dfe6ef',8,40);if(!m.dead)hitMonster(m,.8,{src:'skill'});hitCount();return 0;}
  if(P.banner&&hyp(P.x-P.banner.x,P.y-P.banner.y)<P.banner.r)d*=.7;
  if(P.shield){const a=Math.min(P.shield.hp,d);P.shield.hp-=a;d-=a;if(a>0)addText(P.x+8,P.y-18,'('+Math.round(a)+')',P.shield.c);if(P.shield.hp<=0)P.shield=null;}

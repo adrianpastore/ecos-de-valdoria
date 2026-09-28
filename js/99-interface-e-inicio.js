@@ -127,20 +127,20 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){toggle(shopEl,true);}
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('attr')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
 $('shopBag').onclick=()=>{if(innerWidth<1150)shopEl.classList.add('hidden');toggle(bagEl,true);};
 $('sortBtn').onclick=()=>{const o={arma:0,elmo:1,peito:2,botas:3,anel:4};P.inv.sort((a,b)=>b.rar-a.rar||o[a.slot]-o[b.slot]||b.ilvl-a.ilvl);renderBag();};
-$('bagBtn').onclick=()=>toggle(bagEl);$('treeBtn').onclick=()=>P&&toggleTree();$('helpBtn').onclick=()=>toggle(helpEl);$('respBtn').onclick=respawn;$('prompt').onclick=()=>P&&interact(nearestInteract());
+$('bagBtn').onclick=()=>toggle(bagEl);$('treeBtn').onclick=()=>P&&toggleTree();$('attrBtn').onclick=()=>P&&toggleAttr();$('helpBtn').onclick=()=>toggle(helpEl);$('respBtn').onclick=respawn;$('prompt').onclick=()=>P&&interact(nearestInteract());
 
 // ================== CONTROLES ==================
 const keys={};
 function attackKey(){if(!P||P.dead)return;let t=P.target&&!P.target.dead?P.target:nearestMon(180);if(t){P.target=t;P.auto=true;P.dest=null;}}
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||!P)return;const k=e.key.toLowerCase();
  if([' ','tab','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys[k]=true;if(e.repeat&&!'123456'.includes(k))return;
- if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
+ if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='p')toggleAttr();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
  else if(k==='e'&&!P.dead)interact(nearestInteract());else if(k==='i'||k==='c')toggle(bagEl);else if(k==='escape'){closeAll();P.target=null;P.auto=false;}
  else if(k==='tab'){const list=mons.filter(m=>!m.dead&&hyp(m.x-P.x,m.y-P.y)<200).sort((a,b)=>hyp(a.x-P.x,a.y-P.y)-hyp(b.x-P.x,b.y-P.y));if(list.length){const i=list.indexOf(P.target);P.target=list[(i+1)%list.length];}}});
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -164,11 +164,12 @@ function buildStart(){const box=$('classes');box.innerHTML='';
   d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
-function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
+function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,attr:s.attr||newAttr(ATTR_INI),gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
  $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();
- log(`Bem-vindo a Valdoria, ${P.name}! Pressione ❓ para ver os controles.`,'#ffe3a0');if(!s.lvl)log('Dica: baús dourados aparecem no minimapa.','#ffe3a0');}
+ log(`Bem-vindo a Valdoria, ${P.name}! Pressione ❓ para ver os controles.`,'#ffe3a0');if(!s.lvl)log('Dica: baús dourados aparecem no minimapa.','#ffe3a0');
+ if(attrFree()>0)log(`Você tem ${attrFree()} pontos de atributo para distribuir: pressione P.`,'#8fd0ff');}
 $('goBtn').onclick=()=>{const n=$('nameIn').value.trim()||pick(['Aldric','Lyra','Thorne','Mira','Kael','Seren']);enter({cls:chosen,name:n.slice(0,14)});};
 $('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('goBtn').click();});
 resize();genWorld(CUR);populate();buildStart(); // gera o mapa inicial de novo: arquivos posteriores ao 01 podem ter mudado MAPS (ex.: a casa da Guilda)

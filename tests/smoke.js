@@ -22,7 +22,8 @@
    t(cls+': criar herói',()=>enter({cls,name:'Teste'}));
    t(cls+': 200 quadros em Valdor',()=>tick(200));
    t(cls+': subir até o nível 30',()=>{for(let i=0;i<40&&P.lvl<30;i++)gainXp(xpNeed(P.lvl));if(P.lvl<30)throw 'parou no nível '+P.lvl;
-    if(P.jlvl!==10||P.jxp!==0)throw 'Classe deveria parar no 10 antes do caminho: '+P.jlvl;if(ptsTotal()!==9)throw 'pontos da classe inicial: '+ptsTotal();});
+    if(P.jlvl!==10||P.jxp!==0)throw 'Classe deveria parar no 10 antes do caminho: '+P.jlvl;if(ptsTotal()!==9)throw 'pontos da classe inicial: '+ptsTotal();
+    P.attr[MAINAT[cls]]+=Math.min(94,attrFree());P.attr.vita+=attrFree();recalc();cura();}); // distribui como um jogador faria
    t(cls+': aprender habilidades da base',()=>{let n=0;for(let r=0;r<6;r++)for(const id in SK)if(!canLearn(id)&&learn(id))n++;
     if(!n)throw 'nenhuma habilidade aprendida';info(n+' ranks aprendidos, '+ptsFree()+' pontos livres, '+P.bar.filter(Boolean).length+' na hotbar');});
    t(cls+': especialização e promoção',()=>{const s=Object.keys(SPECS).find(k=>SPECS[k].cls===cls);if(!s)throw 'classe sem especialização';
@@ -70,10 +71,29 @@
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
    if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==4||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5)throw 'save novo sem v:4, mats, miss ou jlvl';});
+  t('atributos: herói novo começa com 5 em tudo e sem pontos',()=>{enter({cls:'guerreiro',name:'Atrib'});if(ATTR.some(([k])=>P.attr[k]!==5)||attrFree()!==0)throw JSON.stringify(P.attr)+' livres '+attrFree();});
+  t('atributos: níveis dão pontos e a Força vira ataque',()=>{for(let i=0;i<20&&P.lvl<10;i++)gainXp(xpNeed(P.lvl));if(attrFree()!==27)throw 'nível 10 com '+attrFree()+' pontos (esperado 27)';
+   const a0=P.st.atk,h0=P.st.hp,c0=capOf();toggleAttr();attrAdd('forca',5);attrAdd('forca',5);attrAdd('vita',5);if(P.attr.forca!==5)throw 'aplicou antes de confirmar';attrConfirm();toggleAttr();
+   if(P.attr.forca!==15||P.attr.vita!==10||attrFree()!==12)throw 'distribuição errada: '+JSON.stringify(P.attr);if(!(P.st.atk>a0&&P.st.hp>h0&&capOf()===c0+100))throw 'ataque, vida ou peso não subiram';
+   info('ataque '+a0+' → '+P.st.atk+', vida '+h0+' → '+P.st.hp);});
+  t('atributos: nível 50 com o principal em 99 dá o ataque de antes',()=>{const out=[];for(const c of Object.keys(CL)){P.cls=c;P.lvl=50;P.attr=newAttr(ATTR_INI);P.attr[MAINAT[c]]=99;
+    const at=attrStats(CL[c],49).atk,old=CL[c].atk+CL[c].g.atk*49;if(Math.abs(at-old)>old*.05)throw c+': '+at.toFixed(0)+' contra '+old.toFixed(0);out.push(c+' '+Math.round(at));}
+   P.cls='guerreiro';P.lvl=10;P.attr={forca:15,agil:5,vita:10,inte:5,dest:5,sorte:5};recalc();info(out.join(', '));});
+  t('atributos: metade no principal e metade em Vitalidade fica perto do herói de antes (nv 10, 30, 50)',()=>{const out=[],sv=[P.cls,P.lvl,P.attr];try{
+   for(const c of Object.keys(CL))for(const L of[10,30,50]){P.cls=c;P.lvl=L;P.attr=newAttr(ATTR_INI);let f=attrFree();const m=Math.min(94,Math.ceil(f/2));P.attr[MAINAT[c]]+=m;f-=m;P.attr.vita+=Math.min(94,f);
+    const s=attrStats(CL[c],L-1),g=CL[c].g,o={atk:CL[c].atk+g.atk*(L-1),def:CL[c].def+g.def*(L-1),hp:CL[c].hp+g.hp*(L-1)};
+    for(const k in o){const r=s[k]/o[k];if(r<.75||r>1.25)throw c+' nv '+L+' '+k+': '+Math.round(s[k])+' contra '+Math.round(o[k]);}
+    if(L===30)out.push(c+' nv30: ataque '+Math.round(s.atk)+'/'+Math.round(o.atk)+', defesa '+Math.round(s.def)+'/'+Math.round(o.def)+', vida '+Math.round(s.hp)+'/'+Math.round(o.hp));}
+   }finally{[P.cls,P.lvl,P.attr]=sv;recalc();}info(out.join(' • '));});
+  t('atributos: Mestra Elara redefine por 1000 (tudo volta a 1)',()=>{P.gold=500;if(attrReset())throw 'resetou sem ouro';P.gold=1500;if(!attrReset()||P.gold!==500)throw 'não cobrou 1000';
+   if(ATTR.some(([k])=>P.attr[k]!==1)||attrFree()!==attrTotal()||attrTotal()!==24+27)throw 'depois do reset: '+JSON.stringify(P.attr)+' livres '+attrFree();
+   openMentor();if(!$('mentorBody').querySelector('[data-act="attrReset"]'))throw 'sem botão na Mestra Elara';$('mentor').classList.add('hidden');});
+  t('atributos: Agilidade dá esquiva',()=>{P.attr.agil=99;recalc();if(!(P.st.dodge>.2))throw 'esquiva '+P.st.dodge;let z=0;for(let i=0;i<200;i++)if(preHurt(10,null,2)===0)z++;if(z<20)throw 'só esquivou '+z+' de 200';P.attr.agil=1;recalc();});
   t('níveis: save antigo ganha nível de Classe e mantém os pontos',()=>{const b={v:3,name:'Velho',cls:'guerreiro',xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'};
    enter(Object.assign({},b,{lvl:20,spec:'paladino',promo:1,ranks:{giro:5,vigor:5,grito:5,pele:5}}));if(P.jlvl!==11||ptsFree()!==0||rk('pele')!==5)throw 'aprendiz nv 20: Classe '+P.jlvl+', livres '+ptsFree();
    enter(Object.assign({},b,{lvl:20,ranks:{giro:5,vigor:5,grito:5,pele:5}}));if(P.jlvl!==10||ptsFree()!==9||rk('pele'))throw 'sem caminho nv 20: Classe '+P.jlvl+', livres '+ptsFree();
-   info('aprendiz nv 20 → Classe 11; sem caminho nv 20 → Classe 10, pontos devolvidos');});
+   if(ATTR.some(([k])=>P.attr[k]!==5)||attrFree()!==attrTotal()-24)throw 'save antigo sem atributos: '+JSON.stringify(P.attr);
+   info('aprendiz nv 20 → Classe 11; sem caminho nv 20 → Classe 10, pontos devolvidos; '+attrFree()+' pontos de atributo');});
   // Guilda de Valdor: interior e mural de missões
   t('guilda: entrar pela porta e achar o mural',()=>{switchMapNow('valdor',null);switchMapNow('guilda','valdor');cura();if(!(BOARD.x>0))throw 'mural sem posição';
    P.x=BOARD.x;P.y=BOARD.y+6;const it=nearestInteract();if(!it||it.kind!=='board')throw 'mural não é o objeto mais próximo';interact(it);

@@ -7,7 +7,7 @@ const CAPF={guerreiro:[700,25],arqueira:[600,20],mago:[500,18]};
 const itemW=it=>WT[it.slot]||10;
 function weightNow(){let w=(P.pots.hp+P.pots.mp)*WPOT;for(const it of P.inv)w+=itemW(it);for(const s in P.equip)if(P.equip[s])w+=itemW(P.equip[s]);
  for(const k in P.mats)w+=(LOOTM[k]?LOOTM[k].w:1)*P.mats[k];return w;}
-function capOf(){const c=CAPF[P.cls]||[600,20];return c[0]+c[1]*P.lvl;}
+function capOf(){const c=CAPF[P.cls]||[600,20];return c[0]+c[1]*P.lvl+(P.attr?(P.attr.forca-ATTR_INI)*10:0);} // Força: +10 por ponto
 const wRatio=()=>weightNow()/capOf(),canCarry=w=>weightNow()+w<=capOf();
 let heavyMsgT=-99,wLvl=0;
 function heavyMsg(t){if(time-heavyMsgT>3){heavyMsgT=time;log(t||'Peso demais! Venda ou descarte algo para pegar mais.','#ff6b6b');}}
@@ -32,7 +32,7 @@ const shadeHex=(h,f)=>'#'+hexRGB(h).map(v=>clamp(Math.round(f>0?v+(255-v)*f:v*(1
 const MATROWS=["...kkkk...","..kCCCCk..",".kCcCCCCk.","kCcCCCCCCk","kCCCCCCCdk","kCCCCCCddk",".kCCCCddk.","..kkkkkk.."];
 for(const k in LOOTM){const c=LOOTM[k].c;def('mat_'+k,MATROWS,{C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)});}
 const matIc={},matIcon=k=>matIc[k]||(matIc[k]=toURL(SPR['mat_'+k].n,4));
-function dropMat(m){if(!LOOTM[m.type])return;const n=m.boss?3:m.elite?2:R()<.4?1:0;if(n)dropLoot(m.x,m.y,{kind:'mat',mat:m.type,n});}
+function dropMat(m){if(!LOOTM[m.type])return;const n=m.boss?3:m.elite?2:R()<.4*luckMul()?1:0;if(n)dropLoot(m.x,m.y,{kind:'mat',mat:m.type,n});}
 
 // ================== ABAS DA BOLSA ==================
 // Consumíveis (usar/abrir) • Equipamentos • Itens (materiais). As poções continuam em P.pots e os equipamentos em P.inv.

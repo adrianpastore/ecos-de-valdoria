@@ -23,7 +23,8 @@ O progresso é salvo automaticamente no navegador de cada jogador.
 
 ## Conteúdo
 
-- **3 classes e 9 especializações:** Mago (Bruxo, Necromante, Druida), Guerreiro (Paladino, Berserker, Cavaleiro) e Arqueira (Caçadora, Patrulheira, Assassina), com provas no nível 10 e promoção no nível 25.
+- **3 classes e 9 especializações:** Mago (Bruxo, Necromante, Druida), Guerreiro (Paladino, Berserker, Cavaleiro) e Arqueira (Caçadora, Patrulheira, Assassina), com provas no nível de Classe 10 e promoção no nível de Classe 25.
+- **Dois níveis, como nos MMOs clássicos:** o nível de Base dá pontos para 6 atributos (Força, Agilidade, Vitalidade, Inteligência, Destreza e Sorte) e o nível de Classe dá pontos de habilidade.
 - **Mundo em mapas:** Vila de Valdor, Floresta Verdejante, Pântano Sombrio, Ruínas Esquecidas, Covil do Wyrm, Estrada do Sul, Aldeia de Pinheiral, as Encostas de Pinheiral 01 a 07 e a Caverna de Pinheiral (três andares no escuro, só com a luz da tocha).
 - **Chefes MVP:** Wyrm Carmesim, Mestre das Máscaras, Grande Totem Ancião, Raposa Anciã de Nove Caudas e Senhor dos Ossos (fundo da Caverna).
 - **Equipamentos visíveis no personagem**, com 5 raridades (comum a lendário).
@@ -52,6 +53,8 @@ Os scripts são carregados **em ordem** pelo `index.html` e compartilham o mesmo
 | `js/12-inventario.js` | Bolsa em abas, peso e materiais deixados pelos monstros |
 | `js/13-guilda.js` | Interiores, a Guilda de Valdor e o mural de missões |
 | `js/14-valdor.js` | Muralhas (pedra ou paliçada), bancas e poço de Valdor, cabanas de Pinheiral |
+| `js/15-casas.js` | Casas com interior: a da Mestra Elara e a do ferreiro (refinamento) |
+| `js/16-atributos.js` | Os 6 atributos do herói e a janela de Atributos (tecla P) |
 | `js/99-interface-e-inicio.js` | Renderização, interface, controles e inicialização (sempre por último) |
 | `tests/` | Teste de fumaça: abra `tests/smoke.html` para conferir se tudo carrega e funciona |
 

@@ -26,7 +26,7 @@ function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.k
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara, na casa com a estrela na placa.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
- const f=ptsFree();$('treeBadge').textContent=f>0?f:'';
+ const f=ptsFree(),fa=attrFree();$('treeBadge').textContent=f>0?f:'';$('attrBadge').textContent=fa>0?fa:'';
  if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log('A Mestra Elara quer falar com você sobre o seu futuro. Ela atende na casa com a estrela na placa, em qualquer cidade.','#d9a0ff');}}
 
 // ================== ÁRVORE ==================
@@ -70,6 +70,7 @@ function renderMentor(){const b=$('mentorBody');let h='';
    :P.jlvl>=25?`<p class="flav">"Seu poder amadureceu. Aceite o título de ${S.n}."</p><button class="btn gold" data-act="promo">Receber a promoção</button>`
    :`<p class="flav">"Siga treinando, ${S.ap.toLowerCase()}. No nível de Classe 25 você estará pronto para a promoção e para a sua habilidade suprema."</p>`;}
  if(hasTree(P.cls))h+=`<div class="shoprow"><span>Redistribuir todos os pontos da árvore</span><button class="btn sm" data-act="respec">${respecCost()}g</button></div>`;
+ h+=`<div class="shoprow"><span>Redefinir os atributos (todos voltam a 1 e os pontos voltam para você)</span><button class="btn sm" data-act="attrReset">${ATTR_RESET}g</button></div>`;
  b.innerHTML=h;b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const a=x.dataset.act;
-  if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();
+  if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();else if(a==='attrReset')attrReset();
   renderMentor();if(!$('tree').classList.contains('hidden'))renderTree();});}

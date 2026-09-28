@@ -52,7 +52,8 @@ function respec(){const c=respecCost();if(P.gold<c){log('Ouro insuficiente.','#f
  if(P.form){P.form=null;}allies.length=0;recalc();buildHotbar();save();log('Seus pontos foram devolvidos.','#ffe3a0');return true;}
 
 // ================== ATRIBUTOS ==================
-function recalc(){const c=CL[P.cls],L=P.lvl-1;const st={hp:c.hp+c.g.hp*L,mp:c.mp+c.g.mp*L,atk:c.atk+c.g.atk*L,def:c.def+c.g.def*L,crit:c.crit,spd:0,dmgPct:0,cdr:0,mpCut:0,thorns:0,leech:0,rage:0,block:0,toxin:0,petPct:0};
+// a base vem dos atributos (attrStats, em 16); depois somam equipamento, passivas, caminho, forma e buffs
+function recalc(){const c=CL[P.cls],L=P.lvl-1;const st=Object.assign(attrStats(c,L),{spd:0,dmgPct:0,mpCut:0,thorns:0,leech:0,rage:0,block:0,toxin:0,petPct:0});
  for(const k in P.equip){const it=P.equip[k];if(it)for(const s in it.stats)st[s]+=it.stats[s];}
  const pct={hpPct:0,mpPct:0,defPct:0,atkPct:0};
  for(const id in(P.ranks||{})){const s=SK[id];if(s&&s.pas)for(const k in s.pas){const v=s.pas[k]*P.ranks[id];if(k in pct)pct[k]+=v;else st[k]+=v;}}
@@ -60,7 +61,7 @@ function recalc(){const c=CL[P.cls],L=P.lvl-1;const st={hp:c.hp+c.g.hp*L,mp:c.mp
  if(P.form){pct.hpPct+=.5;pct.defPct+=.4;}
  st.hp*=1+pct.hpPct;st.mp*=1+pct.mpPct;st.def*=1+pct.defPct;st.atk*=1+pct.atkPct;
  if(P.buff){st.atk*=1+P.buff.atk;st.def*=1+P.buff.def;st.spd+=P.buff.spd||0;}st.block=Math.min(st.block,.35);
- st.spd=Math.min(st.spd,40);st.crit=Math.min(st.crit,60);st.cdr=Math.min(st.cdr,.4);st.mpCut=Math.min(st.mpCut,.4);
+ st.spd=Math.min(st.spd,40);st.crit=clamp(st.crit,0,60);st.cdr=clamp(st.cdr,0,.4);st.mpCut=Math.min(st.mpCut,.4);st.dodge=clamp(st.dodge,0,.3);st.aspd=clamp(st.aspd,0,.6);
  for(const k of['hp','mp','atk','def'])st[k]=Math.round(st[k]);st.crit=Math.round(st.crit);
  P.st=st;if(P.hp!=null){P.hp=Math.min(P.hp,st.hp);P.mp=Math.min(P.mp,st.mp);}}
 
@@ -85,7 +86,7 @@ function weakOf(m){return m.curse&&m.curse.t>0?1-m.curse.weak:1;}
 const basicRange=()=>P.form?22:CL[P.cls].range;
 function basicAttack(){if(tooHeavy())return;const t=P.target,c=CL[P.cls];if(P.stealth){P.stealth=null;P.ambush=true;}P.swingT=.18;P.combatT=time;
  if(P.form){P.atkT=.8;hitMonster(t,P.form.mult,{src:'basic'});fx.push({k:'slash',x:P.x+P.face*8,y:P.y-8,face:P.face,t:0,max:.2,color:'#ffe0b0',big:true});return;}
- P.atkT=c.atkCd;
+ P.atkT=c.atkCd/(1+P.st.aspd);
  if(c.proj){const a=Math.atan2(t.y-mh(t)/2-(P.y-9),t.x-P.x);projs.push({x:P.x+P.face*4,y:P.y-9,vx:Math.cos(a)*c.proj.speed,vy:Math.sin(a)*c.proj.speed,speed:c.proj.speed,target:t,homing:true,mult:1,color:c.proj.color,size:c.proj.size,arrow:!!c.proj.arrow,life:2,o:{src:'basic'}});}
  else{hitMonster(t,1,{src:'basic'});fx.push({k:'slash',x:P.x+P.face*8,y:P.y-8,face:P.face,t:0,max:.18,color:'#ffffff'});}}
 const NEEDT={single:1,proj:1,aoeTarget:1,chain:1,curse:1,storm:1,leap:1,volley:1,execute:1};
