@@ -189,6 +189,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  if(M.town){(M.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).forEach(([hx,hy,s])=>{for(const[dx,dy]of[[0,0],[1,0],[0,-1],[1,-1]])solid[(hy+dy)*W+hx+dx]=1;addObj(hx,hy,s,true);});
   solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}}
  if(M.deco)for(const[dx,dy,s,wide]of M.deco){solid[dy*W+dx]=1;if(wide)solid[dy*W+dx+1]=1;addObj(dx,dy,s,wide);} // móveis e objetos fixos (ex.: interiores)
+ if(M.walls)buildWalls(M,road); // muralha com portões e torres (14)
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
  // pintura dos pixels
