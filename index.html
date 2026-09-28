@@ -68,6 +68,7 @@
   <li><kbd>1</kbd> a <kbd>6</kbd> habilidades • <kbd>Tab</kbd> troca de alvo</li>
   <li><kbd>Q</kbd> poção de vida • <kbd>R</kbd> poção de mana</li>
   <li><kbd>E</kbd> abre baús e fala com o mercador</li>
+  <li>Na <b>Guilda de Valdor</b>, o mural tem missões: traga materiais dos monstros e ganhe ouro e XP</li>
   <li>A bolsa tem 3 abas e um limite de <b>peso</b>: acima de 50% você não regenera, acima de 90% não luta</li>
   <li><kbd>T</kbd> árvore de habilidades • <kbd>I</kbd> bolsa • <kbd>Esc</kbd> fecha janelas</li>
  </ul>
@@ -76,6 +77,7 @@
 </div>
 
 <div id="tree" class="panel frame hidden"><div class="phead"><h2>Árvore de habilidades</h2><span id="treePts" class="pts"></span><button class="x" data-close="tree" aria-label="Fechar">✕</button></div><div id="treeTabs" class="tabs"></div><div id="treeBody"></div><div id="treeDet" class="detail"></div></div>
+<div id="board" class="panel frame hidden"><div class="phead"><h2>Mural de Missões</h2><button class="x" data-close="board" aria-label="Fechar">✕</button></div><div id="boardBody"></div></div>
 <div id="mentor" class="panel frame hidden"><div class="phead"><h2>Mestra Elara</h2><button class="x" data-close="mentor" aria-label="Fechar">✕</button></div><div id="mentorBody"></div></div>
 <div id="loading" class="hidden"><div class="ld"><small>Viajando para</small><b id="ldName"></b><span id="ldSub"></span><div class="ldbar"><i></i></div></div></div>
 <div id="death" class="overlay hidden"><div class="startbox small"><h2>Você foi derrotado</h2><p id="deathTxt"></p><button id="respBtn" class="btn gold">Renascer na vila</button></div></div>
@@ -100,6 +102,7 @@
 <script src="js/10-chefes-mvp.js"></script>
 <script src="js/11-caverna.js"></script>
 <script src="js/12-inventario.js"></script>
+<script src="js/13-guilda.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
 <script>if(window.__errs){const s=document.createElement('script');s.src='tests/smoke.js';document.body.append(s);}</script>
 </body>

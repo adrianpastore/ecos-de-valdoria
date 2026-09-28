@@ -16,6 +16,7 @@
  const saveOriginal=localStorage.getItem(SAVEKEY),saveReal=save;save=()=>{};
 
  try{
+  t('mapa inicial já tem a casa da Guilda (herói novo não troca de mapa)',()=>{if(!objRows.some(r=>r.some(o=>o.spr==='guilda')))throw 'Valdor foi gerada antes do 13';});
   for(const cls of Object.keys(CL)){
    t(cls+': criar herói',()=>enter({cls,name:'Teste'}));
    t(cls+': 200 quadros em Valdor',()=>tick(200));
@@ -56,7 +57,16 @@
   t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
-   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==2||!loadSave().mats)throw 'save novo sem v:2 ou mats';});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==3||!loadSave().mats||!loadSave().miss)throw 'save novo sem v:3, mats ou miss';});
+  // Guilda de Valdor: interior e mural de missões
+  t('guilda: entrar pela porta e achar o mural',()=>{switchMapNow('valdor',null);switchMapNow('guilda','valdor');cura();if(!(BOARD.x>0))throw 'mural sem posição';
+   P.x=BOARD.x;P.y=BOARD.y+6;const it=nearestInteract();if(!it||it.kind!=='board')throw 'mural não é o objeto mais próximo';interact(it);
+   if($('board').classList.contains('hidden'))throw 'painel não abriu';const n=$('boardBody').querySelectorAll('.mcard').length;if(n!==MISS.length)throw n+' missões no painel';closeAll();});
+  t('guilda: aceitar, juntar e entregar uma missão',()=>{P.miss={on:[],cd:{}};P.mats={};const q=MISS[0],r=missRew(q);missAction('aceitar',q.id);if(missState(q)!=='aceita')throw 'não aceitou';
+   P.mats[q.mat]=q.n+2;if(missState(q)!=='pronta')throw 'não ficou pronta';const g=P.gold;missAction('entregar',q.id);
+   if(P.gold!==g+r.g)throw 'ouro errado';if(P.mats[q.mat]!==2)throw 'não tirou só '+q.n+' materiais';if(missState(q)!=='espera')throw 'não entrou em espera';
+   missAction('aceitar',q.id);if(P.miss.on.length)throw 'aceitou em espera';info(q.t+': +'+r.g+'g, +'+r.xp+' XP');});
+  t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 
  // Devolve o save original e volta para a tela inicial

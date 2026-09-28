@@ -148,19 +148,19 @@ function fixReach(M){const E=homeOf(M);
   if(!fixed)break;}}
 function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const n1=makeNoise(rng,10),n2=makeNoise(rng,5),nf=makeNoise(rng,3);
  ground.fill(0);solid.fill(0);zoneMap.fill(z);for(const r of objRows)r.length=0;
- const road=new Uint8Array(W*H),amp=M.town?1.5:4;
+ const road=new Uint8Array(W*H),amp=M.town?1.5:M.interior?0:4;
  const paint=(x,y,w=1)=>{for(let j=-w;j<=w;j++)for(let i=-w;i<=w;i++){const X=x+i,Y=y+j;if(X>0&&Y>0&&X<W-1&&Y<H-1)road[Y*W+X]=1;}};
  const carve=(x1,y1,wob)=>{const x0=TC.x,y0=TC.y,L=hyp(x1-x0,y1-y0)||1,st=Math.ceil(L*2),nx=-(y1-y0)/L,ny=(x1-x0)/L;for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2.5+wob)*amp*Math.sin(t*Math.PI);paint(Math.round(x0+(x1-x0)*t+nx*off),Math.round(y0+(y1-y0)*t+ny*off));}};
  // quando o mapa vizinho tem estrada, ela ainda entra alguns passos por este portal e some no mato
  const stub=(x1,y1,wob)=>{const L0=hyp(TC.x-x1,TC.y-y1)||1,dx=(TC.x-x1)/L0,dy=(TC.y-y1)/L0,L=9;
   for(let s=0;s<=L*2;s++){const t=s/2,off=Math.sin(t*.7+wob)*1.2*t/L,X=Math.round(x1+dx*t-dy*off),Y=Math.round(y1+dy*t+dx*off);if(t<4)paint(X,Y);else if(rng()<1-(t-4)/(L-4))paint(X,Y,0);}};
- for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(M.road)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);}
+ for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(M.road||M.interior)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
  const ex=Object.values(M.portals),nearP=(x,y)=>ex.some(e=>hyp(x-e[0],y-e[1])<2.6);
- const CAV=M.cave?caveMask(M,rng):null; // cavernas: salões e corredores cavados na rocha (11-caverna.js)
+ const CAV=M.cave?caveMask(M,rng):M.interior?roomMask(M):null; // cavernas (11) e interiores (13): chão cavado na rocha ou num cômodo
  let HI=null,CLF=null,CLR=null;
  if(M.plateau){const np=makeNoise(rng,7);HI=new Uint8Array(W*H);CLF=new Uint8Array(W*H);CLR=new Uint8Array(W*H);
   for(let y=5;y<H-5;y++)for(let x=5;x<W-5;x++){const i=y*W+x;if(!road[i]&&!nearP(x,y)&&hyp(x-TC.x,y-TC.y)>4&&np(x,y)>M.plateau)HI[i]=1;}
-  for(const p of ex)if(p[2])for(let y=p[1]-5;y<=p[1]+5;y++)for(let x=p[0]-5;x<=p[0]+5;x++)if(x>=5&&y>=5&&x<W-5&&y<H-5&&hyp(x-p[0],(y-p[1])*1.2)<4.6)HI[y*W+x]=1;
+  for(const p of ex)if(p[2]===1)for(let y=p[1]-5;y<=p[1]+5;y++)for(let x=p[0]-5;x<=p[0]+5;x++)if(x>=5&&y>=5&&x<W-5&&y<H-5&&hyp(x-p[0],(y-p[1])*1.2)<4.6)HI[y*W+x]=1;
   const hi=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&HI[y*W+x];
   for(let i=0;i<W*H;i++)if(HI[i]){const x=i%W,y=(i/W)|0;if(!hi(x+1,y)||!hi(x-1,y)||!hi(x,y+1)||!hi(x,y-1))CLF[i]=1;}
   const seen=new Uint8Array(W*H);
@@ -173,7 +173,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
     for(const[dx,dy]of[[0,1],[0,2],[-1,1],[1,1]]){const X=x+dx,Y=y+dy;if(X>0&&Y>0&&X<W&&Y<H&&!HI[Y*W+X])CLR[Y*W+X]=1;}
     if(hi(x,y-1)&&CLF[(y-1)*W+x]===1)CLF[(y-1)*W+x]=2;}}}
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng();let g=G.GRASS,obj=null;
-  if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
+  if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
   else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
   else if(M.town){const d=hyp(x-TC.x,(y-TC.y)*1.3);g=d<6.5?G.PLAZA:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&c<.04)obj='tree';}
   else if(road[i])g=G.PATH;
@@ -188,6 +188,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   if(obj){solid[i]=1;addObj(x,y,obj==='tree'?`tree${z}_${Math.floor(rng()*4)}`:obj);}}
  if(M.town){(M.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).forEach(([hx,hy,s])=>{for(const[dx,dy]of[[0,0],[1,0],[0,-1],[1,-1]])solid[(hy+dy)*W+hx+dx]=1;addObj(hx,hy,s,true);});
   solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}}
+ if(M.deco)for(const[dx,dy,s,wide]of M.deco){solid[dy*W+dx]=1;if(wide)solid[dy*W+dx+1]=1;addObj(dx,dy,s,wide);} // móveis e objetos fixos (ex.: interiores)
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
  // pintura dos pixels
@@ -197,6 +198,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){const i=ty*W+tx,g=ground[i],z=zoneMap[i];
   for(let py=0;py<16;py++)for(let px=0;px<16;px++){const X=tx*16+px,Y=ty*16+py;let col;const gp=GPr[z];
    if(g===G.GRASS){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.55?gp[1]:gp[0];const r=rng();if(r<.08)col=gp[2];else if(r<.12)col=gp[3];
+    if(z===8){const row=Math.floor(Y/6),seam=Y%6===0||(X+row*11)%29===0;col=seam?gp[2]:row%2?gp[0]:gp[1];if(!seam&&rng()<.04)col=gp[3];}
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
    else if(g===G.HIGH){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.5?gp[3]:gp[1];if(rng()<.06)col=gp[2];}

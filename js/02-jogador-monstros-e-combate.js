@@ -71,7 +71,7 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 const xpNeed=l=>Math.floor(50*Math.pow(l,1.6));
@@ -145,7 +145,7 @@ function update(dt){time+=dt;const st=P.st;
   if(d>=13)continue;
   if(l.kind==='gold'){P.gold+=l.amt;addText(P.x,P.y-20,'+'+l.amt+'g','#ffd24a');loots.splice(i,1);}
   else if(l.kind==='pot'){if(!canCarry(WPOT)){heavyMsg();continue;}P.pots[l.pot]++;log(`Você pegou uma poção de ${l.pot==='hp'?'vida':'mana'}.`,l.pot==='hp'?'#ff8080':'#80a8ff');loots.splice(i,1);updateHotbar();}
-  else if(l.kind==='mat'){const M=LOOTM[l.mat];if(!canCarry(M.w*l.n)){heavyMsg();continue;}P.mats[l.mat]=(P.mats[l.mat]||0)+l.n;log(`Você pegou ${l.n>1?l.n+'× ':''}${M.n}.`,'#e0d0b0');loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}
+  else if(l.kind==='mat'){const M=LOOTM[l.mat];if(!canCarry(M.w*l.n)){heavyMsg();continue;}P.mats[l.mat]=(P.mats[l.mat]||0)+l.n;log(`Você pegou ${l.n>1?l.n+'× ':''}${M.n}.`,'#e0d0b0');missNote(l.mat);loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}
   else if(!canCarry(itemW(l.item)))heavyMsg();
   else{P.inv.push(l.item);logItem(l.item);loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}}
  // monstros
@@ -189,5 +189,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:2,mats:P.mats,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:3,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

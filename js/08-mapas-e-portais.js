@@ -17,10 +17,11 @@ function switchMapNow(id,from){const prev=CUR;
  P.zone=zoneMap[Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE)];
  for(const a of allies){a.x=P.x+rf(-10,10);a.y=P.y+rf(-6,10);a.target=null;}
  if(P.quest&&P.quest.spec==='druida'&&!P.quest.done&&id==='floresta'){if(!P.quest.nasc)placeNascs();else restoreNascs();}else nascs=[];
- cam.x=P.x-VW/S/2;cam.y=P.y-8-VH/S/2;$('zoneName').textContent=M.n;if(shopEl)shopEl.classList.add('hidden');$('mentor').classList.add('hidden');save();}
+ cam.x=P.x-VW/S/2;cam.y=P.y-8-VH/S/2;$('zoneName').textContent=M.n;if(shopEl)shopEl.classList.add('hidden');$('mentor').classList.add('hidden');$('board').classList.add('hidden');
+ BOARD.x=M.board?(M.board[0]+1)*TILE:-9999;BOARD.y=M.board?(M.board[1]+1)*TILE+8:-9999;save();}
 function portalTick(dt){if(loading)return;if((P.portalCD||0)>0){P.portalCD-=dt;return;}
  for(const to in MAPS[CUR].portals){const p=portalPt(to);if(hyp(P.x-p.x,P.y-p.y)<12){changeMap(to,CUR);return;}}}
-function drawPortals(tt){for(const to in MAPS[CUR].portals){const p=portalPt(to);
+function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);
  for(let k=0;k<3;k++){const r=9-k*2.5,a=tt*(2+k)+k;ctx.strokeStyle=['#ff5a3a','#ff9a4a','#ffe0a0'][k];ctx.globalAlpha=.8;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.5,0,a,a+4.2);ctx.stroke();}
  ctx.globalAlpha=1;if(R()<.3)parts.push({x:p.x+rf(-8,8),y:p.y+rf(-3,3),vx:0,vy:-25,g:0,life:.6,max:.6,color:pick(['#ff5a3a','#ffb060']),s:1});}}
 function portalLabels(lab){for(const to in MAPS[CUR].portals){const p=portalPt(to);lab(MAPS[to].n,p.x,p.y-12,'#ffc890');}}

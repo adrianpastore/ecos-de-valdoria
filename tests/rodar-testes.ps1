@@ -16,7 +16,7 @@ try {
   # o navegador sem janela às vezes trava sozinho: após 3 minutos sem resposta, encerra e tenta mais uma vez
   foreach ($tentativa in 1, 2) {
     $p = Start-Process $nav -PassThru -RedirectStandardOutput "$tmp\dom.txt" -RedirectStandardError "$tmp\log.txt" -ArgumentList `
-      '--headless=new', '--disable-gpu', "--user-data-dir=$tmp\perfil$tentativa", '--virtual-time-budget=20000', '--dump-dom', $url
+      '--headless=new', '--disable-gpu', "--user-data-dir=$tmp\perfil$tentativa", '--dump-dom', $url
     if ($p.WaitForExit(180000)) { break }
     Get-CimInstance Win32_Process -Filter "Name='$(Split-Path $nav -Leaf)'" | Where-Object { $_.CommandLine -match [regex]::Escape($tmp) } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
     if ($tentativa -eq 2) { Write-Output 'O navegador travou duas vezes seguidas (3 min sem resposta cada). Provável laço infinito no jogo.'; exit 3 }

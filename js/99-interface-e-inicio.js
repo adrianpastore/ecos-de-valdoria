@@ -127,7 +127,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){toggle(shopEl,true);}
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
@@ -150,6 +150,7 @@ cv.addEventListener('pointerdown',e=>{if(!P||P.dead)return;e.preventDefault();co
  let hit=null;for(const m of mons){if(m.dead)continue;const h=mh(m),hw=Math.max(8,SPR[m.type].n.width*m.sc/2);if(w.x>m.x-hw&&w.x<m.x+hw&&w.y>m.y-h-2&&w.y<m.y+4&&(!hit||m.y>hit.y))hit=m;}
  if(hit){P.target=hit;P.auto=true;P.dest=null;P.pend=null;return;}
  for(const c of chests)if(!c.open&&hyp(c.x-w.x,c.y-6-w.y)<12){P.pend={kind:'chest',o:c};P.dest={x:c.x,y:c.y+2};P.auto=false;return;}
+ if(hyp(BOARD.x-w.x,BOARD.y-16-w.y)<18){P.pend={kind:'board',o:BOARD};P.dest={x:BOARD.x,y:BOARD.y+4};P.auto=false;return;}
  if(hyp(NPC.x-w.x,NPC.y-8-w.y)<14){P.pend={kind:'npc',o:NPC};P.dest={x:NPC.x,y:NPC.y+10};P.auto=false;return;}
  P.dest=w;P.auto=false;P.pend=null;P.queued=null;dragging=true;fx.push({k:'ring',x:w.x,y:w.y,r0:6,r1:2,t:0,max:.3,color:'#ffffff',w:1});});
 cv.addEventListener('pointermove',e=>{if(dragging&&P&&e.buttons)P.dest=worldAt(e);});
@@ -162,15 +163,15 @@ function buildStart(){const box=$('classes');box.innerHTML='';
   d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
-function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
+function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
  $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();
  log(`Bem-vindo a Valdoria, ${P.name}! Pressione ❓ para ver os controles.`,'#ffe3a0');if(!s.lvl)log('Dica: baús dourados aparecem no minimapa.','#ffe3a0');}
 $('goBtn').onclick=()=>{const n=$('nameIn').value.trim()||pick(['Aldric','Lyra','Thorne','Mira','Kael','Seren']);enter({cls:chosen,name:n.slice(0,14)});};
 $('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('goBtn').click();});
-resize();populate();buildStart();
+resize();genWorld(CUR);populate();buildStart(); // gera o mapa inicial de novo: arquivos posteriores ao 01 podem ter mudado MAPS (ex.: a casa da Guilda)
 let last=performance.now(),hudT=0,miniT=0;
-function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;if(P&&!P.dead&&!loading)update(dt);else if(P)time+=dt;render(dt,t/1000);
+function frame(t){const dt=clamp((t-last)/1000,0,.05);last=t;if(P&&!P.dead&&!loading)update(dt);else if(P)time+=dt;render(dt,t/1000);
  hudT-=dt;if(P&&hudT<=0){hudT=.1;updateHUD();}miniT-=dt;if(miniT<=0){miniT=.25;drawMini();}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);

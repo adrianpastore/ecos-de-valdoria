@@ -172,5 +172,6 @@ function nascTick(){for(const n of nascs)if(n.state==='guard'&&n.guards.every(g=
 function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)continue;const d=hyp(c.x-P.x,c.y-P.y);if(d<bd){bd=d;b={kind:'chest',o:c};}}
  for(const n of nascs){if(n.state!=='corr')continue;const d=hyp(n.x-P.x,n.y-P.y);if(d<bd){bd=d;b={kind:'nasc',o:n};}}
  if(hyp(NPC.x-P.x,NPC.y-P.y)<bd){bd=hyp(NPC.x-P.x,NPC.y-P.y);b={kind:'npc',o:NPC};}
- if(hyp(MENTOR.x-P.x,MENTOR.y-P.y)<bd)b={kind:'mentor',o:MENTOR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else openShop();}
+ if(hyp(MENTOR.x-P.x,MENTOR.y-P.y)<bd){bd=hyp(MENTOR.x-P.x,MENTOR.y-P.y);b={kind:'mentor',o:MENTOR};}
+ if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};return b;}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else openShop();}

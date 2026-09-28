@@ -51,11 +51,14 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 | `js/10-chefes-mvp.js` | Chefes MVP: `bossSpot`, `spawnBoss`, `bossDead`, `bossAI`, `BOSSAT` |
 | `js/11-caverna.js` | Caverna de Pinheiral: tema 7 (paletas, `CLFT[7]`, estalagmite), os 3 andares em `MAPS`, gerador de salões e corredores (`caveMask`), escuridão (`drawDark`) |
 | `js/12-inventario.js` | Inventário: peso e capacidade (`WT`, `CAPF`, `weightNow`, `capOf`, `canCarry`, `tooHeavy`), materiais de monstros (`LOOTM`, `dropMat`), abas da bolsa (`bagTab`, `bagEntries`, `stackDetail`, `stackAction`) e venda de materiais no Bento |
+| `js/13-guilda.js` | Interiores (tema 8: piso de tábuas, paredes de madeira; `roomMask`), a casa e o interior da Guilda de Valdor, sprites de mural/mesa/barril, e o mural de missões (`MISS`, `BOARD`, `openBoard`, `missAction`, `missNote`) |
 | `js/99-interface-e-inicio.js` | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
 
 ### Armadilhas da estrutura
 - **Declarações de função só "sobem" (hoisting) dentro do próprio arquivo.** O código que roda no topo de um arquivo não pode chamar funções de arquivos posteriores. Chamadas dentro de funções executadas depois (no loop do jogo) podem.
 - **Não repita nomes de `const`/`let` entre arquivos**, porque isso quebra o carregamento com `SyntaxError`. Também evite nomes reservados do navegador (`top`, `name`, `location`, `status`…).
+- **Arquivos posteriores ao `01` que mudam `MAPS` de Valdor** (casas, portais) só aparecem porque o `99` gera o mapa inicial de novo na inicialização (`genWorld(CUR)` antes do `populate`). Um herói novo não troca de mapa ao entrar, então sem isso ele veria a Valdor antiga. Há teste de fumaça para isso.
+- Cuidado com comentários `//` no fim de linhas compactas: um `}` depois do comentário some e quebra o arquivo inteiro (aconteceu em 28/09/2026).
 - Novos sistemas: crie `js/NN-assunto.js` (NN entre 11 e 98) e adicione a tag antes do `99-...`.
 
 ## Sistemas e formatos de dados
@@ -67,6 +70,8 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 - **Estradas:** `road:1` cava um caminho do centro até cada portal (vilas, Estrada do Sul, Encosta 01). Sem `road`, o mapa não tem caminho, mas se o mapa **vizinho** tiver estrada, ela entra alguns passos pelo portal e some no mato (`stub` em `genWorld`), para a passagem não parecer um corte seco.
 - `home`: id do portal de onde o nível dos monstros cresce (`lvlAt`) e de onde parte o cálculo de alcance (`REACH`).
 - **Tudo precisa ser alcançável a pé.** Sem estrada, um portal pode nascer cercado. `linkReach` confere cada portal e o miolo do mapa e, se preciso, abre a brecha mais barata (tira árvores/pedras; em último caso vira rampa no paredão ou aterra água). O teste de fumaça verifica isso para todos os portais.
+- **Interiores** (`interior:1`, em `13`): cômodo de `room:[largura,altura]` no meio do 80×60 (`roomMask`), resto parede e escuridão; `deco:[[tx,ty,sprite,largo?],…]` põe móveis sólidos (vale para qualquer mapa); `board:[tx,ty]` marca o mural. Sem monstros. O "trecho de estrada" que entra pela porta vira um tapete reto até o meio.
+- **Portas:** um portal com a marca `'porta'` no 3º valor (`[tx,ty,'porta']`) não desenha o redemoinho, só o nome do destino, que funciona como placa. Coordenadas de portal podem ter meio tile (ex.: `TC.x+6.5`) para ficar no centro de uma porta de casa larga. O 3º valor `1` continua significando portal no alto de platô.
 - **Cavernas** (`cave:1`): o mesmo 80×60, mas `caveMask` (em `11`) cava salões ligados por corredores sinuosos de 3 tiles na rocha; todo o resto vira paredão (`G.CLIFF`), e a rocha longe do chão é pintada quase preta (`deepRock`). Estalagmites só no miolo dos salões (`caveRoom`), para nunca fechar corredor. Um tema novo precisa de cores em `GP`, `PC`, `WC` **e** nas versões RGB `GPr`, `PCr`, `WCr` (como faz o `11`), mais `MINIC.obj[tema]`; paredão com cor própria vai em `CLFT[tema]`.
 - **Escuridão** (`dark:1`): `drawDark` (em `11`, chamado pelo `render` do `99`) cobre a tela e abre luz na tocha do herói, nos portais, nas magias em voo e nas explosões. Nomes e barras de vida são desenhados por cima.
 - Posições salvas que caírem num lugar bloqueado ou isolado (porque o terreno mudou) vão para o tile livre mais próximo (`freeNear`, em `enter`).
@@ -127,8 +132,8 @@ Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Tot
 - O estilo segue a classe (`CSTYLE`): Guerreiro = metal, Mago = tecido, Arqueira = couro. O nível visual vem de `tierOf(item)` = `floor(ilvl/6)`, de 0 a 3. O herói é recomposto quando o equipamento muda.
 
 ### Save
-- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`; o nome da chave não muda entre versões): `v, mats, name, cls, lvl, xp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
-- **`v` é a versão do formato** (hoje `2`, gravada em `save()` no `02`; a 2 acrescentou `mats`, e saves da 1 abrem com `mats` vazio). Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
+- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`; o nome da chave não muda entre versões): `v, mats, miss, name, cls, lvl, xp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
+- **`v` é a versão do formato** (hoje `3`, gravada em `save()` no `02`; a 2 acrescentou `mats` e a 3 acrescentou `miss` (missões: `{on:[ids aceitas], cd:{id: horário real em que volta ao mural}}`); saves antigos abrem com esses campos vazios). Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
 - `initSkills` migra saves antigos (ids `guerreiro0`/`arqueira0` → nós novos da árvore).
 - Se o `map` salvo deixar de existir, `enter()` já manda o herói para Valdor. Mantenha esse comportamento ao renomear ou remover mapas.
 
@@ -142,7 +147,8 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
 - O `smoke.js` percorre: criação das 3 classes, 200 quadros de jogo, subida até o nível 30, aprendizado de habilidades, especialização e promoção, as 6 teclas da hotbar em combate, save e load, todos os mapas, todos os portais (ida e volta) e a IA de cada chefe por 300 quadros.
 - Ele **desliga o `save()` enquanto roda e devolve o save original no final**. Qualquer teste novo que salve deve usar o mesmo cuidado.
 - Ao criar um sistema novo, **acrescente um teste nele** em `tests/smoke.js`.
-- O script tenta duas vezes: o navegador sem janela às vezes trava sozinho. Se travar nas duas, desconfie de laço infinito no jogo.
+- O script tenta duas vezes: o navegador sem janela às vezes trava sozinho. Se travar nas duas, desconfie de laço infinito no jogo. Ele **não** usa `--virtual-time-budget` (esse recurso fazia o Edge travar com o teste longo); o teste roda inteiro antes do fim do carregamento da página.
+- Capturas de tela no Edge sem janela rodam poucos quadros: o HUD pode sair vazio na foto sem ser defeito do jogo.
 - `tests/smoke-node.js` é a versão antiga do teste, para Node (simula o navegador). Útil numa máquina com Node (`node tests/smoke-node.js`); se mexer em algo que ela usa, mantenha-a funcionando, mas o teste oficial é o do navegador.
 - Para validar sprites visualmente, dá para capturar os pixels desenhados e gerar um PNG (foi feito com Python/PIL durante o desenvolvimento).
 
@@ -181,9 +187,14 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
 4. **Vila de Valdor viva, interiores e a Guilda com mural de missões** (ideia do dono em 28/09/2026; substitui as "missões de entrega" genéricas). Em etapas:
    - **Valdor menos crua:** hoje só tem o Bento, a Elara, a fonte e três casas. Muros em volta da vila, com portões e torres ao lado de cada portal, e mais vida (bancas, poço, lampiões, estandartes, canteiros).
    - **Interiores:** entrar em casas pela porta. A porta é um portal comum (os portais já podem ficar em qualquer tile) que leva a um mapa-interior pequeno: um cômodo com paredes e o resto escuro, no mesmo 80×60 (dá para reaproveitar a ideia do `caveMask`). Sair pela porta volta para a frente da casa.
+   - ✅ **Guilda e mural feitos em 28/09/2026** (em `13`): casa de telhado roxo com placa de espadas cruzadas, à direita da praça; dentro, salão de tábuas com mural, mesas e barris. 7 missões (Estrada do Sul, Floresta, Pântano, Ruínas), até 3 aceitas por vez, 10 minutos de espera (tempo real) depois de entregar. Recompensa: ouro ≈ 2,5× o valor dos materiais + 10 por nível sugerido, e XP de um nível inteiro no nível sugerido. Números ainda não testados jogando.
    - **Guilda:** uma casa com placa "Guilda" em Valdor; dentro, um **mural de missões** (interage com E, como o Bento).
    - **Missões do mural:** padrões, sobre problemas dos mapas vizinhos, pedindo materiais como prova. Ex.: "Um bando de Esquilos Ruivos está causando problemas na Estrada do Sul. Traga 10 Pelos de Esquilo para provar que nos ajudou a acabar com essa peste." Recompensa em ouro e XP. Os materiais já existem (`LOOTM`, `P.mats`).
-   - A definir com o dono: se as missões se repetem, quantas ficam no mural por vez, se outras casas também terão interior, e se Pinheiral terá a sua Guilda.
+   - **Decidido em 28/09/2026:** as missões se repetem, mas com espera (voltam ao mural um tempo depois de entregues); **todas as casas de Valdor** ganham interior; começar pela **Guilda e o mural**, depois o resto.
+   - **A Mestra Elara passa a atender dentro de uma casa** (hoje fica na praça).
+   - **Ferreiro (refinamento, como no Ragnarok)**, numa das casas: melhora equipamentos de +1 até +5 sem risco; do +6 em diante há chance de falhar, e na falha o item pode quebrar ou não. **Decidido em 28/09/2026:** arma usa Minério Bruto (Zumbi Mineiro, Caverna); armaduras e acessórios usam Núcleo de Pedra (Golem, Ruínas). Custo em ouro: 100 no +1 e dobra a cada nível (+2 = 200, +3 = 400 … +10 = 51.200). Isso torna o refinamento algo do meio para o fim do jogo (Golems nv 16–20, Zumbis nv 24+). Também aprovado: 1 material por tentativa (mais o ouro); limite +10; +1 a +5 sempre dão certo; do +6 ao +10 as chances de sucesso são 60%, 55%, 50%, 40% e 35%; na falha, 50% de chance de o item quebrar (senão só se perdem o ouro e o material); cada + dá +5% nos atributos do item, e o nome mostra o nível (ex.: "Espada Longa +7").
+   - Próximos passos deste item: muros, portões e torres de Valdor; interiores das outras casas (Elara dentro de casa, o ferreiro); missões para Pinheiral e a Caverna.
+   - **Cada cidade principal tem a sua Guilda** (decidido em 28/09/2026), com missões da própria região.
 5. **Música** (ideia do dono em 28/09/2026): uma música na Vila de Valdor no clima de "Salty Sailor", de David Arkenstone. É só referência de estilo: essa faixa tem direitos autorais e não pode entrar no jogo sem licença. Usar música original ou livre de direitos (com licença que permita uso em jogo publicado), com botão de ligar e desligar som.
 6. Visual próprio por especialização (ex.: armadura dourada só do Paladino) e mestres de classe por cidade.
 7. Revisão de equilíbrio jogando de verdade (os números foram ajustados por testes automáticos).
