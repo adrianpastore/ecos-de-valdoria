@@ -78,13 +78,13 @@ function weakOf(m){return m.curse&&m.curse.t>0?1-m.curse.weak:1;}
 
 // ================== ATAQUES E HABILIDADES ==================
 const basicRange=()=>P.form?22:CL[P.cls].range;
-function basicAttack(){const t=P.target,c=CL[P.cls];if(P.stealth){P.stealth=null;P.ambush=true;}P.swingT=.18;P.combatT=time;
+function basicAttack(){if(tooHeavy())return;const t=P.target,c=CL[P.cls];if(P.stealth){P.stealth=null;P.ambush=true;}P.swingT=.18;P.combatT=time;
  if(P.form){P.atkT=.8;hitMonster(t,P.form.mult,{src:'basic'});fx.push({k:'slash',x:P.x+P.face*8,y:P.y-8,face:P.face,t:0,max:.2,color:'#ffe0b0',big:true});return;}
  P.atkT=c.atkCd;
  if(c.proj){const a=Math.atan2(t.y-mh(t)/2-(P.y-9),t.x-P.x);projs.push({x:P.x+P.face*4,y:P.y-9,vx:Math.cos(a)*c.proj.speed,vy:Math.sin(a)*c.proj.speed,speed:c.proj.speed,target:t,homing:true,mult:1,color:c.proj.color,size:c.proj.size,arrow:!!c.proj.arrow,life:2,o:{src:'basic'}});}
  else{hitMonster(t,1,{src:'basic'});fx.push({k:'slash',x:P.x+P.face*8,y:P.y-8,face:P.face,t:0,max:.18,color:'#ffffff'});}}
 const NEEDT={single:1,proj:1,aoeTarget:1,chain:1,curse:1,storm:1,leap:1,volley:1,execute:1};
-function useSkill(slot){if(!P||P.dead)return;const id=P.bar[slot];if(!id)return;const sk=SK[id];if((P.cd[id]||0)>0)return;
+function useSkill(slot){if(!P||P.dead||tooHeavy())return;const id=P.bar[slot];if(!id)return;const sk=SK[id];if((P.cd[id]||0)>0)return;
  const cost=Math.round(sk.mp*(1-P.st.mpCut));if(P.mp<cost){log('Mana insuficiente.','#7fb2ff');flashSlot(slot+1);return;}
  let t=P.target&&!P.target.dead?P.target:null;
  if(NEEDT[sk.type]){if(!t){t=nearestMon(200);if(t)P.target=t;}if(!t){log('Nenhum alvo por perto.','#cccccc');return;}

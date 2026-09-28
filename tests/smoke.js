@@ -43,6 +43,20 @@
   for(const id of Object.keys(MAPS).filter(k=>MAPS[k].boss))
    t('chefe de '+id+' ('+MDEF[MAPS[id].boss].n+')',()=>{switchMapNow(id,null);const b=mons.find(ehChefe);if(!b)throw 'o chefe não apareceu';
     P.x=b.x+40;P.y=b.y;for(let i=0;i<300;i++){cura();update(.05);}render(.05,0);});
+  // inventário em abas, peso e materiais
+  t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';}info(Object.keys(LOOTM).length+' materiais');});
+  t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
+   if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
+  t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);
+   const l=loots.find(x=>x.kind==='mat');if(!l||l.n!==2)throw 'material não caiu';for(let i=0;i<120&&loots.includes(l);i++){l.x=P.x;l.y=P.y;update(.05);}if(P.mats.slime!==2)throw 'não pegou: '+JSON.stringify(P.mats);});
+  t('inventário: vender materiais',()=>{const g=P.gold;stackAction('sellAll','mat','slime');if(P.gold!==g+2*LOOTM.slime.v||P.mats.slime)throw 'venda errada';});
+  t('inventário: acima de 50% não regenera',()=>{P.mats={golem:Math.ceil(capOf()*.6/10)};P.hp=P.st.hp/2;const h=P.hp;P.combatT=-99;for(let i=0;i<40;i++)update(.05);if(P.hp!==h)throw 'regenerou';});
+  t('inventário: acima de 90% não ataca',()=>{P.mats={golem:Math.ceil(capOf()*.95/10)};const m=makeMon('slime',P.x+10,P.y,1);mons.push(m);P.target=m;const hp=m.hp;P.atkT=0;basicAttack();useSkill(0);tick(10);
+   if(m.hp!==hp)throw 'atacou com peso demais';if(canCarry(WPOT))throw 'deveria recusar mais peso';P.mats={};P.target=null;});
+  t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
+   if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
+  t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==2||!loadSave().mats)throw 'save novo sem v:2 ou mats';});
  }catch(e){bad('teste interrompido',e);}
 
  // Devolve o save original e volta para a tela inicial

@@ -42,6 +42,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
   else if(e.t===3){const l=o,y=l.y-l.z;
    if(l.kind==='item'){const rc=RARC[l.item.rar];if(l.item.rar>=1&&l.z===0){const g=ctx.createLinearGradient(0,l.y-50,0,l.y);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,rc);ctx.globalAlpha=.35+Math.sin(tt*4+l.x)*.12;ctx.fillStyle=g;ctx.fillRect(l.x-3,l.y-50,6,50);ctx.globalAlpha=1;}shadow(l.x,l.y,4);drawS('bag'+l.item.rar,l.x,y+1);}
    else if(l.kind==='gold'){shadow(l.x,l.y,3);drawS('coin',l.x,y-Math.abs(Math.sin(tt*4+l.x))*1);}
+   else if(l.kind==='mat'){shadow(l.x,l.y,3);drawS('mat_'+l.mat,l.x,y+1);}
    else{shadow(l.x,l.y,3);drawS('pot'+l.pot,l.x,y+2,1,.65);}}
   else if(e.t>=6)drawExtra(e,tt);
   else if(e.t===4){shadow(o.x,o.y,6);drawS('npc',o.x,o.y);drawS('coin',o.x,o.y-20+Math.sin(tt*3)*1.5);}
@@ -95,28 +96,32 @@ function updateHUD(){const st=P.st;$('hpFill').style.width=(P.hp/st.hp*100)+'%';
  $('mpFill').style.width=(P.mp/st.mp*100)+'%';$('mpTxt').textContent=`${Math.floor(P.mp)} / ${st.mp}`;$('xpFill').style.width=(P.xp/xpNeed(P.lvl)*100)+'%';
  $('pLvl').textContent=P.lvl+' • '+title();hudExtra();$('gold').textContent=P.gold;let t=P.target;if(t&&t.fake&&!t.fake.dead)t=Object.assign(Object.create(t),{hp:t.fake.hp,maxHp:t.fake.maxHp});$('tframe').classList.toggle('hidden',!t||t.dead);
  if(t&&!t.dead){$('tName').textContent=`${t.elite?'★ ':''}${t.name} • nível ${t.lvl}`;$('tName').style.color=conColor(t.lvl);$('tFill').style.width=(t.hp/t.maxHp*100)+'%';$('tTxt').textContent=`${Math.max(0,Math.ceil(t.hp))} / ${t.maxHp}`;}
- const it=P.dead?null:nearestInteract(),pr=$('prompt');pr.classList.toggle('hidden',!it);if(it)pr.textContent=promptText(it);
+ weightHUD();const it=P.dead?null:nearestInteract(),pr=$('prompt');pr.classList.toggle('hidden',!it);if(it)pr.textContent=promptText(it);
  updateHotbar();}
 let sel=null;
 function statLine(k,v){return k==='crit'||k==='spd'?`+${v}% ${STN[k]}`:`+${v} ${STN[k]}`;}
 function renderBag(){const g=$('invGrid');g.innerHTML='';
- for(let i=0;i<INV;i++){const it=P.inv[i],b=document.createElement('button');b.className='slot';
-  if(it){b.style.borderColor=RARC[it.rar];b.innerHTML=`<img src="${iconOf(it)}" alt="">`;if(power(it)>power(P.equip[it.slot]))b.innerHTML+='<span class="up">▲</span>';b.title=it.name;if(sel&&sel.id===it.id)b.classList.add('sel');b.onclick=()=>{sel={id:it.id,eq:false};renderBag();};}
+ $('bagTabs').querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===bagTab));
+ const E=bagEntries(),n=Math.max(24,Math.ceil(E.length/6)*6);
+ for(let i=0;i<n;i++){const e=E[i],b=document.createElement('button');b.className='slot';
+  if(e){if(e.border)b.style.borderColor=e.border;b.innerHTML=`<img src="${e.img}" alt="">`+(e.up?'<span class="up">▲</span>':'')+(e.n>1?`<span class="qt">${e.n}</span>`:'');b.title=e.name;
+   if(sel&&!sel.eq&&sel.key===e.key)b.classList.add('sel');b.onclick=()=>{sel={key:e.key,eq:false};renderBag();};}
   g.append(b);}
- document.querySelectorAll('[data-eq]').forEach(b=>{const s=b.dataset.eq,it=P.equip[s];b.style.borderColor=it?RARC[it.rar]:'';b.classList.toggle('sel',!!(it&&sel&&sel.id===it.id));
-  b.innerHTML=it?`<img src="${iconOf(it)}" alt="">`:`<span class="ph">${SLOTN[s]}</span>`;b.onclick=()=>{if(it){sel={id:it.id,eq:true};renderBag();}};});
- $('dollImg').src=toURL(SPR[heroSpr()].n,6);$('invCount').textContent=`Bolsa ${P.inv.length}/${INV} • 🧪${P.pots.hp} 💧${P.pots.mp}`;
+ document.querySelectorAll('[data-eq]').forEach(b=>{const s=b.dataset.eq,it=P.equip[s];b.style.borderColor=it?RARC[it.rar]:'';b.classList.toggle('sel',!!(it&&sel&&sel.key===it.id));
+  b.innerHTML=it?`<img src="${iconOf(it)}" alt="">`:`<span class="ph">${SLOTN[s]}</span>`;b.onclick=()=>{if(it){sel={key:it.id,eq:true};renderBag();}};});
+ $('dollImg').src=toURL(SPR[heroSpr()].n,6);$('invCount').textContent=E.length?`${E.length} ${E.length>1?'tipos':'tipo'} de item`:'Nada nesta aba';$('sortBtn').style.display=bagTab==='equip'?'':'none';weightBar();
  const st=P.st;$('statsBox').innerHTML=`<span>Nível</span><b>${P.lvl}</b><span>Vida</span><b>${st.hp}</b><span>Mana</span><b>${st.mp}</b><span>Ataque</span><b>${st.atk}</b><span>Defesa</span><b>${st.def}</b><span>Crítico</span><b>${st.crit}%</b><span>Velocidade</span><b>+${st.spd}%</b><span>Ouro</span><b>${P.gold}</b>`;
- const d=$('detail');const it=sel&&(sel.eq?Object.values(P.equip).find(x=>x&&x.id===sel.id):P.inv.find(x=>x.id===sel.id));
- if(!it){d.innerHTML='<span style="color:var(--muted)">Toque num item para ver os detalhes. ▲ indica um item melhor que o equipado.</span>';return;}
+ const d=$('detail');if(sel&&!sel.eq&&sel.key.includes(':'))return stackDetail(d,sel.key);
+ const it=sel&&(sel.eq?Object.values(P.equip).find(x=>x&&x.id===sel.key):P.inv.find(x=>x.id===sel.key));
+ if(!it){d.innerHTML='<span style="color:var(--muted)">Toque num item para ver os detalhes.'+(bagTab==='equip'?' ▲ indica um item melhor que o equipado.':'')+'</span>';return;}
  const cur=P.equip[it.slot];let h=`<h3 class="r${it.rar}">${it.name}</h3><div class="meta">${SLOTN[it.slot]} • nível ${it.ilvl} • ${RAR[it.rar].n}</div>`;
  for(const k in it.stats)h+=`<div>${statLine(k,it.stats[k])}</div>`;
  if(!sel.eq&&cur){const keys=new Set([...Object.keys(it.stats),...Object.keys(cur.stats)]);let cmp='';for(const k of keys){const df=(it.stats[k]||0)-(cur.stats[k]||0);if(df)cmp+=`<span class="${df>0?'pos':'neg'}">${df>0?'+':''}${df} ${STN[k]}</span> `;}if(cmp)h+=`<div style="margin-top:4px;font-size:13px">Comparado ao equipado: ${cmp}</div>`;}
  const near=hyp(NPC.x-P.x,NPC.y-P.y)<70;h+=`<div class="acts">`+(sel.eq?`<button class="btn sm" data-a="un">Remover</button>`:`<button class="btn sm gold" data-a="eq">Equipar</button>`+(near?`<button class="btn sm" data-a="sell">Vender por ${it.value}g</button>`:`<button class="btn sm" data-a="drop">Descartar</button>`))+`</div>`;
  d.innerHTML=h;d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>itemAction(b.dataset.a,it));}
 function itemAction(a,it){const i=P.inv.indexOf(it);
- if(a==='eq'){const old=P.equip[it.slot];P.equip[it.slot]=it;if(old)P.inv[i]=old;else P.inv.splice(i,1);sel={id:it.id,eq:true};log(`Equipou ${it.name}.`,RARC[it.rar]);}
- else if(a==='un'){if(P.inv.length>=INV){log('Bolsa cheia.','#ff6b6b');return;}delete P.equip[it.slot];P.inv.push(it);sel={id:it.id,eq:false};}
+ if(a==='eq'){const old=P.equip[it.slot];P.equip[it.slot]=it;if(old)P.inv[i]=old;else P.inv.splice(i,1);sel={key:it.id,eq:true};log(`Equipou ${it.name}.`,RARC[it.rar]);}
+ else if(a==='un'){delete P.equip[it.slot];P.inv.push(it);sel={key:it.id,eq:false};}
  else if(a==='sell'){P.inv.splice(i,1);P.gold+=it.value;sel=null;log(`Vendeu ${it.name} por ${it.value}g.`,'#ffd24a');}
  else{P.inv.splice(i,1);sel=null;}
  recalc();renderBag();save();}
@@ -124,7 +129,7 @@ function toggle(el,on){const show=on??el.classList.contains('hidden');el.classLi
 function openShop(){toggle(shopEl,true);}
 function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
-document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
+document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
 $('shopBag').onclick=()=>{if(innerWidth<1150)shopEl.classList.add('hidden');toggle(bagEl,true);};
 $('sortBtn').onclick=()=>{const o={arma:0,elmo:1,peito:2,botas:3,anel:4};P.inv.sort((a,b)=>b.rar-a.rar||o[a.slot]-o[b.slot]||b.ilvl-a.ilvl);renderBag();};
@@ -157,7 +162,7 @@ function buildStart(){const box=$('classes');box.innerHTML='';
   d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
-function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
+function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
  $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();

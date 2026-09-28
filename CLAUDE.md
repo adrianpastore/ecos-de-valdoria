@@ -50,6 +50,7 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 | `js/09-regiao-pinheiral.js` | Pinheiros, casas, lampiões, 12 monstros da região e seus comportamentos (`monSpecial`, `onMonHit`, `tickPay`, `mproj`) |
 | `js/10-chefes-mvp.js` | Chefes MVP: `bossSpot`, `spawnBoss`, `bossDead`, `bossAI`, `BOSSAT` |
 | `js/11-caverna.js` | Caverna de Pinheiral: tema 7 (paletas, `CLFT[7]`, estalagmite), os 3 andares em `MAPS`, gerador de salões e corredores (`caveMask`), escuridão (`drawDark`) |
+| `js/12-inventario.js` | Inventário: peso e capacidade (`WT`, `CAPF`, `weightNow`, `capOf`, `canCarry`, `tooHeavy`), materiais de monstros (`LOOTM`, `dropMat`), abas da bolsa (`bagTab`, `bagEntries`, `stackDetail`, `stackAction`) e venda de materiais no Bento |
 | `js/99-interface-e-inicio.js` | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
 
 ### Armadilhas da estrutura
@@ -126,8 +127,8 @@ Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Tot
 - O estilo segue a classe (`CSTYLE`): Guerreiro = metal, Mago = tecido, Arqueira = couro. O nível visual vem de `tierOf(item)` = `floor(ilvl/6)`, de 0 a 3. O herói é recomposto quando o equipamento muda.
 
 ### Save
-- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`): `v, name, cls, lvl, xp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
-- **`v` é a versão do formato** (hoje `1`, gravada em `save()` no `02`). Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
+- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`; o nome da chave não muda entre versões): `v, mats, name, cls, lvl, xp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
+- **`v` é a versão do formato** (hoje `2`, gravada em `save()` no `02`; a 2 acrescentou `mats`, e saves da 1 abrem com `mats` vazio). Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
 - `initSkills` migra saves antigos (ids `guerreiro0`/`arqueira0` → nós novos da árvore).
 - Se o `map` salvo deixar de existir, `enter()` já manda o herói para Valdor. Mantenha esse comportamento ao renomear ou remover mapas.
 
@@ -147,7 +148,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
 
 ## Roteiro (próximos passos)
 
-**Ordem decidida pelo dono em 28/09/2026:** primeiro o item 3 (inventário em abas), depois o 4 (missões de entrega), e só então o resto (chefe da Caverna, lançamento no celular…). A numeração abaixo é só para referência.
+**Ordem decidida pelo dono em 28/09/2026:** primeiro o item 3 (inventário em abas), depois o 4 (Valdor, interiores e Guilda com missões), e só então o resto (chefe da Caverna, lançamento no celular…). A numeração abaixo é só para referência.
 
 1. **Caverna de Pinheiral**, em três etapas:
    - ✅ Portais com posição livre, estradas opcionais e o trecho de estrada que some no mato (26/09/2026).
@@ -168,17 +169,25 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
    3. **Exportar e importar save**: um código ou arquivo que o jogador guarda. No celular o navegador às vezes limpa os dados e o herói se perde; também serve para levar o herói entre computadores e navegadores.
    4. **Divulgação** (mais trabalho do dono do que código): o link do GitHub Pages já serve; domínio próprio é opcional (ex.: ecosdevaldoria.com.br). Página no itch.io (aceita jogos HTML, de graça), Discord próprio para os primeiros jogadores, grupos de nostalgia de Ragnarok, r/WebGames e r/IndieDev, e vídeos curtos (um MVP, o boneco trocando de roupa, um Mímico mordendo). O Claude pode ajudar com textos da página, capturas de tela e um modo de gravação. Na divulgação vale "inspirado nos MMOs clássicos", mas nunca usar imagens, logos ou nomes do Ragnarok (marcas registradas).
    5. **Mais para frente, se pegar:** save na nuvem com login (Firebase/Firestore, que o dono já conhece de outros projetos, ou Supabase), que também prepara o multiplayer; Google Play empacotando o PWA (ex.: Bubblewrap, taxa única de cerca de US$ 25); App Store só com público (exige Mac, US$ 99/ano e revisão da Apple).
-3. **Inventário em 3 abas, como no Ragnarok** (pedido do dono em 28/09/2026; detalhes marcados "a confirmar" ainda não foram decididos):
+3. **Inventário em 3 abas, como no Ragnarok** (pedido do dono em 28/09/2026). ✅ **Abas, peso e materiais feitos em 28/09/2026** (em `12`). Como ficou: as abas são só a forma de mostrar a bolsa; as poções continuam em `P.pots`, os equipamentos em `P.inv`, e os materiais ficam em `P.mats` (`{tipoDoMonstro: quantidade}`). Não há mais limite de 24 espaços (`INV` foi removido), só o de peso. O nome da tabela é `LOOTM` porque `MATS` já existe no `05` (materiais das armaduras do boneco). Falta: Caixa Velha, cartas e um ícone próprio por tipo de material (hoje todos têm a mesma trouxinha, mudando só a cor).
    - **Aba 1, Consumíveis:** tudo que se usa ou se abre: poções (hoje ficam em `P.pots`, fora da bolsa; passam a ser itens empilháveis, mantendo os atalhos Q e R), caixas que podem ser abertas e o que vier depois (pergaminhos, comidas).
    - **Aba 2, Equipamentos:** armas, armaduras, elmos, botas, anéis e acessórios (o que hoje é todo o `P.inv`).
    - **Aba 3, Itens:** materiais que os monstros deixam cair, empilháveis. Ex.: a Geleia deixa Musgo de Geleia, o Esquilo Ruivo deixa Pelo de Esquilo. Cada monstro ganha um material próprio, com nome original. Servem para vender ao Bento e, depois, para as missões de entrega.
    - **Limite por peso, como no Ragnarok** (decidido em 28/09/2026): cada item tem peso e o herói tem uma capacidade (as abas são só a organização). Penalidades no estilo RO: acima de 50% da capacidade, o herói para de regenerar vida e mana sozinho; acima de 90%, não ataca nem usa habilidades. A capacidade cresce com o nível e varia por classe (o jogo não tem atributo de Força).
-   - A confirmar (propor números ao dono antes de implementar): peso de cada tipo de item, capacidade por classe e nível, tamanho das pilhas, quanto os materiais valem no Bento e a lista de materiais de cada monstro.
-   - Muda o formato do save (`P.pots` e `P.inv` → abas): subir `v` para 2 e migrar saves antigos em `enter()`, sem perder nenhum item nem poção.
-4. **Missões de entrega** (depende do item 3): NPCs pedem "traga X de tal material" em troca de recompensa (ouro, XP, itens). Ex.: 10 Pelos de Esquilo. Formato das missões e quais NPCs dão missões: a definir com o dono.
-5. Visual próprio por especialização (ex.: armadura dourada só do Paladino) e mestres de classe por cidade.
-6. Revisão de equilíbrio jogando de verdade (os números foram ajustados por testes automáticos).
-7. Multiplayer, em fases:
+   - **Números aprovados pelo dono em 28/09/2026:** peso poção 5, material 1 (Núcleo de Pedra 10), anel 5, elmo e botas 25, arma 40, armadura 60; equipamento vestido conta no peso. Capacidade: Guerreiro 700 + 25/nível, Arqueira 600 + 20/nível, Mago 500 + 18/nível. Sem limite de espaços, só de peso; itens iguais empilham. Material: 40% de chance (elite: sempre, 2 unidades; chefe: sempre, 3). Preço no Bento de 2 a 15 moedas conforme o monstro; material de chefe ≈ 150. Lista de materiais (um por monstro, nomes originais): Musgo de Geleia, Pelo de Esquilo, Presa de Lobo, Seda de Aranha, Osso Velho, Dente de Orc, Núcleo de Pedra, Dente de Mímico, Esporo Laranja, Pó Venenoso, Casca de Verme, Galho Vivo, Seiva Antiga, Rabo Listrado, Escama de Jiboia, Tufo de Pelo Grosso, Brasa Errante, Lasca de Porrete, Pena Ritual, Cauda de Raposa, Asa de Morcego, Ponta de Osso, Minério Bruto; chefes: Escama Carmesim, Máscara Rachada, Madeira Sagrada, Pérola de Raposa.
+   - Caixa Velha (cai rara de elites, abre em equipamento ou poções): aprovada, pode vir depois das abas.
+   - **Cartas, como no Ragnarok** (ideia do dono em 28/09/2026, detalhar depois das abas): equipamentos com espaços para cartas; cada monstro deixa cair a sua carta, que dá uma melhoria ao ser colocada num espaço, e a melhoria cresce conforme o nível. A definir com o dono: o que "nível" significa (o nível do monstro que deixou a carta cair, ou cartas de monstros mais fortes serem melhores), quantos espaços cada equipamento tem, o efeito de cada carta e a chance de cair.
+   - Save: `v` subiu para 2 e ganhou `mats`; saves antigos abrem sem perder nada (teste de fumaça cobre).
+4. **Vila de Valdor viva, interiores e a Guilda com mural de missões** (ideia do dono em 28/09/2026; substitui as "missões de entrega" genéricas). Em etapas:
+   - **Valdor menos crua:** hoje só tem o Bento, a Elara, a fonte e três casas. Muros em volta da vila, com portões e torres ao lado de cada portal, e mais vida (bancas, poço, lampiões, estandartes, canteiros).
+   - **Interiores:** entrar em casas pela porta. A porta é um portal comum (os portais já podem ficar em qualquer tile) que leva a um mapa-interior pequeno: um cômodo com paredes e o resto escuro, no mesmo 80×60 (dá para reaproveitar a ideia do `caveMask`). Sair pela porta volta para a frente da casa.
+   - **Guilda:** uma casa com placa "Guilda" em Valdor; dentro, um **mural de missões** (interage com E, como o Bento).
+   - **Missões do mural:** padrões, sobre problemas dos mapas vizinhos, pedindo materiais como prova. Ex.: "Um bando de Esquilos Ruivos está causando problemas na Estrada do Sul. Traga 10 Pelos de Esquilo para provar que nos ajudou a acabar com essa peste." Recompensa em ouro e XP. Os materiais já existem (`LOOTM`, `P.mats`).
+   - A definir com o dono: se as missões se repetem, quantas ficam no mural por vez, se outras casas também terão interior, e se Pinheiral terá a sua Guilda.
+5. **Música** (ideia do dono em 28/09/2026): uma música na Vila de Valdor no clima de "Salty Sailor", de David Arkenstone. É só referência de estilo: essa faixa tem direitos autorais e não pode entrar no jogo sem licença. Usar música original ou livre de direitos (com licença que permita uso em jogo publicado), com botão de ligar e desligar som.
+6. Visual próprio por especialização (ex.: armadura dourada só do Paladino) e mestres de classe por cidade.
+7. Revisão de equilíbrio jogando de verdade (os números foram ajustados por testes automáticos).
+8. Multiplayer, em fases:
    - Presença compartilhada: ver amigos no mesmo mapa e chat (ex.: Supabase Realtime ou WebSocket simples).
    - Um jogador anfitrião via WebRTC, ou servidor autoritativo em Node (ex.: Colyseus), com grupo, loot compartilhado e contas.
    - O servidor exige mover a lógica de mundo (monstros, combate, loot) para fora do navegador.

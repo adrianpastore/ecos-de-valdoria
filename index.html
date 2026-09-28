@@ -42,7 +42,9 @@
    </div>
    <div class="doll" style="grid-template-rows:58px;margin-top:6px"><div></div><button class="slot" data-eq="botas"></button><div></div></div>
    <div class="stats" id="statsBox"></div></div>
-  <div><div class="invhead"><span id="invCount"></span><button class="btn sm" id="sortBtn">Organizar</button></div>
+  <div><div class="tabs" id="bagTabs"><button class="btn sm tab" data-tab="uso">Consumíveis</button><button class="btn sm tab" data-tab="equip">Equipamentos</button><button class="btn sm tab" data-tab="etc">Itens</button></div>
+   <div class="bar wt" title="Peso: acima de 50% você não regenera; acima de 90% não luta"><i id="wFill"></i><span id="wTxt"></span></div>
+   <div class="invhead"><span id="invCount"></span><button class="btn sm" id="sortBtn">Organizar</button></div>
    <div class="grid" id="invGrid"></div>
    <div class="detail" id="detail"></div></div>
  </div>
@@ -54,6 +56,7 @@
  <div class="shoprow"><span>🧪 Poção de vida<br><small>Recupera 45% da vida</small></span><button class="btn sm" data-buy="hp,1">20g</button><button class="btn sm" data-buy="hp,5">5 por 90g</button></div>
  <div class="shoprow"><span>💧 Poção de mana<br><small>Recupera 45% da mana</small></span><button class="btn sm" data-buy="mp,1">20g</button><button class="btn sm" data-buy="mp,5">5 por 90g</button></div>
  <div class="shoprow"><button class="btn" data-sell="0">Vender itens comuns</button><button class="btn" data-sell="1">Vender comuns e incomuns</button></div>
+ <div class="shoprow"><button class="btn" id="sellMats">Vender todos os materiais</button></div>
  <div class="shoprow"><button class="btn gold" id="shopBag">Abrir a bolsa para vender um item</button></div>
 </div>
 
@@ -65,6 +68,7 @@
   <li><kbd>1</kbd> a <kbd>6</kbd> habilidades • <kbd>Tab</kbd> troca de alvo</li>
   <li><kbd>Q</kbd> poção de vida • <kbd>R</kbd> poção de mana</li>
   <li><kbd>E</kbd> abre baús e fala com o mercador</li>
+  <li>A bolsa tem 3 abas e um limite de <b>peso</b>: acima de 50% você não regenera, acima de 90% não luta</li>
   <li><kbd>T</kbd> árvore de habilidades • <kbd>I</kbd> bolsa • <kbd>Esc</kbd> fecha janelas</li>
  </ul>
  <p>Quanto mais longe da vila, mais fortes os monstros e melhores os baús. Os baús dourados no minimapa guardam saque. Cuidado: alguns baús mordem. No canto nordeste dorme o Wyrm Carmesim.</p>
@@ -95,6 +99,7 @@
 <script src="js/09-regiao-pinheiral.js"></script>
 <script src="js/10-chefes-mvp.js"></script>
 <script src="js/11-caverna.js"></script>
+<script src="js/12-inventario.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
 <script>if(window.__errs){const s=document.createElement('script');s.src='tests/smoke.js';document.body.append(s);}</script>
 </body>

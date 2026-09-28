@@ -143,3 +143,7 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 .ld span{display:block;color:#d9c9a8;margin-bottom:16px}.ldbar{height:6px;background:rgba(0,0,0,.4);border-radius:3px;overflow:hidden}
 .ldbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#b07c10,#ffd66a);animation:ldb .8s ease-out}
 @keyframes ldb{from{width:0}}
+/* bolsa em abas e peso */
+.bar.wt{height:16px;margin:0 0 6px} .bar.wt i{background:linear-gradient(#b8e07a,#5a8a2a)} .bar.wt span{line-height:14px}
+.slot .qt{position:absolute;right:3px;bottom:1px;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000,0 0 2px #000}
+.ib.heavy{box-shadow:0 0 0 3px #ffb040} .ib.over{box-shadow:0 0 0 3px #ff4a3a}
