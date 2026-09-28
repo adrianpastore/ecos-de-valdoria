@@ -34,11 +34,16 @@ const rk=id=>(P&&P.ranks&&P.ranks[id])||0;
 
 
 const treePts=t=>{let s=0;for(const id in P.ranks)if(SK[id]&&SK[id].tree===t)s+=P.ranks[id];return s;};
-function ptsFree(){if(!hasTree(P.cls))return 0;let s=0;for(const id in P.ranks)if(SK[id]&&TREES[SK[id].tree])s+=P.ranks[id];return(P.lvl-1)-(s-1);}
+// 1 ponto por nível de Classe: até 9 na classe inicial (Classe 1→10) e mais 49 no caminho (Classe 1→50 de novo)
+const ptsTotal=()=>P.spec?9+P.jlvl-1:P.jlvl-1;
+function ptsFree(){if(!hasTree(P.cls))return 0;let s=0;for(const id in P.ranks)if(SK[id]&&TREES[SK[id].tree])s+=P.ranks[id];return ptsTotal()-(s-1);}
+// nível de Classe exigido: na árvore da classe inicial vale o `lvl` da habilidade (já cumprido depois de virar aprendiz);
+// no caminho, `lvl` conta a partir da especialização (lvl 15 → Classe 5 do caminho)
+const skillJob=s=>s.tree===CT().base?(P.spec?0:s.lvl):s.lvl-10;
 function canLearn(id){const s=SK[id];if(!hasTree(P.cls)||!TREES[s.tree])return'Indisponível';
  if(s.tree!==CT().base&&!CT().specs.includes(s.tree))return'Indisponível';if(s.tree!==CT().base&&P.spec!==s.tree)return'Exige o caminho de '+TREES[s.tree];if(rk(id)>=s.max)return'Rank máximo';
- if(P.lvl<s.lvl)return'Exige nível '+s.lvl;if(s.pts&&treePts(s.tree)<s.pts)return`Exige ${s.pts} pontos em ${TREES[s.tree]}`;
- if(s.promo&&P.promo<s.promo)return'Exige a promoção do nível 25';if(ptsFree()<1)return'Sem pontos livres';return null;}
+ if(P.jlvl<skillJob(s))return'Exige nível de Classe '+skillJob(s);if(s.pts&&treePts(s.tree)<s.pts)return`Exige ${s.pts} pontos em ${TREES[s.tree]}`;
+ if(s.promo&&P.promo<s.promo)return'Exige a promoção (Classe 25 no caminho)';if(ptsFree()<1)return'Sem pontos livres';return null;}
 function learn(id){const why=canLearn(id);if(why){log(why,'#ff9a7a');return false;}P.ranks[id]=rk(id)+1;
  if(SK[id].act&&!P.bar.includes(id)){const i=P.bar.indexOf(null);if(i>=0)P.bar[i]=id;}
  if(SK[id].n)log(`${SK[id].n} agora está no rank ${P.ranks[id]}.`,'#ffe3a0');recalc();buildHotbar();save();return true;}
@@ -149,14 +154,14 @@ function tickSkills(dt){for(const id in P.cd)P.cd[id]=Math.max(0,P.cd[id]-dt);
 // ================== MENTORA E PROVAS ==================
 const MENTOR={x:(TC.x-3.5)*TILE,y:(TC.y-1)*TILE};
 let nascs=[];
-function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.lvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false};
+function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.jlvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false};
  if(spec==='druida'&&CUR==='floresta')placeNascs();banner('Prova: '+SPECS[spec].ap,T.t);log('Nova prova: '+T.t+'.','#ffe3a0');save();}
 function abandonTrial(){P.quest=null;nascs=[];save();log('Você abandonou a prova.','#cccccc');}
 function questCheck(){const q=P.quest;if(q&&!q.done&&q.prog>=q.goal){q.prog=q.goal;q.done=true;banner('Prova concluída!','Volte à Mestra Elara, na casa com a estrela na placa.');log('Prova concluída! Fale com a Mestra Elara.','#ffd24a');save();}}
-function completeTrial(){const q=P.quest;if(!q||!q.done)return;P.spec=q.spec;P.promo=1;P.quest=null;nascs=[];recalc();
- banner(SPECS[P.spec].ap,'Um novo ramo se abriu na sua árvore de habilidades.');log(`Você agora é ${SPECS[P.spec].ap}! Abra a árvore (T) para gastar seus pontos.`,'#ffd24a');
+function completeTrial(){const q=P.quest;if(!q||!q.done)return;P.spec=q.spec;P.promo=1;P.quest=null;P.jlvl=1;P.jxp=0;nascs=[];recalc();
+ banner(SPECS[P.spec].ap,'Um novo ramo se abriu. Seu nível de Classe recomeça do 1.');log(`Você agora é ${SPECS[P.spec].ap}! Seu nível de Classe recomeça do 1 e vai até 50; cada nível dá 1 ponto para a árvore (T).`,'#ffd24a');
  for(let i=0;i<30;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:1,max:1,color:SPECS[P.spec].cor,s:2});buildHotbar();save();}
-function promote(){if(!P.spec||P.promo>=2||P.lvl<25)return;P.promo=2;recalc();banner(SPECS[P.spec].n,'Sua habilidade suprema foi desbloqueada.');log(`Você foi promovido a ${SPECS[P.spec].n}!`,'#ffd24a');save();}
+function promote(){if(!P.spec||P.promo>=2||P.jlvl<25)return;P.promo=2;recalc();banner(SPECS[P.spec].n,'Sua habilidade suprema foi desbloqueada.');log(`Você foi promovido a ${SPECS[P.spec].n}!`,'#ffd24a');save();}
 const title=()=>P.spec?(P.promo>=2?SPECS[P.spec].n:SPECS[P.spec].ap):CL[P.cls].nome;
 function placeNascs(){nascs=[];for(let k=0;k<600&&nascs.length<3;k++){const t=randTile(1);if(!t)break;
   let wet=false;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])if(ground[(t.y+dy)*W+t.x+dx]===G.WATER)wet=true;

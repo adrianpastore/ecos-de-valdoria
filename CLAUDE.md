@@ -130,15 +130,19 @@ Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Tot
   - `06` (`castWar`): `heal, shield, banner, leap`
   - `07` (`castArcher`): `pet, alpha, howl, trap, volley, evade, stealth, fan, execute`
 - Atributos derivados em `P.st`: `hp, mp, atk, def, crit, spd, dmgPct, cdr, mpCut, thorns, leech, rage, block, toxin, petPct`.
-- 1 ponto por nível a partir do 2. A primeira habilidade da classe é grátis. Especialização no nível 10 (prova com a Mestra Elara) e promoção no 25 (libera a habilidade suprema).
+- **Dois níveis, como no Ragnarok** (desde 28/09/2026): `P.lvl`/`P.xp` é o **nível de Base** (até 50; vida, mana e, na etapa 2, pontos de atributo) e `P.jlvl`/`P.jxp` é o **nível de Classe** (pontos de habilidade). Os monstros e as missões dão a mesma XP para as duas barras (`gainXp` chama `gainJob`, em `02`).
+  - Na classe inicial (Guerreiro, Mago, Arqueira) a Classe vai de 1 a 10 (`jobCap`); no 10 a XP de Classe para até a especialização. A prova da Mestra Elara exige Classe 10. Ao virar aprendiz (`completeTrial`) a Classe **volta ao 1** e vai até 50, com a barra 15% mais curta (`jobNeed`). A promoção exige Classe 25 no caminho.
+  - Pontos de habilidade (`ptsTotal`): 1 por nível de Classe, até 9 na classe inicial e mais 49 no caminho. A primeira habilidade da classe é grátis.
+  - Exigência de cada habilidade (`skillJob`): na árvore da classe inicial, o `lvl` da habilidade é o nível de Classe (já cumprido depois de virar aprendiz); no caminho, conta a partir da especialização (`lvl` 10 → ao entrar, 15 → Classe 5). O `lvl` das tabelas `SK` continua na escala antiga; não mude sem mexer em `skillJob` e `tierLabel`.
+  - Futuro combinado com o dono: **Transcender** com Base 50 e Classe 50 (renascer no nível 1 com pontos extras e abrir classes transcendentais).
 
 ### Itens e visual do herói (`02`, `05`)
 - Slots: `arma, elmo, peito, botas, anel`. Raridades: Comum, Incomum, Raro, Épico, Lendário (cores em `RARC`).
 - O estilo segue a classe (`CSTYLE`): Guerreiro = metal, Mago = tecido, Arqueira = couro. O nível visual vem de `tierOf(item)` = `floor(ilvl/6)`, de 0 a 3. O herói é recomposto quando o equipamento muda.
 
 ### Save
-- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`; o nome da chave não muda entre versões): `v, mats, miss, name, cls, lvl, xp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
-- **`v` é a versão do formato** (hoje `3`, gravada em `save()` no `02`; a 2 acrescentou `mats` e a 3 acrescentou `miss` (missões: `{on:[ids aceitas], cd:{id: horário real em que volta ao mural}}`); saves antigos abrem com esses campos vazios). Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
+- `localStorage['valdoria_save_v1']` (constante `SAVEKEY` em `01`; o nome da chave não muda entre versões): `v, mats, miss, name, cls, lvl, xp, jlvl, jxp, gold, inv, equip, pots, x, y, map, ranks, bar, spec, promo, quest`.
+- **`v` é a versão do formato** (hoje `4`, gravada em `save()` no `02`; a 2 acrescentou `mats`, a 3 acrescentou `miss` (missões: `{on:[ids aceitas], cd:{id: horário real em que volta ao mural}}`) e a 4 acrescentou `jlvl`/`jxp`; saves antigos abrem com esses campos vazios). Save sem `jlvl`: com caminho, Classe = nível − 9 (dá exatamente os mesmos pontos de antes); sem caminho, Classe = mín(nível, 10), e se os pontos gastos passarem do que a Classe dá, `initSkills` devolve todos de graça. Ao mudar o formato, aumente `v` e migre em `enter()` (`99`) conforme o `v` lido. Trate saves sem `v` como versão 1.
 - `initSkills` migra saves antigos (ids `guerreiro0`/`arqueira0` → nós novos da árvore).
 - Se o `map` salvo deixar de existir, `enter()` já manda o herói para Valdor. Mantenha esse comportamento ao renomear ou remover mapas.
 
@@ -210,3 +214,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
    - Presença compartilhada: ver amigos no mesmo mapa e chat (ex.: Supabase Realtime ou WebSocket simples).
    - Um jogador anfitrião via WebRTC, ou servidor autoritativo em Node (ex.: Colyseus), com grupo, loot compartilhado e contas.
    - O servidor exige mover a lógica de mundo (monstros, combate, loot) para fora do navegador.
+9. **Nível de Base, nível de Classe e atributos, como no Ragnarok** (pedido e aprovado pelo dono em 28/09/2026). Em 3 etapas:
+   - ✅ **Etapa 1, dois níveis** (28/09/2026): ver "Habilidades" acima. HUD com duas barras (Base dourada, Classe azul) e "Nv X · Classe Y".
+   - **Etapa 2, seis atributos, tudo vindo dos pontos** (o dono escolheu "tudo dos pontos": sem crescimento automático de ataque e defesa por nível). Força, Agilidade, Vitalidade, Inteligência, Destreza e Sorte, **começando em 5** (decisão do dono). Cada nível de Base dá 3 pontos, +1 a cada 10 níveis (nv 1–9: 3, 10–19: 4…). Cada atributo vai até 99, custo 1 ponto. Vida e mana ainda sobem um pouco por nível conforme a classe (como no RO). Efeitos: Força = ataque do Guerreiro e +10 de peso; Agilidade = velocidade de ataque e esquiva (nova: chance de não levar o golpe); Vitalidade = vida, defesa e recuperação de vida; Inteligência = ataque do Mago, mana e recuperação de mana; Destreza = ataque da Arqueira e recarga um pouco menor; Sorte = crítico e chance de itens caírem. Janela nova de Atributos. **A Mestra Elara reseta os atributos por 1000 de ouro**: todos voltam a **1** e todos os pontos voltam para distribuir (inclusive os 4 iniciais de cada um). Save antigo: todos os pontos devolvidos para distribuir.
+   - **Etapa 3, equilíbrio:** um herói com pontos bem distribuídos deve ter a força de hoje; monstros e chefes continuam justos.

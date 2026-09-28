@@ -16,7 +16,7 @@ function drawExtra(e,tt){const o=e.o;
   ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(o.x-7,o.y-17,14,2);ctx.fillStyle='#5dff7a';ctx.fillRect(o.x-7,o.y-17,14*Math.max(0,o.hp/o.maxHp),2);}
  else if(e.t===7){shadow(o.x,o.y,6);drawS('mentora',o.x,o.y);}
  else if(e.t===8){drawS(o.state==='pure'?'pool1':'pool0',o.x,o.y);if(o.state!=='pure'&&R()<.25)parts.push({x:o.x+rf(-6,6),y:o.y-4,vx:0,vy:-18,g:0,life:.8,max:.8,color:'#b070ff',s:1});}}
-function mentorAlert(){if(!P||!hasTree(P.cls))return false;return(P.lvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.lvl>=25);}
+function mentorAlert(){if(!P||!hasTree(P.cls))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
 function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';
  const lab=(t,x,y,c)=>{ctx.strokeText(t,sx(x),sy(y));ctx.fillStyle=c;ctx.fillText(t,sx(x),sy(y));};
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');
@@ -32,14 +32,15 @@ function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;
 function toggleTree(){const el=$('tree'),show=el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(show){if(!classTrees().includes(treeTab))treeTab=CT().base;if(P.spec&&treeTab===CT().base&&ptsFree()>0)treeTab=P.spec;renderTree();}}
-function tierLabel(t,nodes){const lv=Math.min(...nodes.map(n=>SK[n].lvl)),s=SK[nodes[0]];let r=`Andar ${t} • nível ${lv}`;if(s.pts)r+=` e ${s.pts} pontos neste caminho`;if(s.promo)r+=' e promoção';return r;}
+function tierLabel(t,nodes){const s=SK[nodes[0]],base=s.tree===CT().base,lv=Math.min(...nodes.map(n=>SK[n].lvl))-(base?0:10);
+ let r=`Andar ${t} • `+(base?`Classe ${lv}`:lv<=1?'ao entrar no caminho':`Classe ${lv} no caminho`);if(s.pts)r+=` e ${s.pts} pontos neste caminho`;if(s.promo)r+=' e promoção';return r;}
 function renderTree(){const body=$('treeBody'),tabs=$('treeTabs'),det=$('treeDet');
  if(!hasTree(P.cls)){$('treePts').textContent='';tabs.innerHTML='';det.innerHTML='';body.innerHTML=`<p class="flav">A árvore do ${CL[P.cls].nome} ainda está sendo escrita. Por enquanto, só o Mago e o Guerreiro têm caminhos para evoluir.</p>`;return;}
  $('treePts').textContent=`${ptsFree()} ponto(s) livre(s)`;if(!classTrees().includes(treeTab)){treeTab=CT().base;treeSel=null;}
  tabs.innerHTML='';for(const t of classTrees()){const b=document.createElement('button');b.className='btn sm tab'+(t===treeTab?' on':'');
   const locked=t!==CT().base&&P.spec!==t;b.textContent=(t===CT().base?CT().ic+' ':SPECS[t].ic+' ')+TREES[t]+(locked?' 🔒':'');b.onclick=()=>{treeTab=t;treeSel=null;renderTree();};tabs.append(b);}
  const ids=Object.keys(SK).filter(id=>SK[id].tree===treeTab);let h='';
- if(treeTab!==CT().base&&P.spec!==treeTab)h+=`<p class="flav">${P.spec?'Você seguiu outro caminho.':'Complete a prova da Mestra Elara no nível 10 para abrir este caminho.'} ${SPECS[treeTab].d}</p>`;
+ if(treeTab!==CT().base&&P.spec!==treeTab)h+=`<p class="flav">${P.spec?'Você seguiu outro caminho.':'Complete a prova da Mestra Elara no nível de Classe 10 para abrir este caminho.'} ${SPECS[treeTab].d}</p>`;
  body.innerHTML=h;
  for(const t of[1,2,3]){const ns=ids.filter(id=>SK[id].tier===t);if(!ns.length)continue;const w=document.createElement('div');w.className='tier';w.innerHTML=`<h4>${tierLabel(t,ns)}</h4>`;const g=document.createElement('div');g.className='nodes';
   for(const id of ns){const s=SK[id],r=rk(id),b=document.createElement('button');b.className='node'+(r?' has':'')+(!canLearn(id)?' can':'')+(canLearn(id)&&!r?' lock':'')+(s.act?'':' pas')+(treeSel===id?' sel':'');
@@ -62,12 +63,12 @@ function renderMentor(){const b=$('mentorBody');let h='';
  else if(P.quest){const q=P.quest,S=SPECS[q.spec];
   h=q.done?`<p class="flav">"Você provou seu valor. O caminho de ${S.n.toLowerCase()} está aberto."</p><button class="btn gold" data-act="done">Tornar-me ${S.ap}</button>`
    :`<p class="flav">"Continue. A prova ainda não terminou."</p><div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.trial.t}</p><div class="prog"><i style="width:${q.prog/q.goal*100}%"></i></div><p>${q.prog} de ${q.goal}</p></div><button class="btn sm" data-act="quit">Abandonar a prova</button>`;}
- else if(!P.spec){h=`<p class="flav">"${P.lvl<10?`Ainda é cedo, jovem ${CL[P.cls].nome.toLowerCase()}. Volte quando alcançar o nível 10 e eu mostrarei os caminhos que se abrem a partir daqui.`:`Chegou a hora de escolher. Cada caminho exige uma prova, e a escolha é para sempre.`}"</p>`;
-  for(const k of CT().specs){const S=SPECS[k];h+=`<div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.d}</p><p style="font-size:20px">${icons(k)}</p><p><b>Prova:</b> ${S.trial.t}.</p>${P.lvl>=10?`<button class="btn sm gold" data-act="take" data-spec="${k}">Aceitar a prova</button>`:''}</div>`;}}
+ else if(!P.spec){h=`<p class="flav">"${P.jlvl<10?`Ainda é cedo, jovem ${CL[P.cls].nome.toLowerCase()}. Volte quando alcançar o nível de Classe 10 e eu mostrarei os caminhos que se abrem a partir daqui.`:`Chegou a hora de escolher. Cada caminho exige uma prova, e a escolha é para sempre.`}"</p>`;
+  for(const k of CT().specs){const S=SPECS[k];h+=`<div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.d}</p><p style="font-size:20px">${icons(k)}</p><p><b>Prova:</b> ${S.trial.t}.</p>${P.jlvl>=10?`<button class="btn sm gold" data-act="take" data-spec="${k}">Aceitar a prova</button>`:''}</div>`;}}
  else{const S=SPECS[P.spec];
   h=P.promo>=2?`<p class="flav">"Você dominou o caminho de ${S.n.toLowerCase()}. Pouco resta que eu possa ensinar."</p>`
-   :P.lvl>=25?`<p class="flav">"Seu poder amadureceu. Aceite o título de ${S.n}."</p><button class="btn gold" data-act="promo">Receber a promoção</button>`
-   :`<p class="flav">"Siga treinando, ${S.ap.toLowerCase()}. No nível 25 você estará pronto para a promoção e para a sua habilidade suprema."</p>`;}
+   :P.jlvl>=25?`<p class="flav">"Seu poder amadureceu. Aceite o título de ${S.n}."</p><button class="btn gold" data-act="promo">Receber a promoção</button>`
+   :`<p class="flav">"Siga treinando, ${S.ap.toLowerCase()}. No nível de Classe 25 você estará pronto para a promoção e para a sua habilidade suprema."</p>`;}
  if(hasTree(P.cls))h+=`<div class="shoprow"><span>Redistribuir todos os pontos da árvore</span><button class="btn sm" data-act="respec">${respecCost()}g</button></div>`;
  b.innerHTML=h;b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const a=x.dataset.act;
   if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();

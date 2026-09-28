@@ -71,13 +71,22 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 const xpNeed=l=>Math.floor(50*Math.pow(l,1.6));
-function gainXp(x){P.xp+=x;while(P.xp>=xpNeed(P.lvl)&&P.lvl<50){P.xp-=xpNeed(P.lvl);P.lvl++;recalc();P.hp=P.st.hp;P.mp=P.st.mp;
+// Nível de Classe (dá os pontos de habilidade): vai até 10 na classe inicial; ao virar aprendiz (P.spec) recomeça do 1 e vai até 50.
+// A barra do caminho enche um pouco mais rápido (85%), para a promoção (Classe 25) chegar perto do nível de Base 25.
+const jobCap=()=>P.spec?50:10,jobNeed=j=>P.spec?Math.floor(xpNeed(j)*.85):xpNeed(j);
+function gainJob(x){const cap=jobCap();if(P.jlvl>=cap){P.jxp=0;return false;}P.jxp+=x;let up=false;
+ while(P.jlvl<cap&&P.jxp>=jobNeed(P.jlvl)){P.jxp-=jobNeed(P.jlvl);P.jlvl++;up=true;log(`Nível de Classe ${P.jlvl}! Mais 1 ponto de habilidade.`,'#8fd0ff');
+  fx.push({k:'ring',x:P.x,y:P.y-4,r0:4,r1:40,t:0,max:.6,color:'#8fd0ff',w:2});}
+ if(P.jlvl>=cap){P.jxp=0;if(up)log(P.spec?'Você chegou ao nível máximo de Classe.':'Nível de Classe 10! A Mestra Elara quer falar com você.','#8fd0ff');}
+ return up;}
+function gainXp(x){const jup=gainJob(x),lv0=P.lvl;P.xp+=x;while(P.xp>=xpNeed(P.lvl)&&P.lvl<50){P.xp-=xpNeed(P.lvl);P.lvl++;recalc();P.hp=P.st.hp;P.mp=P.st.mp;
  banner(`Nível ${P.lvl}!`,'Vida e mana restauradas.');log(`Você alcançou o nível ${P.lvl}!`,'#ffd24a');
- fx.push({k:'ring',x:P.x,y:P.y-4,r0:4,r1:50,t:0,max:.6,color:'#ffd24a',w:3});for(let i=0;i<40;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:rf(.6,1.2),max:1.2,color:pick(['#ffd24a','#fff3b0','#ffb020']),s:rf(1,2)});save();}}
+ fx.push({k:'ring',x:P.x,y:P.y-4,r0:4,r1:50,t:0,max:.6,color:'#ffd24a',w:3});for(let i=0;i<40;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:rf(.6,1.2),max:1.2,color:pick(['#ffd24a','#fff3b0','#ffb020']),s:rf(1,2)});save();}
+ if(jup&&P.lvl===lv0){banner(`Nível de Classe ${P.jlvl}!`,'Um ponto de habilidade para a árvore (T).');save();}}
 function hurtPlayer(atk,m,mult=1){if(P.dead)return;let d=Math.max(1,Math.round(atk*mult*rf(.9,1.1)*60/(60+P.st.def)));d=preHurt(d,m,mult);if(d<=0)return;P.hp-=d;onMonHit(m,d);P.hitT=.15;P.combatT=time;
  addText(P.x+rf(-4,4),P.y-22,'-'+d,'#ff5a5a');shake(m&&m.boss?4:1.5);
  if(m&&!m.dead&&!P.target){P.target=m;if(!P.dest)P.auto=true;}
@@ -189,5 +198,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:3,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:4,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

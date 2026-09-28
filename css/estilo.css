@@ -28,6 +28,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #ffd24a;outline-offse
 .bar span{position:absolute;inset:0;text-align:center;font-size:11px;line-height:12px;color:#fff;font-weight:700;text-shadow:0 1px 2px #000}
 .bar.hp i{background:linear-gradient(#f0625a,#a82020)} .bar.mp i{background:linear-gradient(#6aa4ff,#2446b0)}
 .bar.xp{height:6px} .bar.xp i{background:linear-gradient(#ffd66a,#b07c10)}
+.bar.jxp{margin-top:2px} .bar.jxp i{background:linear-gradient(#8fd0ff,#2a6ab0)}
 #tframe{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:min(260px,42vw);padding:6px 8px;z-index:5}
 .tname{font-weight:800;font-size:14px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #mapbox{position:absolute;right:10px;top:10px;padding:5px;z-index:5}

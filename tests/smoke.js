@@ -21,11 +21,15 @@
   for(const cls of Object.keys(CL)){
    t(cls+': criar herói',()=>enter({cls,name:'Teste'}));
    t(cls+': 200 quadros em Valdor',()=>tick(200));
-   t(cls+': subir até o nível 30',()=>{for(let i=0;i<40&&P.lvl<30;i++)gainXp(xpNeed(P.lvl));if(P.lvl<30)throw 'parou no nível '+P.lvl;});
+   t(cls+': subir até o nível 30',()=>{for(let i=0;i<40&&P.lvl<30;i++)gainXp(xpNeed(P.lvl));if(P.lvl<30)throw 'parou no nível '+P.lvl;
+    if(P.jlvl!==10||P.jxp!==0)throw 'Classe deveria parar no 10 antes do caminho: '+P.jlvl;if(ptsTotal()!==9)throw 'pontos da classe inicial: '+ptsTotal();});
    t(cls+': aprender habilidades da base',()=>{let n=0;for(let r=0;r<6;r++)for(const id in SK)if(!canLearn(id)&&learn(id))n++;
     if(!n)throw 'nenhuma habilidade aprendida';info(n+' ranks aprendidos, '+ptsFree()+' pontos livres, '+P.bar.filter(Boolean).length+' na hotbar');});
    t(cls+': especialização e promoção',()=>{const s=Object.keys(SPECS).find(k=>SPECS[k].cls===cls);if(!s)throw 'classe sem especialização';
-    P.spec=s;P.promo=1;for(let r=0;r<6;r++)for(const id in SK)if(!canLearn(id))learn(id);recalc();info(SPECS[s].n+', '+ptsFree()+' pontos livres');});
+    acceptTrial(s);if(!P.quest)throw 'não aceitou a prova na Classe 10';P.quest.prog=P.quest.goal;P.quest.done=true;completeTrial();
+    if(P.spec!==s||P.jlvl!==1)throw 'o nível de Classe não recomeçou do 1';promote();if(P.promo>=2)throw 'promoveu antes da Classe 25';
+    let base=P.lvl;for(let i=0;i<200&&P.jlvl<25;i++)gainXp(jobNeed(P.jlvl));promote();if(P.promo!==2)throw 'sem promoção na Classe 25';
+    for(let r=0;r<6;r++)for(const id in SK)if(!canLearn(id))learn(id);recalc();info(SPECS[s].n+': Classe '+P.jlvl+', Base '+base+' → '+P.lvl+', '+ptsFree()+' pontos livres');});
    t(cls+': usar a hotbar 1 a 6 em campo',()=>{switchMapNow('floresta',null);cura();
     for(let r=0;r<3;r++){for(let s=0;s<6;s++){try{useSkill(s);}catch(e){throw 'tecla '+(s+1)+': '+e;}}tick(60);cura();}});
    t(cls+': salvar e carregar',()=>{saveReal();const s=loadSave();if(!s||s.cls!==cls||s.lvl!==P.lvl||s.map!==CUR)throw 'o save não bate com o herói';});
@@ -65,7 +69,11 @@
   t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
-   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==3||!loadSave().mats||!loadSave().miss)throw 'save novo sem v:3, mats ou miss';});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==4||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5)throw 'save novo sem v:4, mats, miss ou jlvl';});
+  t('níveis: save antigo ganha nível de Classe e mantém os pontos',()=>{const b={v:3,name:'Velho',cls:'guerreiro',xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'};
+   enter(Object.assign({},b,{lvl:20,spec:'paladino',promo:1,ranks:{giro:5,vigor:5,grito:5,pele:5}}));if(P.jlvl!==11||ptsFree()!==0||rk('pele')!==5)throw 'aprendiz nv 20: Classe '+P.jlvl+', livres '+ptsFree();
+   enter(Object.assign({},b,{lvl:20,ranks:{giro:5,vigor:5,grito:5,pele:5}}));if(P.jlvl!==10||ptsFree()!==9||rk('pele'))throw 'sem caminho nv 20: Classe '+P.jlvl+', livres '+ptsFree();
+   info('aprendiz nv 20 → Classe 11; sem caminho nv 20 → Classe 10, pontos devolvidos');});
   // Guilda de Valdor: interior e mural de missões
   t('guilda: entrar pela porta e achar o mural',()=>{switchMapNow('valdor',null);switchMapNow('guilda','valdor');cura();if(!(BOARD.x>0))throw 'mural sem posição';
    P.x=BOARD.x;P.y=BOARD.y+6;const it=nearestInteract();if(!it||it.kind!=='board')throw 'mural não é o objeto mais próximo';interact(it);

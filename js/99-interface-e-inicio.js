@@ -93,8 +93,8 @@ function updateHotbar(){if(!P)return;
   else if(h.p)el.querySelector('.n').textContent=P.pots[h.p];}}
 function flashSlot(i){const e=hbEls[i]&&hbEls[i].el;if(e){e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash');}}
 function updateHUD(){const st=P.st;$('hpFill').style.width=(P.hp/st.hp*100)+'%';$('hpTxt').textContent=`${Math.ceil(P.hp)} / ${st.hp}`;
- $('mpFill').style.width=(P.mp/st.mp*100)+'%';$('mpTxt').textContent=`${Math.floor(P.mp)} / ${st.mp}`;$('xpFill').style.width=(P.xp/xpNeed(P.lvl)*100)+'%';
- $('pLvl').textContent=P.lvl+' • '+title();hudExtra();$('gold').textContent=P.gold;let t=P.target;if(t&&t.fake&&!t.fake.dead)t=Object.assign(Object.create(t),{hp:t.fake.hp,maxHp:t.fake.maxHp});$('tframe').classList.toggle('hidden',!t||t.dead);
+ $('mpFill').style.width=(P.mp/st.mp*100)+'%';$('mpTxt').textContent=`${Math.floor(P.mp)} / ${st.mp}`;$('xpFill').style.width=(P.xp/xpNeed(P.lvl)*100)+'%';$('jxpFill').style.width=(P.jlvl>=jobCap()?100:P.jxp/jobNeed(P.jlvl)*100)+'%';
+ $('pLvl').textContent=P.lvl;$('pJob').textContent=P.jlvl;$('pTitle').textContent=title();hudExtra();$('gold').textContent=P.gold;let t=P.target;if(t&&t.fake&&!t.fake.dead)t=Object.assign(Object.create(t),{hp:t.fake.hp,maxHp:t.fake.maxHp});$('tframe').classList.toggle('hidden',!t||t.dead);
  if(t&&!t.dead){$('tName').textContent=`${t.elite?'★ ':''}${t.name} • nível ${t.lvl}`;$('tName').style.color=conColor(t.lvl);$('tFill').style.width=(t.hp/t.maxHp*100)+'%';$('tTxt').textContent=`${Math.max(0,Math.ceil(t.hp))} / ${t.maxHp}`;}
  weightHUD();const it=P.dead?null:nearestInteract(),pr=$('prompt');pr.classList.toggle('hidden',!it);if(it)pr.textContent=promptText(it);
  updateHotbar();}
@@ -110,7 +110,7 @@ function renderBag(){const g=$('invGrid');g.innerHTML='';
  document.querySelectorAll('[data-eq]').forEach(b=>{const s=b.dataset.eq,it=P.equip[s];b.style.borderColor=it?RARC[it.rar]:'';b.classList.toggle('sel',!!(it&&sel&&sel.key===it.id));
   b.innerHTML=it?`<img src="${iconOf(it)}" alt="">`:`<span class="ph">${SLOTN[s]}</span>`;b.onclick=()=>{if(it){sel={key:it.id,eq:true};renderBag();}};});
  $('dollImg').src=toURL(SPR[heroSpr()].n,6);$('invCount').textContent=E.length?`${E.length} ${E.length>1?'tipos':'tipo'} de item`:'Nada nesta aba';$('sortBtn').style.display=bagTab==='equip'?'':'none';weightBar();
- const st=P.st;$('statsBox').innerHTML=`<span>Nível</span><b>${P.lvl}</b><span>Vida</span><b>${st.hp}</b><span>Mana</span><b>${st.mp}</b><span>Ataque</span><b>${st.atk}</b><span>Defesa</span><b>${st.def}</b><span>Crítico</span><b>${st.crit}%</b><span>Velocidade</span><b>+${st.spd}%</b><span>Ouro</span><b>${P.gold}</b>`;
+ const st=P.st;$('statsBox').innerHTML=`<span>Nível de Base</span><b>${P.lvl}</b><span>Nível de Classe</span><b>${P.jlvl} / ${jobCap()}</b><span>Vida</span><b>${st.hp}</b><span>Mana</span><b>${st.mp}</b><span>Ataque</span><b>${st.atk}</b><span>Defesa</span><b>${st.def}</b><span>Crítico</span><b>${st.crit}%</b><span>Velocidade</span><b>+${st.spd}%</b><span>Ouro</span><b>${P.gold}</b>`;
  const d=$('detail');if(sel&&!sel.eq&&sel.key.includes(':'))return stackDetail(d,sel.key);
  const it=sel&&(sel.eq?Object.values(P.equip).find(x=>x&&x.id===sel.key):P.inv.find(x=>x.id===sel.key));
  if(!it){d.innerHTML='<span style="color:var(--muted)">Toque num item para ver os detalhes.'+(bagTab==='equip'?' ▲ indica um item melhor que o equipado.':'')+'</span>';return;}
@@ -164,7 +164,7 @@ function buildStart(){const box=$('classes');box.innerHTML='';
   d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
-function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
+function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
  $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();
