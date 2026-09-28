@@ -16,6 +16,7 @@
  const saveOriginal=localStorage.getItem(SAVEKEY),saveReal=save;save=()=>{};
 
  try{
+  t('mapa inicial: a Mestra Elara não está na praça de Valdor',()=>{if(MENTOR.x>0)throw 'Elara ainda na praça';});
   t('mapa inicial já tem a casa da Guilda (herói novo não troca de mapa)',()=>{if(!objRows.some(r=>r.some(o=>o.spr==='guilda')))throw 'Valdor foi gerada antes do 13';});
   for(const cls of Object.keys(CL)){
    t(cls+': criar herói',()=>enter({cls,name:'Teste'}));
@@ -66,8 +67,13 @@
    if(!c.muroH||!c.muroV)throw 'sem muro';const saidas=Object.values(MAPS.valdor.portals).filter(p=>p[2]!=='porta').length;if((c.torre||0)<4+2*saidas)throw 'só '+(c.torre||0)+' torres';
    info((c.muroH+c.muroV)+' trechos de muro, '+c.torre+' torres, '+((c.banca||0)+(c.banca2||0))+' bancas, '+(c.poco||0)+' poço, '+(c.lampiao||0)+' lampiões');});
   t('Valdor: casas comuns e o nome da Guilda ao passar o mouse',()=>{switchMapNow('valdor',null);let casas=0,g=null;for(const r of objRows)for(const o of r){if(/^house/.test(o.spr))casas++;if(o.spr==='guilda')g=o;}
-   if(casas<8)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
+   if(casas<7)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
    if(houseAt((TC.x+.5)*TILE,(TC.y+.5)*TILE))throw 'a praça não devia ter nome';info(casas+' casas comuns + a Guilda');});
+  t('casa da Mestra Elara: ela atende lá dentro',()=>{switchMapNow('valdor',null);if(MENTOR.x>0)throw 'Elara continua na praça de Valdor';
+   let c=null;for(const r of objRows)for(const o of r)if(o.spr==='casaElara')c=o;if(!c||c.label!=='Casa da Mestra Elara')throw 'casa sem sprite ou nome';
+   switchMapNow('casaElara','valdor');cura();if(!(MENTOR.x>0))throw 'Elara não está na casa';P.x=MENTOR.x;P.y=MENTOR.y+14;const it=nearestInteract();if(!it||it.kind!=='mentor')throw 'não dá para falar com ela';
+   interact(it);if($('mentor').classList.contains('hidden'))throw 'janela da mentora não abriu';closeAll();
+   switchMapNow('pinheiral','casaElara');if(!(MENTOR.x>0))throw 'em Pinheiral ela devia continuar na praça';});
   t('guilda de Pinheiral: casa, salão e missões da região',()=>{switchMapNow('pinheiral',null);if(!objRows.some(r=>r.some(o=>o.spr==='guilda2')))throw 'sem a casa da Guilda';switchMapNow('guildaPinheiral','pinheiral');cura();
    P.x=BOARD.x;P.y=BOARD.y+6;interact(nearestInteract());const cards=$('boardBody').querySelectorAll('.mcard').length,esp=MISS.filter(q=>q.city==='pinheiral').length;if(!esp||cards!==esp)throw cards+' de '+esp+' missões';
    for(const q of MISS)if(!MAPS[q.map]||!LOOTM[q.mat])throw q.id+': mapa ou material inexistente';info(MAPS.guildaPinheiral.n+': '+esp+' missões');closeAll();});

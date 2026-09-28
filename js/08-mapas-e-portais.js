@@ -11,6 +11,7 @@ function switchMapNow(id,from){const prev=CUR;
  CUR=id;genWorld(id);const M=MAPS[id],st=MSTATE[id];
  if(prev!==id){if(st){mons.push(...st.mons);chests.push(...st.chests);loots.push(...st.loots);delete MSTATE[id];}else populate();}
  NPC.x=M.town?(TC.x+3.5)*TILE:-9999;NPC.y=M.town?(TC.y-1)*TILE:-9999;MENTOR.x=M.town?(TC.x-3.5)*TILE:-9999;MENTOR.y=M.town?(TC.y-1)*TILE:-9999;
+ if(M.mentorAt!==undefined){MENTOR.x=M.mentorAt?(M.mentorAt[0]+.5)*TILE:-9999;MENTOR.y=M.mentorAt?(M.mentorAt[1]+.5)*TILE:-9999;} // Elara dentro de uma casa (15)
  if(!P)return;
  if(from){const e=M.portals[from]||homeOf(M),L=hyp(TC.x-e[0],TC.y-e[1])||1,sp=freeNear(Math.round(e[0]+(TC.x-e[0])/L*3),Math.round(e[1]+(TC.y-e[1])/L*3),ground[e[1]*W+e[0]]===G.HIGH);P.x=sp.x;P.y=sp.y;}
  Object.assign(P,{portalCD:1,target:null,auto:false,dest:null,pend:null,volley:null,queued:null});
