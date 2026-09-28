@@ -75,6 +75,6 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 - [ ] Cartas de monstros para encaixar nos equipamentos
 - [x] Guildas em Valdor e Pinheiral, com interior e mural de missões (traga materiais, ganhe ouro e XP)
 - [x] Vila de Valdor com muralha, portões com torres, bancas de mercado e poço
-- [ ] Interiores nas outras casas de Valdor (Mestra Elara, ferreiro com refinamento até +10)
+- [x] Casa da Mestra Elara e ferreiro com refinamento até +10 em Valdor
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas

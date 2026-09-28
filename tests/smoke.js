@@ -67,13 +67,27 @@
    if(!c.muroH||!c.muroV)throw 'sem muro';const saidas=Object.values(MAPS.valdor.portals).filter(p=>p[2]!=='porta').length;if((c.torre||0)<4+2*saidas)throw 'só '+(c.torre||0)+' torres';
    info((c.muroH+c.muroV)+' trechos de muro, '+c.torre+' torres, '+((c.banca||0)+(c.banca2||0))+' bancas, '+(c.poco||0)+' poço, '+(c.lampiao||0)+' lampiões');});
   t('Valdor: casas comuns e o nome da Guilda ao passar o mouse',()=>{switchMapNow('valdor',null);let casas=0,g=null;for(const r of objRows)for(const o of r){if(/^house/.test(o.spr))casas++;if(o.spr==='guilda')g=o;}
-   if(casas<7)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
+   if(casas<6)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
    if(houseAt((TC.x+.5)*TILE,(TC.y+.5)*TILE))throw 'a praça não devia ter nome';info(casas+' casas comuns + a Guilda');});
   t('casa da Mestra Elara: ela atende lá dentro',()=>{switchMapNow('valdor',null);if(MENTOR.x>0)throw 'Elara continua na praça de Valdor';
    let c=null;for(const r of objRows)for(const o of r)if(o.spr==='casaElara')c=o;if(!c||c.label!=='Casa da Mestra Elara')throw 'casa sem sprite ou nome';
    switchMapNow('casaElara','valdor');cura();if(!(MENTOR.x>0))throw 'Elara não está na casa';P.x=MENTOR.x;P.y=MENTOR.y+14;const it=nearestInteract();if(!it||it.kind!=='mentor')throw 'não dá para falar com ela';
    interact(it);if($('mentor').classList.contains('hidden'))throw 'janela da mentora não abriu';closeAll();
    switchMapNow('pinheiral','casaElara');if(!(MENTOR.x>0))throw 'em Pinheiral ela devia continuar na praça';});
+  t('ferreiro: casa, interior e conversa',()=>{switchMapNow('valdor',null);let c=null;for(const r of objRows)for(const o of r)if(o.spr==='ferraria')c=o;if(!c||c.label!=='Ferreiro')throw 'casa sem sprite ou nome';
+   switchMapNow('ferraria','valdor');cura();if(!(SMITH.x>0))throw 'ferreiro sem posição';P.x=SMITH.x;P.y=SMITH.y+4;const it=nearestInteract();if(!it||it.kind!=='smith')throw 'não dá para falar com ele';
+   interact(it);if($('smith').classList.contains('hidden'))throw 'painel não abriu';closeAll();});
+  t('ferreiro: +1 a +5 sem risco, custo dobrando e material certo',()=>{const arma=genItem(10,0,'arma'),elmo=genItem(10,0,'elmo');P.inv.push(arma,elmo);P.gold=100000;P.mats={zumbi:5,golem:1};
+   const atk0=arma.stats.atk,g0=P.gold,falha=()=>.99;for(let i=0;i<5;i++)refine(arma,falha);
+   if(arma.ref!==5)throw 'chegou só a +'+arma.ref;if(P.gold!==g0-3100)throw 'custo errado: '+(g0-P.gold);if(P.mats.zumbi)throw 'não gastou 1 minério por vez';
+   if(!(arma.stats.atk>atk0))throw 'ataque não subiu';if(!/ \+5$/.test(arma.name))throw 'nome sem +5: '+arma.name;
+   refine(elmo,falha);if(elmo.ref!==1||P.mats.golem)throw 'elmo devia usar Núcleo de Pedra';
+   refine(arma);if(arma.ref!==5)throw 'refinou sem minério';info(arma.name+': ataque '+atk0+' → '+arma.stats.atk);});
+  t('ferreiro: do +6 em diante pode falhar e quebrar; limite +10',()=>{const a=genItem(10,0,'arma');a.ref=5;refStats(a);P.equip.arma=a;P.gold=10**7;P.mats={zumbi:20};
+   const seq=v=>{let i=0;return()=>v[i++];};
+   refine(a,seq([.99,.9]));if(a.ref!==5||P.equip.arma!==a)throw 'falhou mas devia resistir';
+   refine(a,seq([.99,.1]));if(P.equip.arma)throw 'devia ter quebrado e saído do corpo';
+   const b=genItem(10,0,'arma');P.inv.push(b);for(let i=0;i<12;i++)refine(b,()=>0);if(b.ref!==10)throw 'limite: +'+b.ref;recalc();});
   t('guilda de Pinheiral: casa, salão e missões da região',()=>{switchMapNow('pinheiral',null);if(!objRows.some(r=>r.some(o=>o.spr==='guilda2')))throw 'sem a casa da Guilda';switchMapNow('guildaPinheiral','pinheiral');cura();
    P.x=BOARD.x;P.y=BOARD.y+6;interact(nearestInteract());const cards=$('boardBody').querySelectorAll('.mcard').length,esp=MISS.filter(q=>q.city==='pinheiral').length;if(!esp||cards!==esp)throw cards+' de '+esp+' missões';
    for(const q of MISS)if(!MAPS[q.map]||!LOOTM[q.mat])throw q.id+': mapa ou material inexistente';info(MAPS.guildaPinheiral.n+': '+esp+' missões');closeAll();});

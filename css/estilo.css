@@ -157,3 +157,5 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 .mcard.pronta{border-color:#3ddc5a;box-shadow:0 0 0 1px #3ddc5a inset} .mcard.espera{opacity:.6}
 /* nome da casa ao passar o mouse */
 #tip{position:fixed;z-index:40;pointer-events:none;padding:3px 9px;font:700 14px Cinzel,serif;color:var(--gold);white-space:nowrap}
+/* ferreiro */
+#smith{width:min(520px,95vw)} #smith .detail div{margin:3px 0}

@@ -104,7 +104,7 @@ function renderBag(){const g=$('invGrid');g.innerHTML='';
  $('bagTabs').querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===bagTab));
  const E=bagEntries(),n=Math.max(24,Math.ceil(E.length/6)*6);
  for(let i=0;i<n;i++){const e=E[i],b=document.createElement('button');b.className='slot';
-  if(e){if(e.border)b.style.borderColor=e.border;b.innerHTML=`<img src="${e.img}" alt="">`+(e.up?'<span class="up">▲</span>':'')+(e.n>1?`<span class="qt">${e.n}</span>`:'');b.title=e.name;
+  if(e){if(e.border)b.style.borderColor=e.border;b.innerHTML=`<img src="${e.img}" alt="">`+(e.up?'<span class="up">▲</span>':'')+(e.n>1?`<span class="qt">${e.n}</span>`:'')+(e.ref?`<span class="qt">+${e.ref}</span>`:'');b.title=e.name;
    if(sel&&!sel.eq&&sel.key===e.key)b.classList.add('sel');b.onclick=()=>{sel={key:e.key,eq:false};renderBag();};}
   g.append(b);}
  document.querySelectorAll('[data-eq]').forEach(b=>{const s=b.dataset.eq,it=P.equip[s];b.style.borderColor=it?RARC[it.rar]:'';b.classList.toggle('sel',!!(it&&sel&&sel.key===it.id));
@@ -127,7 +127,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){toggle(shopEl,true);}
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
@@ -150,6 +150,7 @@ cv.addEventListener('pointerdown',e=>{if(!P||P.dead)return;e.preventDefault();co
  let hit=null;for(const m of mons){if(m.dead)continue;const h=mh(m),hw=Math.max(8,SPR[m.type].n.width*m.sc/2);if(w.x>m.x-hw&&w.x<m.x+hw&&w.y>m.y-h-2&&w.y<m.y+4&&(!hit||m.y>hit.y))hit=m;}
  if(hit){P.target=hit;P.auto=true;P.dest=null;P.pend=null;return;}
  for(const c of chests)if(!c.open&&hyp(c.x-w.x,c.y-6-w.y)<12){P.pend={kind:'chest',o:c};P.dest={x:c.x,y:c.y+2};P.auto=false;return;}
+ if(hyp(SMITH.x-w.x,SMITH.y-16-w.y)<18){P.pend={kind:'smith',o:SMITH};P.dest={x:SMITH.x,y:SMITH.y+4};P.auto=false;return;}
  if(hyp(BOARD.x-w.x,BOARD.y-16-w.y)<18){P.pend={kind:'board',o:BOARD};P.dest={x:BOARD.x,y:BOARD.y+4};P.auto=false;return;}
  if(hyp(NPC.x-w.x,NPC.y-8-w.y)<14){P.pend={kind:'npc',o:NPC};P.dest={x:NPC.x,y:NPC.y+10};P.auto=false;return;}
  P.dest=w;P.auto=false;P.pend=null;P.queued=null;dragging=true;fx.push({k:'ring',x:w.x,y:w.y,r0:6,r1:2,t:0,max:.3,color:'#ffffff',w:1});});

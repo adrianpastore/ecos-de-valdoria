@@ -40,7 +40,7 @@ let bagTab='equip';
 $('bagTabs').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{bagTab=b.dataset.tab;sel=null;renderBag();});
 function bagEntries(){const E=[];
  if(bagTab==='uso'){for(const t of['hp','mp'])if(P.pots[t]>0)E.push({key:'pot:'+t,img:iconURL('pot'+t),n:P.pots[t],name:t==='hp'?'Poção de vida':'Poção de mana'});}
- else if(bagTab==='equip'){for(const it of P.inv)E.push({key:it.id,img:iconOf(it),n:1,name:it.name,border:RARC[it.rar],up:power(it)>power(P.equip[it.slot])});}
+ else if(bagTab==='equip'){for(const it of P.inv)E.push({key:it.id,img:iconOf(it),n:1,name:it.name,border:RARC[it.rar],up:power(it)>power(P.equip[it.slot]),ref:it.ref});}
  else for(const k of Object.keys(P.mats).sort((a,b)=>LOOTM[a].n.localeCompare(LOOTM[b].n)))if(P.mats[k]>0)E.push({key:'mat:'+k,img:matIcon(k),n:P.mats[k],name:LOOTM[k].n});
  return E;}
 function stackDetail(d,key){const[kind,id]=key.split(':'),near=hyp(NPC.x-P.x,NPC.y-P.y)<70;let h,acts;

@@ -19,7 +19,8 @@ function switchMapNow(id,from){const prev=CUR;
  for(const a of allies){a.x=P.x+rf(-10,10);a.y=P.y+rf(-6,10);a.target=null;}
  if(P.quest&&P.quest.spec==='druida'&&!P.quest.done&&id==='floresta'){if(!P.quest.nasc)placeNascs();else restoreNascs();}else nascs=[];
  cam.x=P.x-VW/S/2;cam.y=P.y-8-VH/S/2;$('zoneName').textContent=M.n;if(shopEl)shopEl.classList.add('hidden');$('mentor').classList.add('hidden');$('board').classList.add('hidden');
- BOARD.x=M.board?(M.board[0]+1)*TILE:-9999;BOARD.y=M.board?(M.board[1]+1)*TILE+8:-9999;save();}
+ BOARD.x=M.board?(M.board[0]+1)*TILE:-9999;BOARD.y=M.board?(M.board[1]+1)*TILE+8:-9999;
+ SMITH.x=M.smith?(M.smith[0]+.5)*TILE:-9999;SMITH.y=M.smith?(M.smith[1]+1)*TILE+8:-9999;$('smith').classList.add('hidden');save();}
 function portalTick(dt){if(loading)return;if((P.portalCD||0)>0){P.portalCD-=dt;return;}
  for(const to in MAPS[CUR].portals){const p=portalPt(to);if(hyp(P.x-p.x,P.y-p.y)<12){changeMap(to,CUR);return;}}}
 function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);

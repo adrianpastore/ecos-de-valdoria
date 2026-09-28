@@ -28,3 +28,49 @@ houseInterior({id:'casaElara',city:'valdor',at:[TC.x-7,TC.y-3],sprite:'casaElara
 MAPS.valdor.mentorAt=null;
 // o mapa inicial (Valdor) não passa por switchMapNow num herói novo: tira a Elara da praça já no carregamento
 if(MAPS[CUR].mentorAt===null){MENTOR.x=-9999;MENTOR.y=-9999;}
+
+// ================== FERREIRO (REFINAMENTO) ==================
+// A casa azul, embaixo à direita da praça de Valdor, com bigorna na placa. Regras aprovadas pelo dono (28/09/2026):
+// arma usa Minério Bruto (Zumbi Mineiro); armaduras e acessórios usam Núcleo de Pedra (Golem). 1 material + ouro por tentativa.
+// Ouro: 100 no +1 e dobra a cada nível. +1 a +5 sempre dão certo; +6..+10: 60/55/50/40/35%. Na falha, 50% de o item quebrar.
+// Cada + dá +5% nos atributos do item (com pelo menos +1 a cada 2 níveis, para atributos pequenos) e o nome mostra o nível.
+reg('ferraria',signHouse('#3a6ab8','#244a8a','#8a5a30',f=>{f('#c8c8d0',12,16,8,2);f('#e8e8f0',12,16,8,1);f('#c8c8d0',14,18,4,1);f('#9a98a0',13,19,6,1);f('#4a3222',19,15,1,3);f('#9a98a0',18,15,3,1);}));
+def('ferreiro',["......kkkk......",".....kHHHHk.....","....kssssssk....","....kseSSesk....","....kBBBBBBk....",".....kBBBBk.....","..kkssAAAAsskk..",".ksskAAAAAAksk..",".ksskAAgAAAksww.","..kkkAAAAAAkkww.","....kAAAAAAk.y..","....kPPPPPPk.y..","....kPPkkPPk....","....kPPk.kPPk...","....kbbk.kbbk...","....kkk..kkk...."],
+ {H:'#b8423a',s:'#e0a878',e:K,S:'#c8906c',B:'#8a4a22',A:'#5a3a22',g:'#e8b43c',w:'#8d8a86',y:'#6a4526',P:'#3a3552',b:'#4a3222'});
+{const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
+ reg('bigorna',box(16,12,f=>{f(K,0,1,16,4);f('#6d6a70',1,2,14,2);f('#9a98a0',1,2,14,1);f(K,5,5,6,3);f('#5d5a60',6,5,4,3);f(K,3,8,10,4);f('#4d4a50',4,9,8,2);}));
+ reg('forja',box(32,28,f=>{f(K,11,0,10,7);f('#6d685c',12,1,8,6);f(K,1,6,30,22);f('#8d8778',2,7,28,20);f('#6d685c',2,11,28,1);f('#6d685c',2,23,28,1);
+  f(K,8,12,16,10);f('#3a1a0a',9,13,14,8);f('#ff6a1a',10,16,12,5);f('#ffd24a',12,17,8,3);f('#fff3b0',14,18,4,1);f('#5d584c',2,26,28,1);}));}
+houseInterior({id:'ferraria',city:'valdor',at:[TC.x+6,TC.y+4],sprite:'ferraria',name:'Ferreiro',room:[14,8],seed:1021,
+ deco:[[TC.x-2,TC.y-2,'ferreiro'],[TC.x,TC.y-2,'bigorna'],[TC.x+2,TC.y-4,'forja',1],[TC.x-6,TC.y-4,'barril'],[TC.x+5,TC.y-4,'barril']],
+ extra:{s:'Refinamento de equipamentos',smith:[TC.x-2,TC.y-2]}});
+const SMITH={x:-9999,y:-9999},REF_OK=[1,1,1,1,1,.6,.55,.5,.4,.35];
+const refCost=r=>100*2**r,refMat=it=>it.slot==='arma'?'zumbi':'golem';
+const refVal=(b,r)=>Math.max(b+Math.floor(r/2),Math.round(b*(1+.05*r)));
+function refStats(it){if(!it.bs)it.bs=Object.assign({},it.stats);const r=it.ref||0;for(const k in it.bs)it.stats[k]=refVal(it.bs[k],r);
+ it.base=it.base||it.name;it.name=r?it.base+' +'+r:it.base;}
+// roll: sorteio (trocável nos testes); a 1ª jogada decide o sucesso, a 2ª se o item quebra na falha
+function refine(it,roll=R){const r=it.ref||0;if(!it||r>=10)return;const cost=refCost(r),m=refMat(it),M=LOOTM[m];
+ if(P.gold<cost){log('Ouro insuficiente para refinar.','#ff6b6b');return;}if(!(P.mats[m]>0)){log(`Falta ${M.n} para refinar.`,'#ff6b6b');return;}
+ P.gold-=cost;P.mats[m]--;if(!P.mats[m])delete P.mats[m];
+ if(roll()<REF_OK[r]){it.ref=r+1;refStats(it);banner('Refinado!',it.name);log(`O ferreiro refinou: ${it.name}.`,'#ffd24a');}
+ else if(roll()<.5){const s=Object.keys(P.equip).find(k=>P.equip[k]===it);if(s)delete P.equip[s];else P.inv.splice(P.inv.indexOf(it),1);
+  smithSel=null;banner('O item quebrou!',it.name);log(`O metal não aguentou: ${it.name} quebrou.`,'#ff6b6b');shake(3);}
+ else log(`O refinamento falhou, mas ${it.name} resistiu.`,'#ffb040');
+ recalc();if(!$('smith').classList.contains('hidden'))renderSmith();save();}
+let smithSel=null;
+function openSmith(){closeAll();smithSel=null;renderSmith();$('smith').classList.remove('hidden');}
+function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).filter(Boolean),...P.inv];
+ let h=`<p class="flav">"Traga ouro e o minério certo, e eu deixo seu equipamento mais forte. Até o +5 não tem perigo. Depois disso... às vezes o metal não aguenta."</p>`;
+ h+=list.length?'<div class="grid">'+list.map((it,i)=>`<button class="slot${smithSel===it?' sel':''}" data-i="${i}" title="${it.name}" style="border-color:${RARC[it.rar]}"><img src="${iconOf(it)}" alt="">${it.ref?`<span class="qt">+${it.ref}</span>`:''}</button>`).join('')+'</div>':'<p>Você não tem equipamentos.</p>';
+ const it=smithSel;
+ if(it){const r=it.ref||0,m=refMat(it),M=LOOTM[m],have=P.mats[m]||0,eq=Object.values(P.equip).includes(it);
+  h+=`<div class="detail"><h3 class="r${it.rar}">${it.name}</h3><div class="meta">${SLOTN[it.slot]}${eq?' • equipado':''}</div>`;
+  if(r>=10)h+='<div>Este item já está no máximo (+10).</div>';
+  else{const ch=REF_OK[r],bs=it.bs||it.stats;
+   h+=`<div>Para <b>+${r+1}</b>: `+Object.keys(bs).map(k=>`${STN[k]} ${it.stats[k]} → <span class="pos">${refVal(bs[k],r+1)}</span>`).join(' • ')+`</div>`+
+    `<div>Custo: <b>${refCost(r)}g</b> e <b>1× ${M.n}</b> (você tem ${have})</div>`+
+    `<div>Chance: <b>${Math.round(ch*100)}%</b> • ${ch<1?'<span class="neg">se falhar, 50% de chance de o item quebrar</span>':'sem risco'}</div>`+
+    `<div class="acts"><button class="btn sm gold" id="refBtn"${P.gold<refCost(r)||!have?' disabled':''}>Refinar</button></div>`;}
+  h+='</div>';}
+ B.innerHTML=h;B.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{smithSel=list[+b.dataset.i];renderSmith();});const rb=$('refBtn');if(rb)rb.onclick=()=>refine(smithSel);}

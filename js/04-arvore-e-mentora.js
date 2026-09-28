@@ -22,7 +22,7 @@ function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');
  if(mentorAlert()){ctx.font='800 24px Cinzel,serif';lab('!',MENTOR.x,MENTOR.y-31+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';}
  portalLabels(lab);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
-function promptText(it){return it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
+function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara (em Valdor, na casa da estrela).`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
