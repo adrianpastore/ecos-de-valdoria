@@ -104,7 +104,7 @@ Encostas de Pinheiral (desenhadas à parte, também com o norte para cima):
                       │
 [Pinheiral] ─ [01] ─ [02]
 ```
-Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Totem Ancião) e 07 (Raposa Anciã de Nove Caudas). O lado oeste de Pinheiral leva à Caverna.
+Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Totem Ancião) e 07 (Raposa Anciã de Nove Caudas); Caverna, fundo (Senhor dos Ossos). O lado oeste de Pinheiral leva à Caverna.
 
 ### Sprites (`01` e outros)
 - `def(nome, linhas, paleta)`: linhas de texto de até 16 caracteres, uma por pixel. `.` = transparente, `k` = contorno `#1b1320`, demais letras vêm da paleta. **Confira a largura das linhas** (devem ter no máximo 16).
@@ -118,7 +118,7 @@ Chefes: Covil (Wyrm Carmesim), Encosta 03 (Mestre das Máscaras), 05 (Grande Tot
   - Monstros da caverna (em `11`): Morcego da Caverna (bando, `hover`), Esqueleto Arqueiro (`ranged`, `arrow`), Zumbi Mineiro (lento, resistente, `poison`), além do Esqueleto Guerreiro de `02`.
 - Escala por nível: vida ×(1+0,22·(nv−1)), ataque ×(1+0,16·(nv−1)), defesa ×(1+0,12·(nv−1)). Elite: 2,6× vida, 1,35× ataque.
 - IA: estados `idle`, `chase`, `return`. `monSpecial(m, dt, dP)` trata os comportamentos especiais e `bossAI` as mecânicas dos chefes (`mascaras`, `totemA`, `raposa9`).
-- **Onde cada chefe é definido:** o Wyrm tem `boss:'wyrm'` direto em `MAPS.covil` (`01`). Os chefes das Encostas são acrescentados em `10`, com `Object.assign(MAPS.encostaN, {boss, bossLv})`. Por isso, olhar só a tabela `MAPS` não mostra todos os chefes.
+- **Onde cada chefe é definido:** o Wyrm tem `boss:'wyrm'` direto em `MAPS.covil` (`01`). Os chefes das Encostas são acrescentados em `10`, com `Object.assign(MAPS.encostaN, {boss, bossLv})`. O Senhor dos Ossos é definido em `10`, mas só entra em `MAPS.caverna3` em `11` (o mapa nasce lá). Por isso, olhar só a tabela `MAPS` não mostra todos os chefes.
 - Chefes nascem no centro do maior platô (`bossSpot`) ou no `LAIR`. Voltam em 4 min (Covil: 3 min). Ao morrer: banner "MVP!" e um item épico+ garantido.
 
 ### Classes, habilidades e especializações (`02`, `03`, `06`, `07`)
@@ -165,7 +165,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
    - ✅ Portais com posição livre, estradas opcionais e o trecho de estrada que some no mato (26/09/2026).
    - ✅ **Etapa 1, estrutura** (26/09/2026): boca no oeste de Pinheiral, 3 andares de 80×60 em salões e corredores (o dono decidiu manter o tamanho), escadas, escuridão com a tocha do herói, tema 7. Os monstros são **provisórios** (aranha, esqueleto, golem).
    - ✅ **Etapa 2, monstros próprios** (26/09/2026): `caverna1` morcegos em bando + esqueletos; `caverna2` esqueletos arqueiros + zumbis mineiros + esqueletos; `caverna3` todos misturados, com 12% de elites. Números ainda não testados jogando.
-   - **Etapa 3, chefe:** o **Senhor dos Ossos** no fundo (`caverna3`), que invoca esqueletos. Seguir o padrão de `10` (`boss`, `bossLv`, `ai` em `bossAI`).
+   - ✅ **Etapa 3, chefe** (28/09/2026): o **Senhor dos Ossos** (nv 30, 800 de vida), rei esqueleto de manto roxo. Sprite, números e golpes (`ai:'ossos'`) em `10`; o mapa ganha o chefe em `11`. Nasce no salão mais longe da escada (`bossSpot` tem um ramo para `M.cave`, que procura o ponto com 5×5 livre mais distante do portal de `home`). Golpes: ergue 2 esqueletos (guerreiros ou arqueiros) a cada 13 s, no máximo 4 vivos (`raiseBones`, os servos têm `owner`); Chuva de Ossos (3 círculos marcados no chão); leque de 4 ossos. Cada servo vivo cura o chefe em 0,2% da vida por segundo (fio roxo até ele), então vale derrubar os esqueletos primeiro. Abaixo de 50%, se enfurece: ergue 3 na hora, e tudo fica mais rápido. Os servos somem quando ele morre. Material: Coroa de Osso. No escuro, o chefe e os disparos dos monstros brilham um pouco. Números ainda não testados jogando.
    - Sugestões ainda não aprovadas: aparência própria para cada portal conforme o lugar (boca de caverna, escada, arco de pedra); minimapa que só revela o que o herói já viu, nas cavernas.
 2. **Lançamento no celular** (single-player): deixar o jogo online, gostoso de jogar no telefone, e começar a divulgar. Uma etapa de cada vez, nesta ordem:
    1. **Controles e interface para celular.** Hoje já funciona no toque (tocar no chão anda, tocar no monstro ataca, hotbar e botões laterais), mas foi pensado para teclado. Falta:

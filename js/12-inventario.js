@@ -26,7 +26,7 @@ for(const[k,n,c,w]of[['slime','Musgo de Geleia','#5fcf5a'],['esquilo','Pelo de E
  ['esporov','Pó Venenoso','#8a3aa0'],['verme','Casca de Verme','#d87a9a'],['salgueiro','Galho Vivo','#7ab04a'],['salgueiroA','Seiva Antiga','#c8a040'],['guaxinim','Rabo Listrado','#5a5a62'],
  ['jiboia','Escama de Jiboia','#5a9a3a'],['pegrande','Tufo de Pelo Grosso','#7a5a3a'],['lanterna','Brasa Errante','#ffb040'],['duende','Lasca de Porrete','#8a5a2c'],['totem','Pena Ritual','#c8323a'],
  ['raposa','Cauda de Raposa','#f4efe0'],['morcego','Asa de Morcego','#4a3a5a'],['esqArq','Ponta de Osso','#c8c0a8'],['zumbi','Minério Bruto','#6a7a8a'],
- ['wyrm','Escama Carmesim','#b0303a'],['mestreMasc','Máscara Rachada','#c8a030'],['totemAnciao','Madeira Sagrada','#6a5a48'],['raposaAnc','Pérola de Raposa','#ffe0a0']]){
+ ['wyrm','Escama Carmesim','#b0303a'],['mestreMasc','Máscara Rachada','#c8a030'],['totemAnciao','Madeira Sagrada','#6a5a48'],['raposaAnc','Pérola de Raposa','#ffe0a0'],['senhorOssos','Coroa de Osso','#e8b43c']]){
  const d=MDEF[k];LOOTM[k]={n,c,w:w||1,v:d.boss?150:clamp(Math.round(d.xp/3),2,15)};}
 const shadeHex=(h,f)=>'#'+hexRGB(h).map(v=>clamp(Math.round(f>0?v+(255-v)*f:v*(1+f)),0,255).toString(16).padStart(2,'0')).join('');
 const MATROWS=["...kkkk...","..kCCCCk..",".kCcCCCCk.","kCcCCCCCCk","kCCCCCCCdk","kCCCCCCddk",".kCCCCddk.","..kkkkkk.."];

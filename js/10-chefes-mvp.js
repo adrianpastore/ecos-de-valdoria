@@ -9,10 +9,19 @@ Object.assign(MDEF,{
  mascaraClone:{n:'Mestre das Máscaras',hp:1,atk:6,def:0,spd:62,xp:0,r:9,aggro:200,cd:1.2,scale:1.8,clone:true},
  totemAnciao:{n:'Grande Totem Ancião',hp:520,atk:26,def:14,spd:0,xp:800,r:14,aggro:120,cd:1.4,scale:2.4,boss:true,ai:'totemA'},
  raposaAnc:{n:'Raposa Anciã de Nove Caudas',hp:650,atk:28,def:10,spd:72,xp:1300,r:12,aggro:140,cd:1.4,scale:2.2,boss:true,ai:'raposa9'}});
+// Senhor dos Ossos: rei esqueleto de manto roxo e cajado, no fundo da Caverna (o mapa ganha o chefe em 11)
+def('senhorOssos',["....kckckk...ko.","....kccccck.kook","...kbbbbbbbk.kT.","...kbeebeebk.kT.","...kbbbkbbbk.kT.","....kbwbwbk..kT.","...kkRkkkRkk.kT.","..kRRrbbbrRRkkT.",".kRRrRbbbRrRRbT.",".kRkrRRbRRrRkkT.",".kbkRRRRRRRRk.T.","...kRRrRRrRRk.T.","..kRRrRRRRrRRkT.","..kRrRRRRRRrRkT.",".kRRRRRRRRRRRRkT",".kkkkkkkkkkkkkkT"],
+ {c:'#e8b43c',b:'#e8e2cc',e:'#b060ff',w:'#a9a28a',R:'#3a2450',r:'#5a3a78',T:'#7a5a2a',o:'#60ff9a'});
+MDEF.senhorOssos={n:'Senhor dos Ossos',hp:800,atk:30,def:14,spd:36,xp:1600,r:13,aggro:140,cd:1.5,scale:2.4,boss:true,ai:'ossos'};
 Object.assign(MAPS.encosta3,{boss:'mestreMasc',bossLv:15});Object.assign(MAPS.encosta5,{boss:'totemAnciao',bossLv:21});Object.assign(MAPS.encosta7,{boss:'raposaAnc',bossLv:28});MAPS.covil.bossLv=22;
 for(const k of['encosta3','encosta5','encosta7'])MAPS[k].s+=' • chefe no alto do platô';
 const BOSSAT={};
 function bossSpot(){const M=MAPS[CUR];if(M.lair)return{x:(LAIR.x+.5)*TILE,y:(LAIR.y+.5)*TILE};
+ // caverna não tem platô: o chefe fica no salão mais longe da escada de chegada (5×5 livre em volta)
+ if(M.cave){const e=portalPt(M.home);let bi=-1,bd=-1;
+  for(let y=3;y<H-3;y++)for(let x=3;x<W-3;x++){let ok=1;for(let j=-2;j<=2&&ok;j++)for(let k=-2;k<=2;k++){const q=(y+j)*W+x+k;if(solid[q]||!REACH[q]){ok=0;break;}}
+   const dd=ok?hyp((x+.5)*TILE-e.x,(y+.5)*TILE-e.y):-1;if(dd>bd){bd=dd;bi=y*W+x;}}
+  if(bd>0)return{x:(bi%W+.5)*TILE,y:(((bi/W)|0)+.5)*TILE};}
  const seen=new Uint8Array(W*H);let best=null;
  for(let s=0;s<W*H;s++){if(seen[s]||ground[s]!==G.HIGH||solid[s]||!REACH[s])continue;const comp=[],q=[s];seen[s]=1;
   while(q.length){const i=q.pop();comp.push(i);const x=i%W,y=(i/W)|0;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy,j=Y*W+X;if(X<0||Y<0||X>=W||Y>=H||seen[j]||ground[j]!==G.HIGH||solid[j])continue;seen[j]=1;q.push(j);}}
@@ -21,10 +30,10 @@ function bossSpot(){const M=MAPS[CUR];if(M.lair)return{x:(LAIR.x+.5)*TILE,y:(LAI
  let cx=0,cy=0;for(const i of best){cx+=i%W;cy+=(i/W)|0;}cx/=best.length;cy/=best.length;let bi=best[0],bd=1e9;
  for(const i of best){const dd=hyp(i%W-cx,((i/W)|0)-cy);if(dd<bd){bd=dd;bi=i;}}return{x:(bi%W+.5)*TILE,y:(((bi/W)|0)+.5)*TILE};}
 function spawnBoss(announce){const M=MAPS[CUR],p=bossSpot(),b=makeMon(M.boss,p.x,p.y,M.bossLv||22,{zone:M.lair?4:M.theme});
- b.ai={swap:4,throw:2,quake:3,bolt:2,call:9,shot:1,nova:5,blink:8};mons.push(b);
- if(announce){banner(`${b.name} apareceu!`,M.lair?'Algo ruge no covil.':'Procure no alto das encostas.');log(`${b.name} apareceu em ${M.n}!`,'#ff6a4a');}}
+ b.ai={swap:4,throw:2,quake:3,bolt:2,call:9,shot:1,nova:5,blink:8,rain:3};mons.push(b);
+ if(announce){banner(`${b.name} apareceu!`,M.lair?'Algo ruge no covil.':M.cave?'Ossos estalam no fundo da caverna.':'Procure no alto das encostas.');log(`${b.name} apareceu em ${M.n}!`,'#ff6a4a');}}
 function bossDead(m){const M=MAPS[CUR];BOSSAT[CUR]=time+(M.lair?180:240);dropLoot(m.x,m.y,{kind:'item',item:genItem(m.lvl+2,4,null,3)});
- for(const c of mons)if(c.d.clone)c.dead=true;
+ for(const c of mons)if(c.d.clone||c.owner===m){c.dead=true;burst(c.x,c.y-10,'#c8c8c8',12,40);}
  banner('MVP!',`${P.name} derrotou ${m.name}`);log(`MVP! Você derrotou ${m.name}.`,'#ff9a1f');shake(4);
  for(let i=0;i<60;i++)parts.push({x:m.x+rf(-20,20),y:m.y-rf(0,30),vx:rf(-40,40),vy:rf(-120,-40),g:120,life:rf(.8,1.6),max:1.6,color:pick(['#ffd24a','#ff9a1f','#fff3b0','#ff5a3a']),s:2});save();}
 function shootAt(m,a,sp,c,mult){mproj.push({x:m.x,y:m.y-mh(m)/2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:2.2,m,c,mult});}
@@ -52,6 +61,19 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
   const spd=m.spd*(m.slowT>0?.45:1);if(m.rootT>0)return true;
   if(dP<70){stepSmart(m,(m.x-P.x)/dP*spd*dt,(m.y-P.y)/dP*spd*dt,6,m.side);m.moving=true;}else if(dP>130){stepSmart(m,(P.x-m.x)/dP*spd*dt,(P.y-m.y)/dP*spd*dt,6,m.side);m.moving=true;}else m.moving=false;
   m.face=P.x>m.x?1:-1;return true;}
+ if(d.ai==='ossos'){const serv=mons.filter(c=>c.owner===m&&!c.dead);
+  if(!a.rage&&m.hp<m.maxHp*.5){a.rage=1;a.call=0;banner('O Senhor dos Ossos se enfurece!','Os servos voltam a se erguer.');}
+  if(a.call<=0&&dP<200){a.call=a.rage?9:13;raiseBones(m,Math.min(a.rage?3:2,4-serv.length));}
+  if(a.rain<=0&&dP<200){a.rain=a.rage?4.5:6.5;for(let k=0;k<(a.rage?4:3);k++){const an=R()*6.28,r=k?rf(20,45):0;teles.push({x:P.x+Math.cos(an)*r,y:P.y+Math.sin(an)*r*.6,r:22,t:0,delay:1+k*.15,m,mult:1.1});}
+   addText(m.x,m.y-mh(m)-8,'Chuva de Ossos!','#e8e2cc',true);}
+  if(a.shot<=0&&dP<190){a.shot=a.rage?1.6:2.2;const b=aim();for(const o of[-.3,-.1,.1,.3])shootAt(m,b+o,115,'#e8e2cc',.9);}
+  // cada servo vivo devolve vida ao chefe (0,2% da vida máxima por segundo): vale derrubar os esqueletos primeiro
+  if(serv.length&&m.hp<m.maxHp){m.hp=Math.min(m.maxHp,m.hp+m.maxHp*.002*serv.length*dt);
+   if(R()<dt*3)for(const c of serv)parts.push({x:c.x,y:c.y-10,vx:(m.x-c.x)*1.25,vy:(m.y-12-c.y)*1.25,g:0,life:.8,max:.8,color:'#b060ff',s:2});}
+  return false;}
  return false;}
+// ergue esqueletos (guerreiros ou arqueiros) em volta do Senhor dos Ossos; somem quando ele morre
+function raiseBones(m,n){for(let k=0;k<n;k++)for(let t=0;t<20;t++){const an=R()*6.28,r=rf(24,50),x=m.x+Math.cos(an)*r,y=m.y+Math.sin(an)*r;if(blocked(x,y,5))continue;
+  const c=makeMon(R()<.5?'esqueleto':'esqArq',x,y,Math.max(1,m.lvl-4),{state:'chase',zone:9});c.owner=m;mons.push(c);burst(x,y-8,'#b060ff',16,50);break;}}
 function drawRingTele(t){const f=t.t/t.delay;ctx.strokeStyle=`rgba(255,150,40,${.35+f*.5})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.stroke();
  ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29);ctx.stroke();ctx.fillStyle=`rgba(255,120,30,${f*.25})`;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29,true);ctx.fill();}

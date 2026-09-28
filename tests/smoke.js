@@ -45,6 +45,13 @@
   for(const id of Object.keys(MAPS).filter(k=>MAPS[k].boss))
    t('chefe de '+id+' ('+MDEF[MAPS[id].boss].n+')',()=>{switchMapNow(id,null);const b=mons.find(ehChefe);if(!b)throw 'o chefe não apareceu';
     P.x=b.x+40;P.y=b.y;for(let i=0;i<300;i++){cura();update(.05);}render(.05,0);});
+  t('Senhor dos Ossos: longe da escada, ergue servos que curam e somem com ele',()=>{switchMapNow('caverna3',null);const b=mons.find(ehChefe);if(!b||b.type!=='senhorOssos')throw 'o chefe não apareceu';
+   const j=Math.floor(b.y/TILE)*W+Math.floor(b.x/TILE);if(solid[j]||!REACH[j])throw 'nasceu em lugar bloqueado';const e=portalPt('caverna2'),dist=hyp(b.x-e.x,b.y-e.y)/TILE;if(dist<25)throw 'perto demais da escada: '+dist.toFixed(0);
+   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();update(.05);const serv=mons.filter(c=>c.owner===b);if(serv.length<1)throw 'não ergueu esqueletos';
+   b.hp=b.maxHp*.6;const h=b.hp;for(let i=0;i<10;i++){cura();update(.05);}if(b.hp<=h)throw 'os servos não curaram o chefe';
+   b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
+   killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
+   info(serv.length+' servos, a '+dist.toFixed(0)+' tiles da escada');});
   // inventário em abas, peso e materiais
   t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';}info(Object.keys(LOOTM).length+' materiais');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;

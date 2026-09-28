@@ -24,6 +24,8 @@ Object.assign(MAPS,{
  caverna2:{n:'Caverna de Pinheiral • 2º andar',s:'Nível 24 a 28 • escuridão',cave:1,dark:1,theme:7,seed:902,color:'#15100f',lv:[24,28],home:'caverna1',portals:{caverna1:[6,52],caverna3:[72,7]},count:24,chests:5,tier:3,mons:[['esqArq',.45],['zumbi',.8],['esqueleto',1]]},
  caverna3:{n:'Caverna de Pinheiral • fundo',s:'Nível 28 a 30 • escuridão',cave:1,dark:1,theme:7,seed:903,color:'#100b0b',lv:[28,30],home:'caverna2',portals:{caverna2:[72,7]},count:18,chests:4,tier:3,elite:.12,mons:[['esqArq',.35],['zumbi',.7],['morcego',.85],['esqueleto',1]]}});
 MAPS.pinheiral.portals.caverna1=[1,30]; // a boca da caverna fica no lado oeste da aldeia
+// chefe do fundo (sprite, números e golpes em 10): nasce no salão mais longe da escada
+Object.assign(MAPS.caverna3,{boss:'senhorOssos',bossLv:30});MAPS.caverna3.s+=' • chefe no salão mais fundo';
 
 // salões espalhados, ligados por corredores sinuosos (árvore mínima + dois atalhos), e um túnel até cada portal
 function caveMask(M,rng){const C=new Uint8Array(W*H);
@@ -56,6 +58,8 @@ function drawDark(sx,sy,tt){if(!MAPS[CUR].dark)return;
  if(P)hole(sx(P.x),sy(P.y-8),tr,1);
  for(const to in MAPS[CUR].portals){const p=portalPt(to);hole(sx(p.x),sy(p.y),34*S,.8);}
  for(const p of projs)hole(sx(p.x),sy(p.y),14*S,.6);
+ for(const p of mproj)hole(sx(p.x),sy(p.y),10*S,.5);
+ for(const m of mons)if(m.boss)hole(sx(m.x),sy(m.y-14),44*S,.55); // o chefe brilha no escuro
  for(const f of fx)if(f.k==='boom')hole(sx(f.x),sy(f.y),(f.r||20)*1.5*S,.7);
  ctx.drawImage(darkC,0,0,VW,VH);
  if(P){const x=sx(P.x),y=sy(P.y-8),g=ctx.createRadialGradient(x,y,0,x,y,tr);g.addColorStop(0,'rgba(255,170,80,.10)');g.addColorStop(1,'rgba(255,170,80,0)');ctx.fillStyle=g;ctx.fillRect(x-tr,y-tr,tr*2,tr*2);}}
