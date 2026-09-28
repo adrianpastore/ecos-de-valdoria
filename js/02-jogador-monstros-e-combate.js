@@ -63,7 +63,7 @@ function makeMon(type,x,y,lvl,o={}){const d=MDEF[type],el=!!o.elite;
  m.hp=m.maxHp;m.name=d.n+(el?' Elite':'');if(d.disguise&&!el){m.disguise=d.disguise;m.name=MDEF[d.disguise].n;}return m;}
 function spawnMon(z,far){for(let k=0;k<40;k++){const t=randTile(z);if(!t)return;const x=(t.x+.5)*TILE,y=(t.y+.5)*TILE;if(far&&P&&hyp(x-P.x,y-P.y)<220)continue;
  const r=R();const type=(MAPS[CUR].mons||ZTYPES[z]).find(e=>r<=e[1])[0],lv=clamp(lvlAt(t.x,t.y)+ri(-1,1),1,40);mons.push(makeMon(type,x,y,lv,{elite:R()<(MAPS[CUR].elite||.07),zone:z}));
- const pk=MDEF[type].pack;if(pk)for(let n=ri(pk[0],pk[1])-1;n>0;n--){const bx=x+rf(-22,22),by=y+rf(-16,16);if(!blocked(bx,by,4))mons.push(makeMon(type,bx,by,lv,{zone:z}));}return;}}
+ const pk=MDEF[type].pack;if(pk)for(let n=ri(pk[0],pk[1])-1;n>0;n--)for(let k=0;k<10;k++){const bx=x+rf(-22,22),by=y+rf(-16,16);if(!blocked(bx,by,4)){mons.push(makeMon(type,bx,by,lv,{zone:z}));break;}}return;}}
 function spawnChest(z,far){for(let k=0;k<40;k++){const t=randTile(z);if(!t)return;const x=(t.x+.5)*TILE,y=(t.y+.8)*TILE;
  if(far&&P&&hyp(x-P.x,y-P.y)<200)continue;if(chests.some(c=>hyp(c.x-x,c.y-y)<100))continue;
  const tr=MAPS[CUR].tier||z;chests.push({x,y,tier:tr,zone:z,open:false,openT:0,mimic:tr>=2&&R()<(tr===2?.08:.12),lvl:lvlAt(t.x,t.y)});return;}}

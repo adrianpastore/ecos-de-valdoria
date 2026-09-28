@@ -27,7 +27,7 @@ O progresso é salvo automaticamente no navegador de cada jogador.
 - **Mundo em mapas:** Vila de Valdor, Floresta Verdejante, Pântano Sombrio, Ruínas Esquecidas, Covil do Wyrm, Estrada do Sul, Aldeia de Pinheiral, as Encostas de Pinheiral 01 a 07 e a Caverna de Pinheiral (três andares no escuro, só com a luz da tocha).
 - **Chefes MVP:** Wyrm Carmesim, Mestre das Máscaras, Grande Totem Ancião e Raposa Anciã de Nove Caudas.
 - **Equipamentos visíveis no personagem**, com 5 raridades (comum a lendário).
-- **Guilda de Valdor**, com um mural de missões que pedem materiais dos monstros como prova.
+- **Guildas em Valdor e Pinheiral**, com um mural de missões que pedem materiais dos monstros como prova.
 - **Bolsa em 3 abas e limite de peso**, como nos MMOs clássicos, e um material próprio de cada monstro para vender ao Mercador.
 
 ## Estrutura do projeto
@@ -72,7 +72,7 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 - [ ] Exportar/importar save (para não perder o herói e levar o progresso entre navegadores)
 - [x] Inventário em 3 abas (Consumíveis, Equipamentos e Itens), com peso e materiais deixados pelos monstros
 - [ ] Cartas de monstros para encaixar nos equipamentos
-- [x] Guilda de Valdor com interior e mural de missões (traga materiais, ganhe ouro e XP)
+- [x] Guildas em Valdor e Pinheiral, com interior e mural de missões (traga materiais, ganhe ouro e XP)
 - [ ] Vila de Valdor com muros e torres, e interiores nas outras casas (Elara, ferreiro)
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas
