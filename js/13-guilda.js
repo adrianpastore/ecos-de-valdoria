@@ -31,10 +31,10 @@ function roomMask(M){const C=new Uint8Array(W*H),[w,h]=M.room,x0=TC.x-(w>>1),y0=
 // ================== MAPAS ==================
 // A porta é um portal comum com a marca 'porta' (sem redemoinho). Portais podem ter meio tile, para ficar no centro da porta.
 // Cada cidade principal tem a sua Guilda: a casa fica à direita da praça (TC.x+6, TC.y-3) e o salão mostra as missões da cidade (city).
-function guildHall(id,city,sprite,seed){const C=MAPS[city];
- C.houses=(C.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).filter(h=>!(h[0]===TC.x+6&&h[1]===TC.y-3)).concat([[TC.x+6,TC.y-3,sprite]]);
+function guildHall(id,city,sprite,seed){const C=MAPS[city],n='Guilda de '+C.n.replace(/^(Vila|Aldeia) de /,'');
+ C.houses=(C.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).filter(h=>!(h[0]===TC.x+6&&h[1]===TC.y-3)).concat([[TC.x+6,TC.y-3,sprite,n]]);
  C.portals[id]=[TC.x+6.5,TC.y-2,'porta'];
- MAPS[id]={n:'Guilda de '+C.n.replace(/^(Vila|Aldeia) de /,''),s:'Mural de missões',interior:1,city,theme:8,seed,color:'#2a1c12',home:city,room:[16,10],
+ MAPS[id]={n,s:'Mural de missões',interior:1,city,theme:8,seed,color:'#2a1c12',home:city,room:[16,10],
   portals:{[city]:[TC.x,TC.y+5,'porta']},board:[TC.x-1,TC.y-5],
   deco:[[TC.x-1,TC.y-5,'mural',1],[TC.x-5,TC.y-1,'mesa'],[TC.x+4,TC.y-1,'mesa'],[TC.x-7,TC.y-4,'barril'],[TC.x+6,TC.y-4,'barril']]};}
 guildHall('guilda','valdor','guilda',1001); // o id 'guilda' fica para Valdor: saves já podem estar nesse mapa
@@ -83,3 +83,11 @@ function missAction(a,id){const q=MISS.find(x=>x.id===id),M=P.miss;
 // ao pegar um material de uma missão aceita, mostra o progresso
 function missNote(mat){for(const id of P.miss.on){const q=MISS.find(x=>x.id===id);if(!q||q.mat!==mat)continue;const n=P.mats[mat]||0;
  if(n<=q.n)log(`${q.t}: ${n}/${q.n}${n>=q.n?' • volte ao mural da Guilda!':''}`,'#ffe3a0');}}
+
+// ================== NOME DA CASA AO PASSAR O MOUSE ==================
+// Só com mouse (no toque não existe "passar por cima"). Casas com função têm label; as comuns não mostram nada.
+function houseAt(x,y){const r0=Math.floor(y/TILE);for(let r=Math.min(H-1,r0+2);r>=Math.max(0,r0-1);r--)for(const o of objRows[r])
+ if(o.label&&x>o.px-16&&x<o.px+16&&y>o.py-32&&y<o.py)return o;return null;}
+$('cv').addEventListener('pointermove',e=>{const t=$('tip'),o=e.pointerType==='mouse'&&P?houseAt(worldAt(e).x,worldAt(e).y):null;
+ if(!o){t.classList.add('hidden');return;}t.textContent=o.label;t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY+12)+'px';t.classList.remove('hidden');});
+$('cv').addEventListener('pointerleave',()=>$('tip').classList.add('hidden'));

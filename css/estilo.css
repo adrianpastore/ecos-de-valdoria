@@ -155,3 +155,5 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 .mcard p{margin:4px 0 6px;font-size:14px} .mcard .mr{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;font-size:14px}
 .mcard .acts{display:flex;gap:6px;justify-content:flex-end;margin-top:6px}
 .mcard.pronta{border-color:#3ddc5a;box-shadow:0 0 0 1px #3ddc5a inset} .mcard.espera{opacity:.6}
+/* nome da casa ao passar o mouse */
+#tip{position:fixed;z-index:40;pointer-events:none;padding:3px 9px;font:700 14px Cinzel,serif;color:var(--gold);white-space:nowrap}

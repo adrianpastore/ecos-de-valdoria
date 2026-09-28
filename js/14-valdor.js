@@ -32,3 +32,6 @@ function buildWalls(M,road){const[x0,y0,x1,y1]=M.walls,on=(x,y)=>(x===x0||x===x1
 
 // ================== VALDOR ==================
 Object.assign(MAPS.valdor,{walls:[27,19,53,41],lanterns:1,deco:[[TC.x-4,TC.y-6,'banca',1],[TC.x+3,TC.y-6,'banca2',1],[TC.x-3,TC.y+7,'poco']]});
+// casas comuns, sem interior: só para a vila parecer habitada (telhados marrom e ardósia são novos)
+reg('house5',genHouse('#8a5a3a','#6a4226'));reg('house6',genHouse('#5a6a7a','#3e4a58'));
+MAPS.valdor.houses.push([29,21,'house5'],[50,21,'house6'],[39,21,'house3'],[29,39,'house4'],[50,39,'house5']);

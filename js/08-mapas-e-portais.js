@@ -24,4 +24,5 @@ function portalTick(dt){if(loading)return;if((P.portalCD||0)>0){P.portalCD-=dt;r
 function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);
  for(let k=0;k<3;k++){const r=9-k*2.5,a=tt*(2+k)+k;ctx.strokeStyle=['#ff5a3a','#ff9a4a','#ffe0a0'][k];ctx.globalAlpha=.8;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.5,0,a,a+4.2);ctx.stroke();}
  ctx.globalAlpha=1;if(R()<.3)parts.push({x:p.x+rf(-8,8),y:p.y+rf(-3,3),vx:0,vy:-25,g:0,life:.6,max:.6,color:pick(['#ff5a3a','#ffb060']),s:1});}}
-function portalLabels(lab){for(const to in MAPS[CUR].portals){const p=portalPt(to);lab(MAPS[to].n,p.x,p.y-12,'#ffc890');}}
+// portas não mostram nome: o símbolo da placa e o mouse (houseAt, em 13) identificam o lugar
+function portalLabels(lab){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);lab(MAPS[to].n,p.x,p.y-12,'#ffc890');}}
