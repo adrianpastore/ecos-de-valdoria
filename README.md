@@ -80,5 +80,7 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 - [x] Vila de Valdor com muralha, portões com torres, bancas de mercado e poço
 - [x] Casa da Mestra Elara e ferreiro com refinamento até +10, em toda cidade principal
 - [x] Estilo próprio de cada cidade: Valdor de pedra, Pinheiral com cabanas de toras e paliçada
+- [x] Nível de Base e nível de Classe, com 6 atributos para distribuir
+- [ ] Transcender: renascer no nível 1 com pontos extras e abrir classes transcendentais
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas

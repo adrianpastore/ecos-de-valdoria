@@ -162,9 +162,18 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
 - `tests/smoke-node.js` é a versão antiga do teste, para Node (simula o navegador). Útil numa máquina com Node (`node tests/smoke-node.js`); se mexer em algo que ela usa, mantenha-a funcionando, mas o teste oficial é o do navegador.
 - Para validar sprites visualmente, dá para capturar os pixels desenhados e gerar um PNG (foi feito com Python/PIL durante o desenvolvimento).
 
+## Onde paramos (fim do dia 28/09/2026)
+
+Tudo abaixo está no GitHub (último commit `610ca3f`); nada ficou pela metade. Ao abrir o projeto em outro computador: `git pull`, rodar o teste de fumaça (deve dar "TUDO OK") e perguntar ao dono qual item do roteiro seguir. **Não começar nada novo sem o ok dele.**
+
+- **Feito em 28/09/2026:** inventário em 3 abas com peso e materiais (`12`); Guildas com mural de missões em Valdor e Pinheiral (`13`); muralhas, bancas e poço de Valdor e paliçada rústica de Pinheiral (`14`); casas com interior, Mestra Elara dentro de casa e ferreiro com refinamento até +10 (`15`); os 4 serviços padrão em toda cidade; o chefe da Caverna, **Senhor dos Ossos** (`10`/`11`); **nível de Base + nível de Classe** e **6 atributos** como no Ragnarok (`02`, `03`, `16`; item 9 do roteiro).
+- **Precisa ser testado jogando** (os números só passaram nos testes automáticos): atributos e equilíbrio (item 9), Senhor dos Ossos, missões, refinamento, monstros da Caverna.
+- **Próximos candidatos, na ordem que foi oferecida ao dono:** controles de celular (item 2.1), exportar e importar save (2.3), detalhar as cartas (item 3, precisa de decisões do dono), Transcender (item 9, futuro). Pendências menores: Caixa Velha, ícone próprio por material, valor de venda dos itens refinados, música.
+- **Git:** fazer commit local no fim de cada etapa; **enviar ao GitHub (`push`) só quando o dono disser** ("pode enviar"). Mensagens de commit em português, terminando com a linha `Co-Authored-By` do Claude. No computador do trabalho o `git` não está no PATH (`C:\Program Files\Git\cmd\git.exe`) e o push precisa de `GCM_INTERACTIVE=always`; em casa pode ser diferente.
+
 ## Roteiro (próximos passos)
 
-**Ordem decidida pelo dono em 28/09/2026:** primeiro o item 3 (inventário em abas), depois o 4 (Valdor, interiores e Guilda com missões), e só então o resto (chefe da Caverna, lançamento no celular…). A numeração abaixo é só para referência.
+**Ordem decidida pelo dono em 28/09/2026:** primeiro o item 3 (inventário em abas), depois o 4 (Valdor, interiores e Guilda com missões), e só então o resto (chefe da Caverna, lançamento no celular…). Essas três partes já foram feitas; a partir daqui, o dono escolhe o próximo item. A numeração abaixo é só para referência.
 
 1. **Caverna de Pinheiral**, em três etapas:
    - ✅ Portais com posição livre, estradas opcionais e o trecho de estrada que some no mato (26/09/2026).
