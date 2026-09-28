@@ -147,16 +147,38 @@ O teste roda **no navegador de verdade**, sem Node nem instalação. (Nesta máq
 
 ## Roteiro (próximos passos)
 
+**Ordem decidida pelo dono em 28/09/2026:** primeiro o item 3 (inventário em abas), depois o 4 (missões de entrega), e só então o resto (chefe da Caverna, lançamento no celular…). A numeração abaixo é só para referência.
+
 1. **Caverna de Pinheiral**, em três etapas:
    - ✅ Portais com posição livre, estradas opcionais e o trecho de estrada que some no mato (26/09/2026).
    - ✅ **Etapa 1, estrutura** (26/09/2026): boca no oeste de Pinheiral, 3 andares de 80×60 em salões e corredores (o dono decidiu manter o tamanho), escadas, escuridão com a tocha do herói, tema 7. Os monstros são **provisórios** (aranha, esqueleto, golem).
    - ✅ **Etapa 2, monstros próprios** (26/09/2026): `caverna1` morcegos em bando + esqueletos; `caverna2` esqueletos arqueiros + zumbis mineiros + esqueletos; `caverna3` todos misturados, com 12% de elites. Números ainda não testados jogando.
    - **Etapa 3, chefe:** o **Senhor dos Ossos** no fundo (`caverna3`), que invoca esqueletos. Seguir o padrão de `10` (`boss`, `bossLv`, `ai` em `bossAI`).
    - Sugestões ainda não aprovadas: aparência própria para cada portal conforme o lugar (boca de caverna, escada, arco de pedra); minimapa que só revela o que o herói já viu, nas cavernas.
-2. **Exportar e importar save**, para levar o herói entre o link do Claude, o GitHub Pages e outros navegadores.
-3. Visual próprio por especialização (ex.: armadura dourada só do Paladino) e mestres de classe por cidade.
-4. Revisão de equilíbrio jogando de verdade (os números foram ajustados por testes automáticos).
-5. Multiplayer, em fases:
+2. **Lançamento no celular** (single-player): deixar o jogo online, gostoso de jogar no telefone, e começar a divulgar. Uma etapa de cada vez, nesta ordem:
+   1. **Controles e interface para celular.** Hoje já funciona no toque (tocar no chão anda, tocar no monstro ataca, hotbar e botões laterais), mas foi pensado para teclado. Falta:
+      - Joystick virtual no canto esquerdo (em combate é mais natural que tocar no chão; referência: Ragnarok M). Tocar no chão continua valendo para ir longe.
+      - Botões de habilidade maiores, em arco no canto direito, ao alcance do polegar (hoje ficam pequenos na barra do meio).
+      - Modo paisagem, com aviso "gire o celular" na vertical; tela cheia, sem barra de endereço.
+      - Janelas (bolsa, árvore, mentora, loja) revisadas para o dedo, não para o mouse.
+      - Desempenho num Android simples; se pesar, menos partículas e menor resolução.
+      - **Controles conforme o jeito de jogar, não o aparelho:** abrir com a interface de toque quando o apontador principal for o dedo (`matchMedia('(pointer: coarse)')`), e trocar ao vivo pelo uso real (tocou na tela → joystick e botões grandes; usou teclado ou mouse → interface de computador). Opção manual nas configurações: automático / toque / teclado. Nenhum modo desliga o outro (teclado continua valendo no celular, toque no computador). Não identificar o aparelho pelo nome (`userAgent`), que erra. Hoje o CSS só olha a largura da tela (`max-width:700px`), então um celular deitado recebe a interface de computador.
+      - Como testar aqui: o `rodar-testes.ps1` continua valendo para a lógica; para o visual, dá para capturar telas no Edge sem janela em tamanhos de celular (ex.: 844×390 deitado). O teste de verdade é o dono abrindo o link do GitHub Pages no celular.
+   2. **PWA** (virar "app" sem loja): `manifest.json`, service worker e ícones. O jogador abre o link, toca em "Adicionar à tela inicial" e o jogo ganha ícone, abre em tela cheia e funciona offline. Cuidados: o service worker só funciona em `https` (GitHub Pages sim, `file://` não), então registrar só nesse caso, sem quebrar a abertura com dois cliques; e o cache precisa de versão, para cada atualização enviada ao GitHub chegar sozinha para todo mundo.
+   3. **Exportar e importar save**: um código ou arquivo que o jogador guarda. No celular o navegador às vezes limpa os dados e o herói se perde; também serve para levar o herói entre computadores e navegadores.
+   4. **Divulgação** (mais trabalho do dono do que código): o link do GitHub Pages já serve; domínio próprio é opcional (ex.: ecosdevaldoria.com.br). Página no itch.io (aceita jogos HTML, de graça), Discord próprio para os primeiros jogadores, grupos de nostalgia de Ragnarok, r/WebGames e r/IndieDev, e vídeos curtos (um MVP, o boneco trocando de roupa, um Mímico mordendo). O Claude pode ajudar com textos da página, capturas de tela e um modo de gravação. Na divulgação vale "inspirado nos MMOs clássicos", mas nunca usar imagens, logos ou nomes do Ragnarok (marcas registradas).
+   5. **Mais para frente, se pegar:** save na nuvem com login (Firebase/Firestore, que o dono já conhece de outros projetos, ou Supabase), que também prepara o multiplayer; Google Play empacotando o PWA (ex.: Bubblewrap, taxa única de cerca de US$ 25); App Store só com público (exige Mac, US$ 99/ano e revisão da Apple).
+3. **Inventário em 3 abas, como no Ragnarok** (pedido do dono em 28/09/2026; detalhes marcados "a confirmar" ainda não foram decididos):
+   - **Aba 1, Consumíveis:** tudo que se usa ou se abre: poções (hoje ficam em `P.pots`, fora da bolsa; passam a ser itens empilháveis, mantendo os atalhos Q e R), caixas que podem ser abertas e o que vier depois (pergaminhos, comidas).
+   - **Aba 2, Equipamentos:** armas, armaduras, elmos, botas, anéis e acessórios (o que hoje é todo o `P.inv`).
+   - **Aba 3, Itens:** materiais que os monstros deixam cair, empilháveis. Ex.: a Geleia deixa Musgo de Geleia, o Esquilo Ruivo deixa Pelo de Esquilo. Cada monstro ganha um material próprio, com nome original. Servem para vender ao Bento e, depois, para as missões de entrega.
+   - **Limite por peso, como no Ragnarok** (decidido em 28/09/2026): cada item tem peso e o herói tem uma capacidade (as abas são só a organização). Penalidades no estilo RO: acima de 50% da capacidade, o herói para de regenerar vida e mana sozinho; acima de 90%, não ataca nem usa habilidades. A capacidade cresce com o nível e varia por classe (o jogo não tem atributo de Força).
+   - A confirmar (propor números ao dono antes de implementar): peso de cada tipo de item, capacidade por classe e nível, tamanho das pilhas, quanto os materiais valem no Bento e a lista de materiais de cada monstro.
+   - Muda o formato do save (`P.pots` e `P.inv` → abas): subir `v` para 2 e migrar saves antigos em `enter()`, sem perder nenhum item nem poção.
+4. **Missões de entrega** (depende do item 3): NPCs pedem "traga X de tal material" em troca de recompensa (ouro, XP, itens). Ex.: 10 Pelos de Esquilo. Formato das missões e quais NPCs dão missões: a definir com o dono.
+5. Visual próprio por especialização (ex.: armadura dourada só do Paladino) e mestres de classe por cidade.
+6. Revisão de equilíbrio jogando de verdade (os números foram ajustados por testes automáticos).
+7. Multiplayer, em fases:
    - Presença compartilhada: ver amigos no mesmo mapa e chat (ex.: Supabase Realtime ou WebSocket simples).
    - Um jogador anfitrião via WebRTC, ou servidor autoritativo em Node (ex.: Colyseus), com grupo, loot compartilhado e contas.
    - O servidor exige mover a lógica de mundo (monstros, combate, loot) para fora do navegador.

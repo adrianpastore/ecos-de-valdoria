@@ -63,6 +63,10 @@ Para adicionar um sistema novo, crie um arquivo com número entre 10 e 99 e incl
 - [x] Caverna de Pinheiral: três andares escuros em corredores
 - [x] Monstros da caverna: morcegos em bando, esqueletos arqueiros e zumbis mineiros
 - [ ] Chefe da caverna: Senhor dos Ossos
-- [ ] Exportar/importar save (para levar o progresso entre navegadores)
+- [ ] Controles para celular (joystick, botões grandes, modo paisagem)
+- [ ] Instalar como app pelo navegador (PWA), com tela cheia e modo offline
+- [ ] Exportar/importar save (para não perder o herói e levar o progresso entre navegadores)
+- [ ] Inventário em 3 abas (Consumíveis, Equipamentos e Itens), com materiais deixados pelos monstros
+- [ ] Missões de entrega: NPCs pedem materiais em troca de recompensas
 - [ ] Presença compartilhada: ver amigos no mesmo mapa e conversar
 - [ ] Multiplayer com servidor: grupo, loot compartilhado e contas
