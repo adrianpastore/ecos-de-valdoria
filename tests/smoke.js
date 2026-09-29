@@ -60,6 +60,7 @@
   // inventário em abas, peso e materiais
   t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>16))throw k+' mais largo que 16';}
    const vis=new Set(Object.keys(LOOTM).map(k=>MATSHP[k][0].join('/')));if(vis.size!==Object.keys(LOOTM).length)throw 'dois materiais com o mesmo desenho';info(Object.keys(LOOTM).length+' materiais');});
+  t('Estrada do Sul: sem árvore ao lado da passagem do rio (clear)',()=>{genWorld('estrada');const ok=!(objRows[10]||[]).some(o=>o.tx===21)&&!solid[10*W+21];genWorld(CUR);if(!ok)throw 'ainda há algo no tile 21,10';});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);

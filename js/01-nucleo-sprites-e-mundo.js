@@ -107,7 +107,7 @@ const MAPS={
  pantano:{n:'Pântano Sombrio',s:'Nível 9 a 16',theme:2,seed:303,color:'#23352c',lv:[9,16],home:'valdor',portals:{valdor:[1,42],ruinas:[78,12]},count:28,chests:7},
  ruinas:{n:'Ruínas Esquecidas',s:'Nível 16 a 20',theme:3,seed:404,color:'#5a4a30',lv:[16,20],home:'pantano',portals:{pantano:[1,12],covil:[58,8]},count:26,chests:7},
  covil:{n:'Covil do Wyrm',s:'Chefe • nível 22',theme:4,seed:505,color:'#4a1a14',lv:[22,22],home:'ruinas',portals:{ruinas:[24,56]},boss:'wyrm',lair:1,chests:0},
- estrada:{n:'Estrada do Sul',s:'Nível 2 a 6',road:1,theme:1,seed:606,color:'#2f5a2a',lv:[2,6],home:'valdor',portals:{valdor:[48,1],pinheiral:[32,58]},count:18,chests:4,tier:1,mons:[['slime',.45],['esquilo',.8],['esporinho',1]]},
+ estrada:{n:'Estrada do Sul',s:'Nível 2 a 6',road:1,theme:1,seed:606,color:'#2f5a2a',lv:[2,6],home:'valdor',portals:{valdor:[48,1],pinheiral:[32,58]},clear:[[21,10]],count:18,chests:4,tier:1,mons:[['slime',.45],['esquilo',.8],['esporinho',1]]},
  pinheiral:{n:'Aldeia de Pinheiral',s:'Zona segura • mercador, mentora e fonte de cura',town:1,road:1,theme:6,seed:707,color:'#23402f',lanterns:1,houses:[[TC.x-7,TC.y+4,'house3'],[TC.x+6,TC.y+4,'house4'],[TC.x-7,TC.y-3,'house4'],[TC.x+6,TC.y-3,'house3']],portals:{estrada:[32,1],encosta1:[78,38]}},
  encosta1:{n:'Encosta de Pinheiral 01',s:'Nível 1 a 5',road:1,theme:5,seed:811,color:'#23402f',plateau:.62,lv:[1,5],home:'pinheiral',portals:{pinheiral:[1,38],encosta2:[78,24]},count:26,chests:6,tier:1,mons:[['slime',.35],['esporinho',.7],['esquilo',1]]},
  encosta2:{n:'Encosta de Pinheiral 02',s:'Nível 5 a 9',theme:5,seed:812,color:'#23402f',plateau:.62,lv:[5,9],home:'encosta1',portals:{encosta1:[1,24],encosta3:[40,9,1]},count:26,chests:6,tier:1,mons:[['lobo',.35],['verme',.7],['esporov',1]]},
@@ -191,6 +191,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    addObj(hx,hy,s,true,lb);});
   solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}}
  if(M.deco)for(const[dx,dy,s,wide]of M.deco){solid[dy*W+dx]=1;if(wide)solid[dy*W+dx+1]=1;addObj(dx,dy,s,wide);} // móveis e objetos fixos (ex.: interiores)
+ if(M.clear)for(const[cx,cy]of M.clear){const r=objRows[cy];for(let k=r.length-1;k>=0;k--)if(r[k].tx===cx)r.splice(k,1);const g=ground[cy*W+cx];if(g!==G.WATER&&g!==G.CLIFF)solid[cy*W+cx]=0;} // tiles sem árvore nem pedra, escolhidos à mão
  if(M.walls)buildWalls(M,road); // muralha com portões e torres (14)
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
