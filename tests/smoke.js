@@ -68,6 +68,13 @@
    const d=hyp(P.x-x0,P.y-y0),face=P.face;joyEnd();setTouchUI(false);const off=!document.body.classList.contains('toque');
    if(!on||!off)throw 'a classe toque não liga/desliga';if(!atk)throw 'botão de ataque sem data-k';if(d<10||P.y>=y0)throw 'joystick não moveu o herói ('+d.toFixed(1)+'px)';if(face!==-1)throw 'herói não virou para a esquerda';
    if(JOY.x||JOY.y)throw 'joystick não zerou ao soltar';info('andou '+d.toFixed(0)+' px em meio segundo');});
+  t('desempenho: modo leve, partículas, vinheta em CSS e troca automática',()=>{const q0=localStorage.getItem(QKEY),p0=qualPref;
+   setQual('leve');const d1=DPR;for(let i=0;i<300;i++)parts.push({x:0,y:0,vx:0,vy:0,g:0,life:1,max:1,color:'#fff',s:1});capParts();const n=parts.length;
+   setQual('alta');const d2=DPR;vigKey='';vignette(2);const bg=$('vinheta').style.background;
+   setQual('auto');perfW.skip=0;const was=loading;loading=false;for(let i=0;i<110;i++)perfTick(40);const auto=QUAL.leve;loading=was;
+   qualPref=p0;if(q0===null)localStorage.removeItem(QKEY);else localStorage.setItem(QKEY,q0);setLeve(p0==='leve');qualBtns();
+   if(d1!==1)throw 'o modo leve não baixou a resolução';if(n>90)throw 'partículas não foram limitadas ('+n+')';if(d2!==Math.min(devicePixelRatio||1,2))throw 'a qualidade alta não voltou';
+   if(!bg.includes('radial-gradient'))throw 'vinheta sem degradê';if(!auto)throw 'quadros lentos não ligaram o modo leve';info('leve: 1×, até 90 partículas; vinheta em CSS; 25 quadros/s ligam o leve sozinho');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);

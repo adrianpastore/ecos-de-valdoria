@@ -206,3 +206,5 @@ body.toque .phead{margin-bottom:4px}
  body.toque #smithBody{display:grid;grid-template-columns:1fr minmax(220px,38%);column-gap:12px;align-items:start}
  body.toque #smithBody>.flav{grid-column:1/-1} body.toque #smithBody>.detail{grid-row:2}
 }
+/* desempenho (18): vinheta e tom da região numa camada por cima do canvas, abaixo do HUD */
+#vinheta{position:absolute;inset:0;pointer-events:none;z-index:1}

@@ -50,8 +50,9 @@ function deepRock(x,y){for(let j=-1;j<=1;j++)for(let i=-1;i<=1;i++){const X=x+i,
 // Tudo escuro, menos a luz da tocha do herói (que tremula), os portais e as magias em voo.
 let darkC=null;
 function drawDark(sx,sy,tt){if(!MAPS[CUR].dark)return;
- if(!darkC||darkC.width!==cv.width||darkC.height!==cv.height)darkC=cnv(cv.width,cv.height);
- const d=darkC.getContext('2d');d.setTransform(DPR,0,0,DPR,0,0);d.globalCompositeOperation='source-over';d.clearRect(0,0,VW,VH);d.fillStyle='rgba(6,4,8,.93)';d.fillRect(0,0,VW,VH);
+ // pintada em meia resolução e esticada com suavização: a luz é um degradê, ninguém nota, e fica ~4× mais leve (18)
+ const dw=Math.ceil(VW/2),dh=Math.ceil(VH/2);if(!darkC||darkC.width!==dw||darkC.height!==dh)darkC=cnv(dw,dh);
+ const d=darkC.getContext('2d');d.setTransform(.5,0,0,.5,0,0);d.globalCompositeOperation='source-over';d.clearRect(0,0,VW,VH);d.fillStyle='rgba(6,4,8,.93)';d.fillRect(0,0,VW,VH);
  d.globalCompositeOperation='destination-out';
  const hole=(x,y,r,a)=>{const g=d.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(0,0,0,${a})`);g.addColorStop(.55,`rgba(0,0,0,${a*.85})`);g.addColorStop(1,'rgba(0,0,0,0)');d.fillStyle=g;d.fillRect(x-r,y-r,r*2,r*2);};
  const fl=1+Math.sin(tt*7)*.025+Math.sin(tt*13)*.015,tr=92*S*fl;
@@ -61,5 +62,6 @@ function drawDark(sx,sy,tt){if(!MAPS[CUR].dark)return;
  for(const p of mproj)hole(sx(p.x),sy(p.y),10*S,.5);
  for(const m of mons)if(m.boss)hole(sx(m.x),sy(m.y-14),44*S,.55); // o chefe brilha no escuro
  for(const f of fx)if(f.k==='boom')hole(sx(f.x),sy(f.y),(f.r||20)*1.5*S,.7);
- ctx.drawImage(darkC,0,0,VW,VH);
- if(P){const x=sx(P.x),y=sy(P.y-8),g=ctx.createRadialGradient(x,y,0,x,y,tr);g.addColorStop(0,'rgba(255,170,80,.10)');g.addColorStop(1,'rgba(255,170,80,0)');ctx.fillStyle=g;ctx.fillRect(x-tr,y-tr,tr*2,tr*2);}}
+ // brilho alaranjado da tocha: pintado na própria camada (por cima do escuro, como antes), em meia resolução
+ d.globalCompositeOperation='source-over';if(P){const x=sx(P.x),y=sy(P.y-8),g=d.createRadialGradient(x,y,0,x,y,tr);g.addColorStop(0,'rgba(255,170,80,.10)');g.addColorStop(1,'rgba(255,170,80,0)');d.fillStyle=g;d.fillRect(x-tr,y-tr,tr*2,tr*2);}
+ ctx.imageSmoothingEnabled=true;ctx.drawImage(darkC,0,0,VW,VH);ctx.imageSmoothingEnabled=false;}

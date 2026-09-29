@@ -3,7 +3,7 @@
 // ================== RENDER ==================
 const cv=$('cv'),ctx=cv.getContext('2d'),mini=$('mini').getContext('2d'),bagEl=$('bag'),shopEl=$('shop'),helpEl=$('help');
 let DPR=1,VW=0,VH=0,S=3;const cam={x:TC.x*TILE,y:TC.y*TILE};let CX=0,CY=0;
-function resize(){DPR=Math.min(devicePixelRatio||1,2);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);S=Math.max(2,Math.min(4,Math.round(Math.min(VW/(TILE*20),VH/(TILE*13)))));}
+function resize(){DPR=Math.min(devicePixelRatio||1,QUAL.leve?1:2);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);S=Math.max(2,Math.min(4,Math.round(Math.min(VW/(TILE*20),VH/(TILE*13)))));}
 addEventListener('resize',resize);
 const TINT=[null,null,'rgba(40,70,40,.10)','rgba(120,90,40,.08)','rgba(120,20,10,.14)'];
 function drawS(name,x,y,face=1,sc=1,white=false,sy=1){const s=SPR[name];if(!s)return;const img=white?(face<0?s.wf:s.w):(face<0?s.f:s.n);const w=img.width*sc,h=img.height*sc*sy;ctx.drawImage(img,Math.round(x-w/2),Math.round(y-h),Math.round(w),Math.round(h));}
@@ -59,8 +59,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
  if(MAPS[CUR].town&&R()<.15)parts.push({x:(TC.x+.5)*TILE+rf(-5,5),y:TC.y*TILE+rf(2,8),vx:rf(-8,8),vy:-25,g:60,life:.6,max:.6,color:'#bfe6ff',s:1});
  ctx.restore();
  // tela
- const z=P?P.zone:0;if(TINT[z]){ctx.fillStyle=TINT[z];ctx.fillRect(0,0,VW,VH);}
- const g=ctx.createRadialGradient(VW/2,VH/2,Math.min(VW,VH)*.35,VW/2,VH/2,Math.max(VW,VH)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.45)');ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
+ vignette(P?P.zone:0); // tom da região e bordas escuras: camada CSS por cima do canvas (18)
  const sx=x=>(x-CX)*S,sy=y=>(y-CY)*S;drawDark(sx,sy,tt);ctx.textAlign='center';
  for(const m of mons){if(!inView(m.x,m.y))continue;const isT=P&&P.target===m;if(!(isT||m.hp<m.maxHp||m.elite||m.boss||m.d.clone))continue;
   const w=Math.max(28,m.r*2.6)*S/3,X=sx(m.x),Y=sy(m.y-mh(m))-8;ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(X-w/2-1,Y-1,w+2,6);ctx.fillStyle=m.elite||m.boss?'#ff9a1f':'#e0403a';ctx.fillRect(X-w/2,Y,w*Math.max(0,m.fake?m.fake.hp/m.fake.maxHp:m.hp/m.maxHp),4);
@@ -175,6 +174,6 @@ $('goBtn').onclick=()=>{const n=$('nameIn').value.trim()||pick(['Aldric','Lyra',
 $('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')$('goBtn').click();});
 resize();genWorld(CUR);populate();buildStart(); // gera o mapa inicial de novo: arquivos posteriores ao 01 podem ter mudado MAPS (ex.: a casa da Guilda)
 let last=performance.now(),hudT=0,miniT=0;
-function frame(t){const dt=clamp((t-last)/1000,0,.05);last=t;if(P&&!P.dead&&!loading)update(dt);else if(P)time+=dt;render(dt,t/1000);
+function frame(t){perfTick(t-last);const dt=clamp((t-last)/1000,0,.05);last=t;if(P&&!P.dead&&!loading)update(dt);else if(P)time+=dt;capParts();render(dt,t/1000);
  hudT-=dt;if(P&&hudT<=0){hudT=.1;updateHUD();}miniT-=dt;if(miniT<=0){miniT=.25;drawMini();}requestAnimationFrame(frame);}
 requestAnimationFrame(frame);
