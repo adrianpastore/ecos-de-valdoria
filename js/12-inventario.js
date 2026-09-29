@@ -68,6 +68,9 @@ function dropMat(m){if(!LOOTM[m.type])return;const n=m.boss?3:m.elite?2:R()<.4*l
 // Consumíveis (usar/abrir) • Equipamentos • Itens (materiais). As poções continuam em P.pots e os equipamentos em P.inv.
 let bagTab='equip';
 $('bagTabs').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{bagTab=b.dataset.tab;sel=null;renderBag();});
+// No celular (modo toque) a coluna do boneco não cabe inteira: mostra ou o que está vestido ou os status (classe st em #bagLeft)
+function dollView(v){$('bagLeft').classList.toggle('st',v==='st');document.querySelectorAll('[data-dv]').forEach(b=>b.classList.toggle('on',b.dataset.dv===v));}
+document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>dollView(b.dataset.dv));
 function bagEntries(){const E=[];
  if(bagTab==='uso'){for(const t of['hp','mp'])if(P.pots[t]>0)E.push({key:'pot:'+t,img:iconURL('pot'+t),n:P.pots[t],name:t==='hp'?'Poção de vida':'Poção de mana'});}
  else if(bagTab==='equip'){for(const it of P.inv)E.push({key:it.id,img:iconOf(it),n:1,name:it.name,border:RARC[it.rar],up:power(it)>power(P.equip[it.slot]),ref:it.ref});}

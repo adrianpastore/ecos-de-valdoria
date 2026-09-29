@@ -208,3 +208,9 @@ body.toque .phead{margin-bottom:4px}
 }
 /* desempenho (18): vinheta e tom da região numa camada por cima do canvas, abaixo do HUD */
 #vinheta{position:absolute;inset:0;pointer-events:none;z-index:1}
+/* bolsa no celular: a coluna do boneco mostra "Equipados" ou "Status" (12), um de cada vez */
+.dollTabs{display:none}
+body.toque .dollTabs{display:flex;justify-content:center}
+body.toque #bagLeft.st .doll,body.toque #bagLeft:not(.st) #statsBox{display:none}
+body.toque #bagLeft #statsBox{margin-top:4px}
+body.toque .doll{grid-template-columns:repeat(3,46px);grid-template-rows:repeat(4,46px);gap:5px} body.toque .doll+.doll{grid-template-rows:46px!important} body.toque .doll .big img{width:46px}
