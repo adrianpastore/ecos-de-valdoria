@@ -160,6 +160,12 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 #tip{position:fixed;z-index:40;pointer-events:none;padding:3px 9px;font:700 14px Cinzel,serif;color:var(--gold);white-space:nowrap}
 /* ferreiro */
 #smith{width:min(520px,95vw)} #smith .detail div{margin:3px 0}
+/* bar da Guilda e tônicos ativos (20); com tônico ativo, a prova da Elara (#quest) desce um pouco */
+#taverna{width:min(520px,95vw)} .shoprow.ton img{width:32px;height:32px;image-rendering:pixelated}
+#tonics{position:absolute;left:10px;top:92px;display:flex;gap:4px;flex-wrap:wrap;z-index:5;pointer-events:none}
+#tonics span{background:rgba(20,12,8,.72);color:#ffe3a0;border:1px solid #6b4a14;border-radius:6px;padding:1px 6px;font:700 12px "Pixelify Sans",monospace}
+#tonics:not(:empty)~#quest{top:116px}
+@media (max-width:700px){#tonics{top:86px} #tonics:not(:empty)~#quest{top:110px}}
 /* janela de atributos (16) */
 #attr{width:min(560px,95vw)} #attr .stats{grid-template-columns:1fr auto 1fr auto} #attr .stats em,#attr .av em{color:var(--r1);font-style:normal;font-size:12px}
 .attrs{display:flex;flex-direction:column;gap:4px}

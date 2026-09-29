@@ -94,7 +94,7 @@ function updateHotbar(){if(!P)return;
 function flashSlot(i){const e=hbEls[i]&&hbEls[i].el;if(e){e.classList.remove('flash');void e.offsetWidth;e.classList.add('flash');}}
 function updateHUD(){const st=P.st;$('hpFill').style.width=(P.hp/st.hp*100)+'%';$('hpTxt').textContent=`${Math.ceil(P.hp)} / ${st.hp}`;
  $('mpFill').style.width=(P.mp/st.mp*100)+'%';$('mpTxt').textContent=`${Math.floor(P.mp)} / ${st.mp}`;$('xpFill').style.width=(P.xp/xpNeed(P.lvl)*100)+'%';$('jxpFill').style.width=(P.jlvl>=jobCap()?100:P.jxp/jobNeed(P.jlvl)*100)+'%';
- $('pLvl').textContent=P.lvl;$('pJob').textContent=P.jlvl;$('pTitle').textContent=title();hudExtra();$('gold').textContent=P.gold;let t=P.target;if(t&&t.fake&&!t.fake.dead)t=Object.assign(Object.create(t),{hp:t.fake.hp,maxHp:t.fake.maxHp});$('tframe').classList.toggle('hidden',!t||t.dead);
+ $('pLvl').textContent=P.lvl;$('pJob').textContent=P.jlvl;$('pTitle').textContent=title();hudExtra();tonicHUD();$('gold').textContent=P.gold;let t=P.target;if(t&&t.fake&&!t.fake.dead)t=Object.assign(Object.create(t),{hp:t.fake.hp,maxHp:t.fake.maxHp});$('tframe').classList.toggle('hidden',!t||t.dead);
  if(t&&!t.dead){$('tName').textContent=`${t.elite?'★ ':''}${t.name} • nível ${t.lvl}`;$('tName').style.color=conColor(t.lvl);$('tFill').style.width=(t.hp/t.maxHp*100)+'%';$('tTxt').textContent=`${Math.max(0,Math.ceil(t.hp))} / ${t.maxHp}`;}
  weightHUD();const it=P.dead?null:nearestInteract(),pr=$('prompt');pr.classList.toggle('hidden',!it);if(it)pr.textContent=promptText(it);
  updateHotbar();}
@@ -127,7 +127,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){toggle(shopEl,true);}
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('attr')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('attr')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
@@ -151,6 +151,7 @@ cv.addEventListener('pointerdown',e=>{if(!P||P.dead)return;e.preventDefault();co
  if(hit){P.target=hit;P.auto=true;P.dest=null;P.pend=null;return;}
  for(const c of chests)if(!c.open&&hyp(c.x-w.x,c.y-6-w.y)<12){P.pend={kind:'chest',o:c};P.dest={x:c.x,y:c.y+2};P.auto=false;return;}
  if(hyp(SMITH.x-w.x,SMITH.y-16-w.y)<18){P.pend={kind:'smith',o:SMITH};P.dest={x:SMITH.x,y:SMITH.y+4};P.auto=false;return;}
+ if(hyp(BAR.x-w.x,BAR.y-24-w.y)<18){P.pend={kind:'bar',o:BAR};P.dest={x:BAR.x,y:BAR.y+14};P.auto=false;return;}
  if(hyp(BOARD.x-w.x,BOARD.y-16-w.y)<18){P.pend={kind:'board',o:BOARD};P.dest={x:BOARD.x,y:BOARD.y+4};P.auto=false;return;}
  if(hyp(NPC.x-w.x,NPC.y-8-w.y)<14){P.pend={kind:'npc',o:NPC};P.dest={x:NPC.x,y:NPC.y+10};P.auto=false;return;}
  P.dest=w;P.auto=false;P.pend=null;P.queued=null;dragging=true;fx.push({k:'ring',x:w.x,y:w.y,r0:6,r1:2,t:0,max:.3,color:'#ffffff',w:1});});
@@ -164,7 +165,7 @@ function buildStart(){const box=$('classes');box.innerHTML='';
   d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
-function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,attr:s.attr||newAttr(ATTR_INI),gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
+function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,attr:s.attr||newAttr(ATTR_INI),gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},tons:s.tons||{},tonAt:s.tonAt||{},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
  $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();

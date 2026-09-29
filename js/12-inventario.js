@@ -6,7 +6,7 @@ const WT={arma:40,elmo:25,peito:60,botas:25,anel:5},WPOT=5;
 const CAPF={guerreiro:[700,25],arqueira:[600,20],mago:[500,18]};
 const itemW=it=>WT[it.slot]||10;
 function weightNow(){let w=(P.pots.hp+P.pots.mp)*WPOT;for(const it of P.inv)w+=itemW(it);for(const s in P.equip)if(P.equip[s])w+=itemW(P.equip[s]);
- for(const k in P.mats)w+=(LOOTM[k]?LOOTM[k].w:1)*P.mats[k];return w;}
+ for(const k in P.mats)w+=(LOOTM[k]?LOOTM[k].w:1)*P.mats[k];for(const k in P.tons||{})w+=P.tons[k]*WPOT;return w;} // tônicos (20) pesam como poções
 function capOf(){const c=CAPF[P.cls]||[600,20];return c[0]+c[1]*P.lvl+(P.attr?(P.attr.forca-ATTR_INI)*10:0);} // Força: +10 por ponto
 const wRatio=()=>weightNow()/capOf(),canCarry=w=>weightNow()+w<=capOf();
 let heavyMsgT=-99,wLvl=0;
@@ -72,7 +72,8 @@ $('bagTabs').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{bagTab=b.d
 function dollView(v){$('bagLeft').classList.toggle('st',v==='st');document.querySelectorAll('[data-dv]').forEach(b=>b.classList.toggle('on',b.dataset.dv===v));}
 document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>dollView(b.dataset.dv));
 function bagEntries(){const E=[];
- if(bagTab==='uso'){for(const t of['hp','mp'])if(P.pots[t]>0)E.push({key:'pot:'+t,img:iconURL('pot'+t),n:P.pots[t],name:t==='hp'?'Poção de vida':'Poção de mana'});}
+ if(bagTab==='uso'){for(const t of['hp','mp'])if(P.pots[t]>0)E.push({key:'pot:'+t,img:iconURL('pot'+t),n:P.pots[t],name:t==='hp'?'Poção de vida':'Poção de mana'});
+  for(const[k,n]of TON)if(P.tons[k]>0)E.push({key:'ton:'+k,img:tonIcon(k),n:P.tons[k],name:n});}
  else if(bagTab==='equip'){for(const it of P.inv)E.push({key:it.id,img:iconOf(it),n:1,name:it.name,border:RARC[it.rar],up:power(it)>power(P.equip[it.slot]),ref:it.ref});}
  else for(const k of Object.keys(P.mats).sort((a,b)=>LOOTM[a].n.localeCompare(LOOTM[b].n)))if(P.mats[k]>0)E.push({key:'mat:'+k,img:matIcon(k),n:P.mats[k],name:LOOTM[k].n});
  return E;}
@@ -80,6 +81,10 @@ function stackDetail(d,key){const[kind,id]=key.split(':'),near=hyp(NPC.x-P.x,NPC
  if(kind==='pot'){const n=P.pots[id];if(!n){sel=null;return renderBag();}
   h=`<h3>${id==='hp'?'Poção de vida':'Poção de mana'}</h3><div class="meta">Consumível • ${n} na bolsa • peso ${WPOT} cada</div><div>Recupera 45% da ${id==='hp'?'vida':'mana'}. Atalho: ${id==='hp'?'Q':'R'}.</div>`;
   acts=`<button class="btn sm gold" data-a="use">Usar</button><button class="btn sm" data-a="drop1">Descartar 1</button>`;}
+ else if(kind==='ton'){const n=P.tons[id],t=P.tonAt[id];if(!n){sel=null;return renderBag();}
+  h=`<h3>${TONN[id]}</h3><div class="meta">Consumível • ${n} na bolsa • peso ${WPOT} cada</div><div>+${TON_B} de ${attrN(id)[1]} por ${TON_T/60} minutos. Da taverneira Brígida, no bar da Guilda.</div>`+
+   (t>0?`<div class="pos">Ativo: faltam ${mmss(t)}. Tomar outro renova o tempo.</div>`:'');
+  acts=`<button class="btn sm gold" data-a="use">Tomar</button><button class="btn sm" data-a="drop1">Descartar 1</button>`;}
  else{const M=LOOTM[id],n=P.mats[id]||0;if(!n){sel=null;return renderBag();}
   h=`<h3>${M.n}</h3><div class="meta">Item • ${n} na bolsa • peso ${M.w} cada</div><div>Deixado por: ${MDEF[id].n}. O Mercador Bento paga ${M.v}g por unidade.</div>`;
   acts=near?`<button class="btn sm gold" data-a="sell1">Vender 1 por ${M.v}g</button>`+(n>1?`<button class="btn sm" data-a="sellAll">Vender ${n} por ${M.v*n}g</button>`:'')
@@ -87,6 +92,7 @@ function stackDetail(d,key){const[kind,id]=key.split(':'),near=hyp(NPC.x-P.x,NPC
  d.innerHTML=h+`<div class="acts">${acts}</div>`;d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>stackAction(b.dataset.a,kind,id));}
 function stackAction(a,kind,id){
  if(kind==='pot'){if(a==='use')usePot(id);else P.pots[id]=Math.max(0,P.pots[id]-1);updateHotbar();}
+ else if(kind==='ton'){if(a==='use')drinkTonic(id);else if(P.tons[id]>0&&!--P.tons[id])delete P.tons[id];}
  else{const M=LOOTM[id],n=P.mats[id]||0,q=a.endsWith('All')?n:1;P.mats[id]=n-q;
   if(a.startsWith('sell')){P.gold+=M.v*q;log(`Vendeu ${q}× ${M.n} por ${M.v*q}g.`,'#ffd24a');}if(!P.mats[id])delete P.mats[id];}
  renderBag();save();}

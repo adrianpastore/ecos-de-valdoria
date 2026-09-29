@@ -91,7 +91,7 @@
   t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
-   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==4||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5)throw 'save novo sem v:4, mats, miss ou jlvl';});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==5||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5||!loadSave().tons)throw 'save novo sem v:5, mats, miss, jlvl ou tons';});
   t('atributos: herói novo começa com 5 em tudo e sem pontos',()=>{enter({cls:'guerreiro',name:'Atrib'});if(ATTR.some(([k])=>P.attr[k]!==5)||attrFree()!==0)throw JSON.stringify(P.attr)+' livres '+attrFree();});
   t('atributos: níveis dão pontos e a Força vira ataque',()=>{for(let i=0;i<20&&P.lvl<10;i++)gainXp(xpNeed(P.lvl));if(attrFree()!==27)throw 'nível 10 com '+attrFree()+' pontos (esperado 27)';
    const a0=P.st.atk,h0=P.st.hp,c0=capOf();toggleAttr();attrAdd('forca',5);attrAdd('forca',5);attrAdd('vita',5);if(P.attr.forca!==5)throw 'aplicou antes de confirmar';attrConfirm();toggleAttr();
@@ -165,6 +165,18 @@
    P.mats[q.mat]=q.n+2;if(missState(q)!=='pronta')throw 'não ficou pronta';const g=P.gold;missAction('entregar',q.id);
    if(P.gold!==g+r.g)throw 'ouro errado';if(P.mats[q.mat]!==2)throw 'não tirou só '+q.n+' materiais';if(missState(q)!=='espera')throw 'não entrou em espera';
    missAction('aceitar',q.id);if(P.miss.on.length)throw 'aceitou em espera';info(q.t+': +'+r.g+'g, +'+r.xp+' XP');});
+  t('bar da Guilda: Brígida em toda Guilda, tônico comprado, tomado, salvo e com fim',()=>{
+   for(const id of Object.keys(MAPS).filter(k=>MAPS[k].interior&&MAPS[k].board)){if(!MAPS[id].bar)throw id+' sem bar';switchMapNow(id,null);if(BAR.x<0)throw id+': o bar não tem posição';
+    const[bx,by]=MAPS[id].bar,j=(by+2)*W+bx;if(solid[j]||!REACH[j])throw id+': não dá para chegar na frente do balcão';
+    cura();P.x=(bx+.5)*TILE;P.y=(by+2.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='bar')throw id+': [E] não fala com a Brígida';}
+   openTaverna();if($('taverna').classList.contains('hidden'))throw 'a janela do bar não abriu';closeAll();
+   const k=MAINAT[P.cls];P.tons={};P.tonAt={};recalc();P.gold=1000;const w0=weightNow();buyTonic(k);
+   if(P.tons[k]!==1||P.gold!==1000-TON_V)throw 'a compra não funcionou';if(weightNow()-w0!==WPOT)throw 'o tônico não pesa';
+   bagTab='uso';if(!bagEntries().some(e=>e.key==='ton:'+k))throw 'o tônico não aparece na aba Consumíveis';bagTab='equip';
+   const a0=P.st.atk;drinkTonic(k);const a1=P.st.atk;if(P.tons[k]||!(P.tonAt[k]>0))throw 'tomar não ativou o efeito';if(a1<=a0)throw 'o ataque não subiu com o tônico';
+   saveReal();const s=loadSave();if(s.v!==5||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
+   tonicTick(TON_T+1);if(P.tonAt[k])throw 'o efeito não acabou';if(P.st.atk!==a0)throw 'o ataque não voltou ao normal';
+   info(`${TONN[k]}: ataque ${a0} → ${a1} por ${TON_T/60} min`);});
   t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 

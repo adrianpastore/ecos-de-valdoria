@@ -73,7 +73,7 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},tons:{},tonAt:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 // XP da barra do nível l. Equilíbrio de 29/09/2026: ~2× os monstros por nível no nível 5 e ~4× no 40 (antes: 50·l^1,6)
@@ -95,7 +95,7 @@ function hurtPlayer(atk,m,mult=1){if(P.dead)return;let d=Math.max(1,Math.round(a
  if(m&&!m.dead&&!P.target){P.target=m;if(!P.dest)P.auto=true;}
  if(mult===1&&m&&!m.dead&&P.st.thorns)dealMonster(m,d*P.st.thorns,false,{src:'thorns'});
  if(P.hp<=0){P.hp=0;die(m);}}
-function die(m){P.dead=true;P.pdot=null;P.stealth=null;P.volley=null;P.shield=null;P.banner=null;if(P.quest&&!P.quest.done&&SPECS[P.quest.spec].trial.kind==='hits')P.quest.prog=0;P.form=null;P.pulse=null;allies.length=0;recalc();P.target=null;P.auto=false;P.dest=null;const lost=Math.floor(P.gold*.05);P.gold-=lost;
+function die(m){P.dead=true;P.pdot=null;P.stealth=null;P.volley=null;P.shield=null;P.banner=null;if(P.quest&&!P.quest.done&&SPECS[P.quest.spec].trial.kind==='hits')P.quest.prog=0;P.form=null;P.pulse=null;P.tonAt={};allies.length=0;recalc();P.target=null;P.auto=false;P.dest=null;const lost=Math.floor(P.gold*.05);P.gold-=lost;
  $('deathTxt').textContent=`${m?m.name+' (nível '+m.lvl+')':'Algo'} derrotou você. Você perdeu ${lost} de ouro.`;$('death').classList.remove('hidden');}
 function respawn(){P.dead=false;if(CUR!=='valdor')switchMapNow('valdor',null);P.x=(TC.x+.5)*TILE;P.y=(TC.y+2.5)*TILE;P.hp=P.st.hp;P.mp=P.st.mp;$('death').classList.add('hidden');save();}
 function nearestMon(range){let b=null,bd=range;for(const m of mons){if(m.dead)continue;const d=hyp(m.x-P.x,m.y-P.y);if(d<bd){bd=d;b=m;}}return b;}
@@ -135,7 +135,7 @@ function burst(x,y,c,n,s){for(let i=0;i<n;i++){const a=R()*6.28,v=rf(s*.3,s);par
 
 // ================== ATUALIZAÇÃO ==================
 function update(dt){time+=dt;const st=P.st;
- P.atkT-=dt;P.potCd-=dt;P.hitT-=dt;P.swingT-=dt;P.animT+=dt;tickSkills(dt);
+ P.atkT-=dt;P.potCd-=dt;P.hitT-=dt;P.swingT-=dt;P.animT+=dt;tickSkills(dt);tonicTick(dt);
  if(P.buff){P.buff.t-=dt;if(P.buff.t<=0){P.buff=null;recalc();}}
  const z=zoneMap[Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE)];if(z!==P.zone)P.zone=z;
  if(!P.dead){const town=!!MAPS[CUR].town,ooc=time-P.combatT>6;
@@ -203,5 +203,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:4,mats:P.mats,miss:P.miss,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:5,mats:P.mats,miss:P.miss,tons:P.tons,tonAt:P.tonAt,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

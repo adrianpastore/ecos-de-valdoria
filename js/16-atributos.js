@@ -14,7 +14,10 @@ const attrGain=l=>3+Math.floor((l-1)/10); // pontos ganhos ao chegar no nível l
 function attrTotal(){let s=ATTR.length*(ATTR_INI-1);for(let l=2;l<=P.lvl;l++)s+=attrGain(l);return s;}
 function attrFree(){let s=0;for(const[k]of ATTR)s+=P.attr[k]-1;return attrTotal()-s;}
 // Números calibrados para que, no nível 50, o atributo principal em 99 dê o ataque de antes (ver CLAUDE.md, item 9).
-function attrStats(c,L){const a=P.attr,d=k=>a[k]-ATTR_INI;
+// atributos que valem agora: os distribuídos mais os tônicos ativos do bar da Guilda (20). attrFree e o peso usam só P.attr.
+const TON_B=5;
+function attrEff(){const t=P.tonAt,a=Object.assign({},P.attr);if(t)for(const k in t)if(t[k]>0)a[k]+=TON_B;return a;}
+function attrStats(c,L){const a=attrEff(),d=k=>a[k]-ATTR_INI;
  return{hp:(c.hp+c.g.hp*.5*L)*(1+d('vita')*.01),mp:(c.mp+c.g.mp*.75*L)*(1+d('inte')*.004),
   atk:Math.max(1,c.atk+c.g.atk*.52*d(MAINAT[P.cls]||'forca')),def:Math.max(0,c.def+c.g.def*.6*d('vita')),crit:c.crit+d('sorte')*.3,
   dodge:d('agil')*.0025,aspd:d('agil')*.006,cdr:d('dest')*.002,regen:d('vita')*.01,mregen:d('inte')*.01,luck:d('sorte')*.01};}
