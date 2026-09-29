@@ -2,9 +2,11 @@
 # Uso: powershell -ExecutionPolicy Bypass -File tests\rodar-testes.ps1
 # Com -Medir, roda o medidor de equilíbrio (tests/medidor.js) em vez do teste de fumaça.
 # Usa um perfil de navegador temporário, então nunca toca no save de quem joga.
-param([switch]$Medir)
+# -Classe mago (junto com -Medir) mede só uma classe, bem mais rápido.
+param([switch]$Medir, [string]$Classe)
 $ErrorActionPreference = 'Stop'
 $modo, $pre = if ($Medir) { 'medir', 'medidor' } else { 'teste', 'smoke' }
+if ($Medir -and $Classe) { $modo += '=' + $Classe }
 $raiz = Split-Path $PSScriptRoot -Parent
 $nav = @("${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
          "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
