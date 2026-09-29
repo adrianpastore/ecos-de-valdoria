@@ -56,6 +56,7 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 | `js/14-valdor.js` | Vila de Valdor: muralha (`buildWalls`, chamada pelo `genWorld`), sprites de muro, torre com estandarte, bancas de mercado e poço |
 | `js/15-casas.js` | Casas com interior (`houseInterior`, `signHouse`): a casa da Mestra Elara e o ferreiro (refinamento) em Valdor |
 | `js/16-atributos.js` | Atributos do herói (`ATTR`, `attrStats`, `attrFree`, `attrReset`) e a janela de Atributos (tecla P) |
+| `js/17-toque.js` | Controles de celular: modo toque (`touchUI`, classe `toque` no `body`; `ctlPref` automático/toque/teclado, guardado no aparelho em `valdoria_controles`, fora do save), joystick (`JOY`, lido no `update` do `02`), tela cheia (`goFull`) |
 | `js/99-interface-e-inicio.js` | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
 
 ### Armadilhas da estrutura
@@ -183,6 +184,7 @@ Tudo abaixo está no GitHub (último commit `610ca3f`); nada ficou pela metade. 
    - Sugestões ainda não aprovadas: aparência própria para cada portal conforme o lugar (boca de caverna, escada, arco de pedra); minimapa que só revela o que o herói já viu, nas cavernas.
 2. **Lançamento no celular** (single-player): deixar o jogo online, gostoso de jogar no telefone, e começar a divulgar. Uma etapa de cada vez, nesta ordem:
    1. **Controles e interface para celular.** Hoje já funciona no toque (tocar no chão anda, tocar no monstro ataca, hotbar e botões laterais), mas foi pensado para teclado. Falta:
+      - ✅ **Etapa 1 feita em 29/09/2026** (em `17` e no fim do `estilo.css`): modo toque automático pelo uso real (tocou → toque; teclado ou mouse → computador), com opção manual na ajuda (❓); joystick que nasce onde o polegar encosta no canto esquerdo; ataque e habilidades em botões redondos em arco no canto direito (Q e R ao lado), que agem ao encostar (`pointerdown`), para funcionar com outro dedo no joystick; aviso "gire o celular" em pé; tela cheia ao entrar no jogo (e botão na ajuda). No modo toque, os botões laterais vão para o alto, ao lado do minimapa. Falta testar num celular de verdade. Próximas etapas: janelas para o dedo e desempenho.
       - Joystick virtual no canto esquerdo (em combate é mais natural que tocar no chão; referência: Ragnarok M). Tocar no chão continua valendo para ir longe.
       - Botões de habilidade maiores, em arco no canto direito, ao alcance do polegar (hoje ficam pequenos na barra do meio).
       - Modo paisagem, com aviso "gire o celular" na vertical; tela cheia, sem barra de endereço.

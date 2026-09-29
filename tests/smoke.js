@@ -61,6 +61,12 @@
   t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>16))throw k+' mais largo que 16';}
    const vis=new Set(Object.keys(LOOTM).map(k=>MATSHP[k][0].join('/')));if(vis.size!==Object.keys(LOOTM).length)throw 'dois materiais com o mesmo desenho';info(Object.keys(LOOTM).length+' materiais');});
   t('Estrada do Sul: sem árvore ao lado da passagem do rio (clear)',()=>{genWorld('estrada');const ok=!(objRows[10]||[]).some(o=>o.tx===21)&&!solid[10*W+21];genWorld(CUR);if(!ok)throw 'ainda há algo no tile 21,10';});
+  t('toque: modo toque, botões em arco e joystick anda',()=>{enter({cls:'arqueira',name:'Toque'});switchMapNow('valdor',null);cura();
+   setTouchUI(true);const on=document.body.classList.contains('toque');buildHotbar();const atk=document.querySelector('#hotbar .hs[data-k="Espaço"]');
+   P.x=(TC.x+3)*TILE+8;P.y=TC.y*TILE+8;P.dest=null;P.target=null;P.auto=false;const x0=P.x,y0=P.y;Object.assign(JOY,{on:true,x:-.7,y:-.7});tick(10);
+   const d=hyp(P.x-x0,P.y-y0),face=P.face;joyEnd();setTouchUI(false);const off=!document.body.classList.contains('toque');
+   if(!on||!off)throw 'a classe toque não liga/desliga';if(!atk)throw 'botão de ataque sem data-k';if(d<10||P.y>=y0)throw 'joystick não moveu o herói ('+d.toFixed(1)+'px)';if(face!==-1)throw 'herói não virou para a esquerda';
+   if(JOY.x||JOY.y)throw 'joystick não zerou ao soltar';info('andou '+d.toFixed(0)+' px em meio segundo');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);

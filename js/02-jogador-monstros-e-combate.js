@@ -138,9 +138,10 @@ function update(dt){time+=dt;const st=P.st;
   const rg=town||wRatio()<=.5?dt:0; // acima de 50% do peso, sem regeneração natural
   P.hp=Math.min(st.hp,P.hp+st.hp*(town?.1:ooc?.02:.004)*rg*(1+st.regen));P.mp=Math.min(st.mp,P.mp+st.mp*(town?.1:ooc?.03:.012)*rg*(1+st.mregen));
   let ix=0,iy=0;if(keys.a||keys.arrowleft)ix--;if(keys.d||keys.arrowright)ix++;if(keys.w||keys.arrowup)iy--;if(keys.s||keys.arrowdown)iy++;
+  if(typeof JOY!=='undefined'&&(JOY.x||JOY.y)){ix=JOY.x;iy=JOY.y;} // joystick de toque (17)
   const spd=70*(1+st.spd/100);P.moving=false;
   if(P.target&&P.target.dead){P.target=null;P.auto=false;P.queued=null;}
-  if(ix||iy){const l=hyp(ix,iy);step(P,ix/l*spd*dt,iy/l*spd*dt);if(ix)P.face=ix;P.moving=true;P.dest=null;P.pend=null;P.auto=false;P.queued=null;}
+  if(ix||iy){const l=hyp(ix,iy);step(P,ix/l*spd*dt,iy/l*spd*dt);if(ix)P.face=Math.sign(ix);P.moving=true;P.dest=null;P.pend=null;P.auto=false;P.queued=null;}
   else if(P.auto&&P.target){const t=P.target,c=CL[P.cls],d=hyp(t.x-P.x,t.y-P.y),need=(P.queued!=null&&SK[P.bar[P.queued]]?(SK[P.bar[P.queued]].range||basicRange()):basicRange())+t.r*.5;
    if(d>need)moveTo(t.x,t.y,spd,dt);else{P.face=t.x>=P.x?1:-1;if(P.queued!=null){const q=P.queued;P.queued=null;useSkill(q);}else if(P.atkT<=0)basicAttack();}}
   else if(P.dest){if(hyp(P.dest.x-P.x,P.dest.y-P.y)<3)P.dest=null;else moveTo(P.dest.x,P.dest.y,spd,dt);}

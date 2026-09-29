@@ -80,13 +80,14 @@ function appendLog(d){const L=$('log');L.append(d);while(L.children.length>6)L.f
 let bnT;function banner(t,s){const b=$('banner');$('bT').textContent=t;$('bS').textContent=s||'';b.classList.remove('show');void b.offsetWidth;b.classList.add('show');}
 const HB=[{k:'Espaço',a:()=>attackKey()},{k:'1',s:0},{k:'2',s:1},{k:'3',s:2},{k:'4',s:3},{k:'5',s:4},{k:'6',s:5},{k:'Q',p:'hp'},{k:'R',p:'mp'}];
 let hbEls=[];
+// os botões agem ao encostar (pointerdown), não no clique: assim funcionam com outro dedo segurando o joystick (17)
 function buildHotbar(){if(!P)return;const hb=$('hotbar');hb.innerHTML='';hbEls=[];const c=CL[P.cls];
  HB.forEach(h=>{if(h.s!=null&&h.s>=3&&!hasTree(P.cls))return;const b=document.createElement('button');b.className='hs';const id=h.s!=null?P.bar[h.s]:null,sk=id&&SK[id];
   const ic=h.s!=null?(sk?sk.ic:''):h.p?'':(P.form?'🐾':c.basic);if(h.s!=null&&!sk)b.classList.add('empty');
   b.innerHTML=`<span class="ic">${ic}</span><span class="k">${h.k==='Espaço'?'␣':h.k}</span><span class="n"></span><span class="cd"></span>`;
   if(h.p){const im=document.createElement('img');im.src=iconURL('pot'+h.p);im.style.cssText='width:70%;image-rendering:pixelated';b.querySelector('.ic').append(im);}
   b.title=sk?`${sk.n}${hasTree(P.cls)?' (rank '+rk(id)+')':''}, ${sk.mp} de mana: ${typeof sk.d==='function'?sk.d(eff(id,rk(id))):sk.d}`:h.s!=null?'Vazio: escolha uma habilidade na árvore (T)':h.p?(h.p==='hp'?'Poção de vida':'Poção de mana'):'Atacar o alvo mais próximo';
-  b.onclick=()=>{if(h.a)h.a();else if(h.s!=null)useSkill(h.s);else usePot(h.p);};hb.append(b);hbEls.push({h,el:b});});updateHotbar();}
+  b.dataset.k=h.k;b.onpointerdown=e=>{e.preventDefault();if(h.a)h.a();else if(h.s!=null)useSkill(h.s);else usePot(h.p);};hb.append(b);hbEls.push({h,el:b});});updateHotbar();}
 function updateHotbar(){if(!P)return;
  for(const{h,el}of hbEls){if(h.s!=null){const id=P.bar[h.s];if(!id)continue;const sk=SK[id],cd=P.cd[id]||0,tot=sk.cd*(1-P.st.cdr),c=el.querySelector('.cd');
    c.style.background=cd>0?`conic-gradient(rgba(0,0,0,.7) ${cd/tot*360}deg,transparent 0)`:'';c.textContent=cd>0?Math.ceil(cd):'';el.classList.toggle('nomana',P.mp<sk.mp*(1-P.st.mpCut));}
