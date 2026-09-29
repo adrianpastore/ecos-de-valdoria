@@ -1,4 +1,4 @@
-// Ecos de Valdoria — O salão da Guilda: o bar da taverneira Brígida (tônicos de atributo) e a gente que conversa (Freya, Darian, Lexus)
+// Ecos de Valdoria — O salão da Guilda: o bar da taverneira Bruna (tônicos de atributo) e a gente que conversa (Freya, Darian, Lexus)
 'use strict';
 // ================== TÔNICOS ==================
 // Cada tônico dá +TON_B (definido em 16, que soma o bônus em attrEff) num atributo por 10 minutos de jogo (o tempo só corre com o jogo aberto). Um de cada tipo ativo
@@ -19,7 +19,7 @@ function tonicTick(dt){let fim=false;for(const k in P.tonAt){P.tonAt[k]-=dt;if(P
 function tonicHUD(){const h=Object.keys(P.tonAt).map(k=>`<span title="${TONN[k]}: +${TON_B} de ${attrN(k)[1]}">${attrN(k)[2]} ${mmss(P.tonAt[k])}</span>`).join(''),el=$('tonics');if(el.innerHTML!==h)el.innerHTML=h;}
 
 // ================== SPRITES ==================
-def('brigida',["......kkkk......",".....kHHHHk.....","....kHHHHHHk....","....kHseesHk....","....kHssssHk....",".....kssssk.....","...kkBBwwBBkk...","..ksBBwwwwBBsk..",
+def('bruna',["......kkkk......",".....kHHHHk.....","....kHHHHHHk....","....kHseesHk....","....kHssssHk....",".....kssssk.....","...kkBBwwBBkk...","..ksBBwwwwBBsk..",
  "..ksBBwwwwBBsk..","...kkwwwwwwkk...","....kwwwwwwk....","....kSSSSSSk....","...kSSSSSSSSk...","...kSSSSSSSSk...","....kbbk.kbbk...","....kkk...kkk..."],
  {H:'#c8602a',s:'#e8b088',e:K,B:'#3a7a4a',w:'#f4ecd8',S:'#7a2a3a',b:'#4a3222'});
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
@@ -31,10 +31,10 @@ def('brigida',["......kkkk......",".....kHHHHk.....","....kHHHHHHk....","....kHs
 
 // ================== O BAR DA GUILDA ==================
 // Em toda Guilda, no canto de baixo à direita do salão (mesmo lugar em todas as cidades, como os 4 serviços padrão):
-// prateleira atrás, a Brígida, o balcão na frente e dois barris. BAR é o ponto de conversa (como o SMITH do ferreiro).
+// prateleira atrás, a Bruna, o balcão na frente e dois barris. BAR é o ponto de conversa (como o SMITH do ferreiro).
 const BAR={x:-9999,y:-9999};
 for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board){const M=MAPS[id];M.bar=[TC.x+5,TC.y+2];
- M.deco.push([TC.x+5,TC.y+1,'prateleira',1],[TC.x+5,TC.y+2,'brigida'],[TC.x+4,TC.y+3,'balcao',1],[TC.x+6,TC.y+3,'barril'],[TC.x+7,TC.y+3,'barril']);}
+ M.deco.push([TC.x+5,TC.y+1,'prateleira',1],[TC.x+5,TC.y+2,'bruna'],[TC.x+4,TC.y+3,'balcao',1],[TC.x+6,TC.y+3,'barril'],[TC.x+7,TC.y+3,'barril']);}
 function openTaverna(){closeAll();renderTaverna();$('taverna').classList.remove('hidden');}
 function renderTaverna(){const B=$('tavernaBody');
  let h=`<p class="flav">"Um gole antes da caçada, aventureiro? Meus tônicos nunca falham!"</p>`;
@@ -49,12 +49,12 @@ function renderTaverna(){const B=$('tavernaBody');
 // que aparece num balão sobre a cabeça por 5 s e no registro. at = posição relativa ao centro do salão (TC).
 const SALAO=[
  {id:'freya',n:'Freya',c:'#8fd0ff',at:[2,-4],f:['Bem-vindo à Guilda! O mural ali tem trabalho para quem tem coragem.','Aceite até 3 missões por vez e traga as provas. A Guilda paga em ouro e experiência.',
-  'Cada missão volta ao mural um tempo depois de entregue. Trabalho aqui nunca falta!','Os murais falam dos problemas de cada região. Outras cidades têm os seus.','Cansado? A Brígida, no balcão, tem um tônico para cada tipo de aventureiro.']},
+  'Cada missão volta ao mural um tempo depois de entregue. Trabalho aqui nunca falta!','Os murais falam dos problemas de cada região. Outras cidades têm os seus.','Cansado? A Bruna, no balcão, tem um tônico para cada tipo de aventureiro.']},
  {id:'darian',n:'Darian',c:'#e8c080',at:[-5,-2],f:['Derrube os esqueletos antes do Senhor dos Ossos, ou ele não cai nunca!','Viu círculo vermelho no chão? Saia dele. Aprendi isso do jeito difícil.',
   'A Raposa Anciã foge de quem luta de perto. Encurrale-a, não desista.','O Wyrm Carmesim cospe fogo onde você está parado. Nunca fique parado.','Um Tônico do Touro antes de um chefe já salvou minha pele mais de uma vez.',
   'Baú longe da vila? Pode ter dentes. Eu tenho a cicatriz para provar.','O Mestre das Máscaras se divide em cópias. Só o verdadeiro sangra.']},
  {id:'lexus',n:'Lexus',c:'#d9a0ff',at:[-7,3],f:['Ah, um aventureiro! Um dia faço uma balada sobre você... se voltar vivo.','Dizem que a Raposa de Nove Caudas canta nas noites de lua. Eu só queria ouvir uma vez.',
-  'Estou afinando o alaúde para a noite. A Brígida prometeu uma caneca por música.','Conhece a lenda do Wyrm Carmesim? Não? Pague uma rodada e eu conto!','Toda Guilda tem um bardo. As boas têm dois. Esta tem só eu, e já basta.']}];
+  'Estou afinando o alaúde para a noite. A Bruna prometeu uma caneca por música.','Conhece a lenda do Wyrm Carmesim? Não? Pague uma rodada e eu conto!','Toda Guilda tem um bardo. As boas têm dois. Esta tem só eu, e já basta.']}];
 def('freya',["......kkkk......",".....kYYYYk.....","....kYYYYYYk....","....kYseesYk....","....kYssssYk....",".....kssssk.....","...kkDDDDDDkk...","..ksDDDDDDDDsk..",
  "..ksDDwwwwDDsk..","...kDDwwwwDDk...","....kDDDDDDk....","....kDDDDDDk....","...kDDDDDDDDk...","...kDDDDDDDDk...","....kbbk.kbbk...","....kkk...kkk..."],
  {Y:'#f0d060',s:'#f0c8a0',e:K,D:'#3a5aa8',w:'#f4ecd8',b:'#3a2a1a'});

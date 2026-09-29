@@ -19,10 +19,10 @@ function drawExtra(e,tt){const o=e.o;
 function mentorAlert(){if(!P||!hasTree(P.cls))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
 function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';
  const lab=(t,x,y,c)=>{ctx.strokeText(t,sx(x),sy(y));ctx.fillStyle=c;ctx.fillText(t,sx(x),sy(y));};
- lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab('Brígida',BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
+ lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab('Bruna',BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
  if(mentorAlert()){ctx.font='800 24px Cinzel,serif';lab('!',MENTOR.x,MENTOR.y-31+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';}
  portalLabels(lab);drawTalk(sx,sy,lab);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
-function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='bar'?'[E] Falar com a taverneira Brígida':it.kind==='talk'?`[E] Conversar com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
+function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='bar'?'[E] Falar com a taverneira Bruna':it.kind==='talk'?`[E] Conversar com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara, na casa com a estrela na placa.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
