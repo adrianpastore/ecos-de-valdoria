@@ -5,14 +5,14 @@ def('mestreMasc',["","...kk....kk.....","..kGGk..kGGk....","..kGGGkkGGGk....",".
 def('totemAnciao',[".....kkkkkk.....","....kRRRRRRk....","..kkkkkkkkkkkk..","..kWWWWWWWWWWk..","...kWkkWWkkWk...","...kWeeWWeeWk...","...kWWWWWWWWk...","...kWWWkkWWWk...","...kWkwwwwkWk...","...kWkwkkwkWk...","...kWWkkkkWWk...","...kWWWWWWWWk...","...kRWRWRWRWk...","...kWWWWWWWWk...","..kkkkkkkkkkkk..","..kSSSSSSSSSSk.."],{W:'#6a5a48',R:'#e8b030',e:'#40e0ff',w:'#ffffff',S:'#4a3a2a'});
 def('raposaAnc',["","","..kk........k.k.",".kQQk......kQkQk","kQqQQk....kQQQQk","kQqqQQk..kQQeQQk",".kQqqQQkkQQQQQkk","..kQqQQQQQQQQk..","kkkQQQQQQQQQk...","kQqQQQQQQQQk....",".kQQkQQQQkQk....","..kk.kQk.kQk....",".....kQk.kQk....",".....kkk.kkk...."],{Q:'#ffe0a0',q:'#ff5a1a',e:'#8a1010'});
 Object.assign(MDEF,{
- mestreMasc:{n:'Mestre das Máscaras',hp:300,atk:14,def:6,spd:62,xp:400,r:9,aggro:110,cd:1,scale:1.8,boss:true,ai:'mascaras'},
+ mestreMasc:{n:'Mestre das Máscaras',hp:450,atk:14,def:6,spd:62,xp:400,r:9,aggro:110,cd:1,scale:1.8,boss:true,ai:'mascaras'},
  mascaraClone:{n:'Mestre das Máscaras',hp:1,atk:6,def:0,spd:62,xp:0,r:9,aggro:200,cd:1.2,scale:1.8,clone:true},
  totemAnciao:{n:'Grande Totem Ancião',hp:520,atk:26,def:14,spd:0,xp:800,r:14,aggro:120,cd:1.4,scale:2.4,boss:true,ai:'totemA'},
  raposaAnc:{n:'Raposa Anciã de Nove Caudas',hp:650,atk:28,def:10,spd:72,xp:1300,r:12,aggro:140,cd:1.4,scale:2.2,boss:true,ai:'raposa9'}});
 // Senhor dos Ossos: rei esqueleto de manto roxo e cajado, no fundo da Caverna (o mapa ganha o chefe em 11)
 def('senhorOssos',["....kckckk...ko.","....kccccck.kook","...kbbbbbbbk.kT.","...kbeebeebk.kT.","...kbbbkbbbk.kT.","....kbwbwbk..kT.","...kkRkkkRkk.kT.","..kRRrbbbrRRkkT.",".kRRrRbbbRrRRbT.",".kRkrRRbRRrRkkT.",".kbkRRRRRRRRk.T.","...kRRrRRrRRk.T.","..kRRrRRRRrRRkT.","..kRrRRRRRRrRkT.",".kRRRRRRRRRRRRkT",".kkkkkkkkkkkkkkT"],
  {c:'#e8b43c',b:'#e8e2cc',e:'#b060ff',w:'#a9a28a',R:'#3a2450',r:'#5a3a78',T:'#7a5a2a',o:'#60ff9a'});
-MDEF.senhorOssos={n:'Senhor dos Ossos',hp:800,atk:30,def:14,spd:36,xp:1600,r:13,aggro:140,cd:1.5,scale:2.4,boss:true,ai:'ossos'};
+MDEF.senhorOssos={n:'Senhor dos Ossos',hp:600,atk:30,def:14,spd:36,xp:1600,r:13,aggro:140,cd:1.5,scale:2.4,boss:true,ai:'ossos'};
 Object.assign(MAPS.encosta3,{boss:'mestreMasc',bossLv:15});Object.assign(MAPS.encosta5,{boss:'totemAnciao',bossLv:21});Object.assign(MAPS.encosta7,{boss:'raposaAnc',bossLv:28});MAPS.covil.bossLv=22;
 for(const k of['encosta3','encosta5','encosta7'])MAPS[k].s+=' • chefe no alto do platô';
 const BOSSAT={};
@@ -59,7 +59,9 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
   if(a.blink<=0&&dP<230){a.blink=10;for(let t=0;t<20;t++){const an=R()*6.28,x=P.x+Math.cos(an)*80,y=P.y+Math.sin(an)*80;if(!blocked(x,y,6)){burst(m.x,m.y-12,'#ff9a4a',18,60);m.x=x;m.y=y;burst(x,y-12,'#ff9a4a',18,60);teles.push({x:P.x,y:P.y,r:34,t:0,delay:.9,m,mult:1.5,fire:true});break;}}}
   if(a.shot<=0&&dP<200){a.shot=1.4;const b=aim();for(const o of[-.25,0,.25])shootAt(m,b+o,120,'#ffb060',1);}
   const spd=m.spd*(m.slowT>0?.45:1);if(m.rootT>0)return true;
-  if(dP<70){stepSmart(m,(m.x-P.x)/dP*spd*dt,(m.y-P.y)/dP*spd*dt,6,m.side);m.moving=true;}else if(dP>130){stepSmart(m,(P.x-m.x)/dP*spd*dt,(P.y-m.y)/dP*spd*dt,6,m.side);m.moving=true;}else m.moving=false;
+  // recua mais devagar do que o herói anda: quem luta corpo a corpo consegue alcançá-la (com a vida de chefe de 29/09/2026 ela era impossível)
+  // e não recua para fora da própria área (lá ela voltaria para casa recuperando a vida)
+  if(dP<70&&hyp(m.x-m.sx,m.y-m.sy)<170){stepSmart(m,(m.x-P.x)/dP*spd*.6*dt,(m.y-P.y)/dP*spd*.6*dt,6,m.side);m.moving=true;}else if(dP>130){stepSmart(m,(P.x-m.x)/dP*spd*dt,(P.y-m.y)/dP*spd*dt,6,m.side);m.moving=true;}else m.moving=false;
   m.face=P.x>m.x?1:-1;return true;}
  if(d.ai==='ossos'){const serv=mons.filter(c=>c.owner===m&&!c.dead);
   if(!a.rage&&m.hp<m.maxHp*.5){a.rage=1;a.call=0;banner('O Senhor dos Ossos se enfurece!','Os servos voltam a se erguer.');}
@@ -67,13 +69,13 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
   if(a.rain<=0&&dP<200){a.rain=a.rage?4.5:6.5;for(let k=0;k<(a.rage?4:3);k++){const an=R()*6.28,r=k?rf(20,45):0;teles.push({x:P.x+Math.cos(an)*r,y:P.y+Math.sin(an)*r*.6,r:22,t:0,delay:1+k*.15,m,mult:1.1});}
    addText(m.x,m.y-mh(m)-8,'Chuva de Ossos!','#e8e2cc',true);}
   if(a.shot<=0&&dP<190){a.shot=a.rage?1.6:2.2;const b=aim();for(const o of[-.3,-.1,.1,.3])shootAt(m,b+o,115,'#e8e2cc',.9);}
-  // cada servo vivo devolve vida ao chefe (0,2% da vida máxima por segundo): vale derrubar os esqueletos primeiro
-  if(serv.length&&m.hp<m.maxHp){m.hp=Math.min(m.maxHp,m.hp+m.maxHp*.002*serv.length*dt);
+  // cada servo vivo devolve vida ao chefe (0,05% da vida máxima por segundo; era 0,2% antes de a vida de chefe crescer): vale derrubar os esqueletos primeiro
+  if(serv.length&&m.hp<m.maxHp){m.hp=Math.min(m.maxHp,m.hp+m.maxHp*.0005*serv.length*dt);
    if(R()<dt*3)for(const c of serv)parts.push({x:c.x,y:c.y-10,vx:(m.x-c.x)*1.25,vy:(m.y-12-c.y)*1.25,g:0,life:.8,max:.8,color:'#b060ff',s:2});}
   return false;}
  return false;}
 // ergue esqueletos (guerreiros ou arqueiros) em volta do Senhor dos Ossos; somem quando ele morre
 function raiseBones(m,n){for(let k=0;k<n;k++)for(let t=0;t<20;t++){const an=R()*6.28,r=rf(24,50),x=m.x+Math.cos(an)*r,y=m.y+Math.sin(an)*r;if(blocked(x,y,5))continue;
-  const c=makeMon(R()<.5?'esqueleto':'esqArq',x,y,Math.max(1,m.lvl-4),{state:'chase',zone:9});c.owner=m;mons.push(c);burst(x,y-8,'#b060ff',16,50);break;}}
+  const c=makeMon(R()<.5?'esqueleto':'esqArq',x,y,Math.max(1,m.lvl-4),{state:'chase',zone:9});c.owner=m;c.maxHp=c.hp=Math.round(c.maxHp*.5);mons.push(c);burst(x,y-8,'#b060ff',16,50);break;}} // servos com meia vida: renascem a cada 9–13 s
 function drawRingTele(t){const f=t.t/t.delay;ctx.strokeStyle=`rgba(255,150,40,${.35+f*.5})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.stroke();
  ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29);ctx.stroke();ctx.fillStyle=`rgba(255,120,30,${f*.25})`;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29,true);ctx.fill();}

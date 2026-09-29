@@ -58,7 +58,7 @@ function step(e,dx,dy,r=4){if(!blocked(e.x+dx,e.y,r))e.x+=dx;if(!blocked(e.x,e.y
 function stepSmart(e,dx,dy,r,side){const ox=e.x,oy=e.y,s=hyp(dx,dy);step(e,dx,dy,r);if(hyp(e.x-ox,e.y-oy)<s*.3&&s>0)step(e,-dy*side,dx*side,r);}
 function randTile(z){for(let k=0;k<500;k++){const x=ri(2,W-3),y=ri(2,H-3),i=y*W+x;if(zoneMap[i]===z&&!solid[i]&&REACH[i])return{x,y};}return null;}
 // vida e ataque por nível: comuns com mais vida e ataque (equilíbrio de 29/09/2026, ver CLAUDE.md item 7); chefes na curva antiga
-const MONHP=d=>d.boss?[1,.22]:[2.8,.35],MONATK=d=>d.boss?[1,.16]:[1.4,.28];
+const MONHP=d=>d.boss?[12,.22]:[2.8,.35],MONATK=d=>d.boss?[1,.16]:[1.4,.28];
 function makeMon(type,x,y,lvl,o={}){const d=MDEF[type],el=!!o.elite,h=MONHP(d),a=MONATK(d);
  const m={type,d,lvl,x,y,sx:x,sy:y,zone:o.zone||0,maxHp:Math.round(d.hp*h[0]*(1+h[1]*(lvl-1))*(el?2.6:1)),atk:d.atk*a[0]*(1+a[1]*(lvl-1))*(el?1.35:1),dfn:d.def*(1+.12*(lvl-1)),spd:d.spd,r:d.r*(el?1.2:1),sc:(d.scale||1)*(el?1.3:1),
   state:o.state||'idle',wanderT:rf(0,3),tx:null,atkT:0,hitT:0,slowT:0,animT:R()*5,face:R()<.5?1:-1,abilT:d.slam?d.slam.every:0,elite:el,boss:!!d.boss,lunge:0,dead:false,side:R()<.5?1:-1,lootBonus:o.lootBonus||0};

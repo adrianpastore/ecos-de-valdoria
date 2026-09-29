@@ -40,7 +40,8 @@
  function caca(mapa,tipo,lv,max=120){const m=arena(mapa,tipo,lv);P.target=m;P.auto=true;let t=0,acoes=0;
   basicAttack=function(){acoes++;return baReal.apply(this,arguments);};
   useSkill=function(s){const id=P.bar[s],c=id&&P.cd[id];const r=usReal.apply(this,arguments);if(id&&!c&&P.cd[id]>0)acoes++;return r;};
-  while(!m.dead&&t<max){for(let s=0;s<6;s++)useSkill(s);if(!P.target||P.target.dead){P.target=m;P.auto=true;}
+  while(!m.dead&&t<max){for(let s=0;s<6;s++)useSkill(s);
+   if(!P.target||P.target.dead||P.target===m){P.target=mons.find(c=>!c.dead&&c.owner===m)||m;P.auto=true;} // servos do chefe primeiro, como a luta pede
    update(.05);t+=.05;loots.length=0;if(P.dead)acorda();P.hp=P.st.hp;}
   basicAttack=baReal;useSkill=usReal;return{t,morto:m.dead,acoes,nome:m.name,lv:m.lvl,resto:Math.round(Math.max(0,m.hp)/m.maxHp*100),st:m.state};}
  // caçada em sequência: 5 monstros seguidos, sem recarregar mana nem habilidades (só 4 s de caminhada entre um e outro)
