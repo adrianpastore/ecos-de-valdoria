@@ -97,7 +97,8 @@ function die(m){P.dead=true;P.pdot=null;P.stealth=null;P.volley=null;P.shield=nu
 function respawn(){P.dead=false;if(CUR!=='valdor')switchMapNow('valdor',null);P.x=(TC.x+.5)*TILE;P.y=(TC.y+2.5)*TILE;P.hp=P.st.hp;P.mp=P.st.mp;$('death').classList.add('hidden');save();}
 function nearestMon(range){let b=null,bd=range;for(const m of mons){if(m.dead)continue;const d=hyp(m.x-P.x,m.y-P.y);if(d<bd){bd=d;b=m;}}return b;}
 
-function killMonster(m,src){m.dead=true;if(m.d.clone){burst(m.x,m.y-12,'#c8c8c8',18,50);addText(m.x,m.y-26,'Falso!','#cccccc');if(P.target===m){P.target=null;P.auto=false;}return;}onKill(m,src);let xp=Math.round(m.d.xp*1.5*(1+.35*(m.lvl-1))*(m.elite?3:1));const diff=P.lvl-m.lvl;if(diff>5)xp=Math.max(1,Math.round(xp*Math.max(.1,1-(diff-5)*.2)));
+const xpOf=(d,lvl,el)=>Math.round(d.xp*1.5*(1+.35*(lvl-1))*(el?3:1)); // XP de um monstro (também usada pelo medidor)
+function killMonster(m,src){m.dead=true;if(m.d.clone){burst(m.x,m.y-12,'#c8c8c8',18,50);addText(m.x,m.y-26,'Falso!','#cccccc');if(P.target===m){P.target=null;P.auto=false;}return;}onKill(m,src);let xp=xpOf(m.d,m.lvl,m.elite);const diff=P.lvl-m.lvl;if(diff>5)xp=Math.max(1,Math.round(xp*Math.max(.1,1-(diff-5)*.2)));
  addText(m.x,m.y-mh(m)-12,'+'+xp+' XP','#d6a8ff');gainXp(xp);
  dropLoot(m.x,m.y,{kind:'gold',amt:Math.round(ri(2,5)*(1+m.lvl*.6)*(m.elite?3:1)*(m.boss?10:1))+(m.stolen||0)});dropMat(m);
  let n=0,b=0,min=0;if(m.boss){n=3;b=3;min=2;}else if(m.type==='mimico'){n=ri(2,3);b=m.lootBonus;}else if(m.elite){n=ri(1,2);b=1.2;}else if(R()<.2*luckMul())n=1;

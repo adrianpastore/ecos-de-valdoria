@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#120e0b">
 <link rel="icon" type="image/png" href="icones/favicon-32.png"><link rel="apple-touch-icon" href="icones/icone-apple-180.png">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Valdoria">
-<script>/* modo de teste (index.html?teste): anota erros desde o carregamento */if(/[?&]teste\b/.test(location.search)){window.__errs=[];addEventListener('error',e=>__errs.push(e.message+' ('+(e.filename||'').split('/').pop()+':'+e.lineno+')'));}</script>
+<script>/* modo de teste (index.html?teste, ou ?medir para o medidor de equilíbrio): anota erros desde o carregamento */if(/[?&](teste|medir)\b/.test(location.search)){window.__errs=[];addEventListener('error',e=>__errs.push(e.message+' ('+(e.filename||'').split('/').pop()+':'+e.lineno+')'));}</script>
 </head>
 <body>
 <div id="game">
@@ -127,6 +127,6 @@
 <script src="js/18-desempenho.js"></script>
 <script src="js/19-app.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
-<script>if(window.__errs){const s=document.createElement('script');s.src='tests/smoke.js';document.body.append(s);}</script>
+<script>if(window.__errs){const s=document.createElement('script');s.src=/[?&]medir\b/.test(location.search)?'tests/medidor.js':'tests/smoke.js';document.body.append(s);}</script>
 </body>
 </html>
