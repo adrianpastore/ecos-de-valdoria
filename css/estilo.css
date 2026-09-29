@@ -214,3 +214,18 @@ body.toque .dollTabs{display:flex;justify-content:center}
 body.toque #bagLeft.st .doll,body.toque #bagLeft:not(.st) #statsBox{display:none}
 body.toque #bagLeft #statsBox{margin-top:4px}
 body.toque .doll{grid-template-columns:repeat(3,46px);grid-template-rows:repeat(4,46px);gap:5px} body.toque .doll+.doll{grid-template-rows:46px!important} body.toque .doll .big img{width:46px}
+/* telas por cima (início, derrota): centraliza com margem automática, para o topo nunca ficar cortado quando o conteúdo passa da altura da tela */
+.overlay{align-items:flex-start} .overlay>*{margin:auto}
+/* tela inicial no celular deitado: tudo mais compacto, para caber sem rolar */
+@media (orientation:landscape) and (max-height:520px){
+ .title{font-size:clamp(26px,5vw,40px)} .sub{margin:4px auto 8px;font-size:14px}
+ #start .overlay,#start{padding:8px 12px}
+ #contBox{padding:6px 10px;margin-bottom:8px} #contBox p{margin:0 0 4px;font-size:14px} #contBox .btn{padding:5px 14px}
+ .classes{gap:8px;margin-bottom:8px} .ccard{padding:6px 8px} .ccard img{width:56px;height:56px} .ccard h3{font-size:16px;margin:0 0 2px} .ccard p{font-size:12.5px;line-height:1.25;margin:0 0 3px} .ccard .cs{font-size:12px}
+ .namerow input{font-size:15px;padding:6px 10px} .namerow .btn{padding:6px 12px}
+}
+@media (orientation:landscape) and (max-height:520px){
+ .sub{max-width:92ch}
+ #contBox:not(.hidden){display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 12px;max-width:620px} #contBox>p:last-child{flex-basis:100%;margin:0!important}
+ .ccard .cs{margin-top:1px}
+}
