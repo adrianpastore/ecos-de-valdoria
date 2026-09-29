@@ -77,6 +77,9 @@
    qualPref=p0;if(q0===null)localStorage.removeItem(QKEY);else localStorage.setItem(QKEY,q0);setLeve(p0==='leve');qualBtns();
    if(d1!==1)throw 'o modo leve não baixou a resolução';if(n>90)throw 'partículas não foram limitadas ('+n+')';if(d2!==Math.min(devicePixelRatio||1,2))throw 'a qualidade alta não voltou';
    if(!bg.includes('radial-gradient'))throw 'vinheta sem degradê';if(!auto)throw 'quadros lentos não ligaram o modo leve';info('leve: 1×, até 90 partículas; vinheta em CSS; 25 quadros/s ligam o leve sozinho');});
+  t('app: manifesto e ícones no index; service worker só em https (o teste completo é o tests\\testar-app.ps1)',()=>{
+   if(!document.querySelector('link[rel="manifest"][href="manifest.json"]'))throw 'sem o link do manifesto';if(!document.querySelector('link[rel="apple-touch-icon"]'))throw 'sem ícone do iPhone';
+   if(location.protocol==='file:'&&APP_OK)throw 'o service worker tentaria rodar em file://';const b=document.querySelectorAll('[data-inst]');if(!b.length||[...b].some(x=>!x.classList.contains('hidden')))throw 'botão de instalar deveria começar escondido';});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);
