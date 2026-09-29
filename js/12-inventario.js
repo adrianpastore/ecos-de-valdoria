@@ -30,7 +30,37 @@ for(const[k,n,c,w]of[['slime','Musgo de Geleia','#5fcf5a'],['esquilo','Pelo de E
  const d=MDEF[k];LOOTM[k]={n,c,w:w||1,v:d.boss?150:clamp(Math.round(d.xp/3),2,15)};}
 const shadeHex=(h,f)=>'#'+hexRGB(h).map(v=>clamp(Math.round(f>0?v+(255-v)*f:v*(1+f)),0,255).toString(16).padStart(2,'0')).join('');
 const MATROWS=["...kkkk...","..kCCCCk..",".kCcCCCCk.","kCcCCCCCCk","kCCCCCCCdk","kCCCCCCddk",".kCCCCddk.","..kkkkkk.."];
-for(const k in LOOTM){const c=LOOTM[k].c;def('mat_'+k,MATROWS,{C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)});}
+// Desenho próprio de cada material: C = cor do material, c = brilho, d = sombra; e, f, g = cores extras daquele desenho
+const MATSHP={
+ slime:[["....kk....","...kcCk...","..kcCCCk..",".kcCCCCdk.","kCCCCCCCdk","kCCdCCCCdk",".kdCCdCdk.","..kkkdkkk.",".....k...."]],
+ esquilo:[["..k...k....",".kCk.kCk...",".kCCkCCk.k.","..kCCCCkkCk",".kCCcCCCCk.","kCcCCCCdCk.","kCCCCCddk..",".kdCCddk...","..kkkkk...."]],
+ lobo:[[".kkkk.....","kcCCCk....","kCCCCCk...",".kCCCCk...","..kCCCdk..","...kCCdk..","...kCCdk..","....kCdk..","....kdk...",".....k...."]],
+ aranha:[["..kkkkkk..",".kcCdCCCk.","kcCCdCCCdk","kCdCCdCCdk","kCCdCCdCdk","kCCCdCCddk",".kCCCdCdkk","..kkkkkk.k"]],
+ esqueleto:[[".kk......kk.","kcCk....kCCk","kCCCkkkkCCdk",".kCcCCCCCdk.","kCCdkkkkdCdk","kCdk....kddk",".kk......kk."]],
+ orc:[["......kk..",".....kcCk.","....kcCCk.","...kCCCdk.","..kCCCdk..",".kCCCdk...","kdCCdk....","kdddk.....",".kkk......"]],
+ golem:[["...kkkk...",".kkcCCCkk.","kcCCCCCCdk","kCCdeedCdk","kCCeffeCdk","kCCdeedCdk","kCCCCCCddk",".kkdCCddk.","...kkkk..."],{e:'#6fd8ff',f:'#e0fbff'}],
+ mimico:[["..kkkkkk..",".keeeeeek.",".kCCCCCCk.",".kcCCCCdk.","..kCCCdk..","..kcCCdk..","...kCdk...","...kCdk...","....kk...."],{e:'#c83a4a'}],
+ esporinho:[["..kkkkkk..",".kcCeCCCk.","kcCCCCeCCk","kCeCCCCCdk","kddddddddk",".kkkffkkk.","...kffk...","...kffk...","...kkkk..."],{e:'#fff0d0',f:'#f0e0c0'}],
+ esporov:[["....e.....","..e...e...","....kk....","...kcCk...","..kcCCCk..",".kCCCeCCk.","kCCCCCCddk","kkkkkkkkkk"],{e:'#e0a0ff'}],
+ verme:[["..kkkkk...",".kcCkCCk..","kcCkCCkCk.","kCkCCkCCdk","kCCkCCkCdk",".kdCkCCdk.","..kkkkkk.."]],
+ salgueiro:[[".......kk.","......kCCk","..kk..kCck",".kCCk.kek.",".kcCCkek..","..kkekek..","....kek...","...kek....","..kek.....","..kk......"],{e:'#8a5a2c'}],
+ salgueiroA:[["....kk....","...kcCk...","...kcCk...","..kcCCCk..",".kcCCCCdk.",".kCcCCCdk.",".kCCCCddk.","..kddddk..","...kkkk..."]],
+ guaxinim:[[".......kk.","......kcCk",".....kCeek","....keeCCk","...kCCeek.","..keeCCk..",".kCCeek...","kCeeCk....","kkkkk....."],{e:'#e8e2d0'}],
+ jiboia:[["..kkkkkkkk",".kCeCCeCCk","kCeCeeCeCk","keCCeCCedk","kCCeCCeCdk","kkkkkkkkk."],{e:'#2e5a1e'}],
+ pegrande:[[".k.k.k.k..","kCkCkCkCk.","kCCCCCCCk.",".kcCCCCdk.","..keeeek..",".kCCCCCdk.","kCcCCCCCdk","kCkCkCkdk.",".k.k.k.k.."],{e:'#d8c070'}],
+ lanterna:[["....k.....","...kek....","...kek.k..","..keCekek.",".keCfCeek.",".kCfffCek.",".kCfffCdk.","..kCCCdk..","...kkkk..."],{e:'#ff6a2a',f:'#fff4c0'}],
+ duende:[["......kk..",".....kcdk.","....kcCdk.","...kcCdk..","..kcCCdk..",".kcCdCdk..","kcCCCdk...","kCdCdk....","kkkkk....."]],
+ totem:[["......kkk.",".....keCck","....kCCcek","...kCCcCk.","..kCCcCdk.","..kCcCdk..",".kCcCdk...",".kcddk....","kck.......","kk........"],{e:'#f0d060'}],
+ raposa:[["......kkk.",".....kCCck","....kCCCCk","...keCCCk.","..keeeCk..",".keeeeek..","keeeeefk..","keeeffk...",".kkkkk...."],{e:'#e0803a',f:'#a8502a'}],
+ morcego:[["kk........","kCkk......","kCCCkk....","kCcCCCkk..","kCCcCCCCkk","kCCCcCCCdk","kCkCCkCCdk","kk.kk.kCdk",".......kk."]],
+ esqArq:[["....kk....","...kcCk...","...kcCk...","..kcCCdk..","..kcCCdk..",".kcCCCCdk.",".kkkCCkkk.","...keek...","...keek...","....kk...."],{e:'#8a5a2c'}],
+ zumbi:[["...kkkk...","..kCCcCkk.",".kCeCCCCdk","kCCeeCCeCk","kcCCCCeedk","kCCeCCCCdk",".kCCeeCddk","..kkkkkkk."],{e:'#b8e0f0'}],
+ wyrm:[[".kkkkkkkk.","keeeeeeeek","kecCCCCdek","kecCCCCdek",".kecCCdek.",".kecCCdek.","..kecdek..","...keek...","....kk...."],{e:'#f0c040'}],
+ mestreMasc:[[".kkkkkkkk.","kcCCCCCCdk","kCkkCCkkdk","kCkkCkkkdk","kCCCCkCCdk","kCCCkCCCdk",".kCCkCCdk.","..kCCCdk..","...kkkk..."]],
+ totemAnciao:[["..kkkkkk..",".kffffffk.","kffeeeeffk","kffeffeffk",".kffeeffk.",".kCCCCCdk.",".kCgCgCdk.",".kCgCCgdk.",".kCCCCCdk.","..kkkkkk.."],{e:'#a07a50',f:'#d8b88a',g:'#7fe07a'}],
+ raposaAnc:[["....e.....","...kkkk...","..kcfCCk..",".kcffCCCk.",".kcfCCCdk.",".kCCCCddk.","..kCCddk..","...kkkk...",".....e...."],{e:'#fff8d0',f:'#ffffff'}],
+ senhorOssos:[["k...kk...k","kk.kcCk.kk","kCkCCCCkCk","kcCCCCCCdk","kCCeCCeCdk","kCCCCCCCdk","kkkkkkkkkk"],{e:'#8a3ad0'}]};
+for(const k in LOOTM){const c=LOOTM[k].c,s=MATSHP[k]||[MATROWS];def('mat_'+k,s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)},s[1]));}
 const matIc={},matIcon=k=>matIc[k]||(matIc[k]=toURL(SPR['mat_'+k].n,4));
 function dropMat(m){if(!LOOTM[m.type])return;const n=m.boss?3:m.elite?2:R()<.4*luckMul()?1:0;if(n)dropLoot(m.x,m.y,{kind:'mat',mat:m.type,n});}
 
