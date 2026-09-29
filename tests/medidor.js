@@ -77,8 +77,9 @@
     out.push(`  ${pad(r.nome+' nv '+r.lv,36)} ${r.morto?'mata em '+lpad(f1(r.t),5)+' s':'NÃO MATOU em 600 s (ficou com '+r.resto+'%)'}   te mata em ${d.dps?lpad(Math.round(P.st.hp/d.dps),3)+' s':'nunca'}${d.umGolpe?'  [morreu num golpe só]':''}   (herói: vida ${P.st.hp}, ataque ${P.st.atk})`);}}
 
   out.push('','######## SUBIR DE NÍVEL ########','Monstros do próprio nível (sem elite) para passar do nível L para o L+1:');
-  for(const L of NIVEIS){const ks=[];for(const k of mapasDoNivel(L))for(const tp of tiposDe(k))if(!MDEF[tp].boss)ks.push(xpNeed(L)/xpOf(MDEF[tp],L,false));
-   const med=ks.reduce((a,b)=>a+b,0)/ks.length;out.push(`  nível ${lpad(L,2)}: XP da barra ${lpad(xpNeed(L),6)} → de ${Math.round(Math.min(...ks))} a ${Math.round(Math.max(...ks))} monstros (média ${Math.round(med)})`);}
+  // no 40 ainda não há mapa: conta com os monstros do 30 no nível 40. "antes" = a barra de antes de 29/09/2026 (50·l^1,6)
+  for(const L of[...NIVEIS,40]){const ks=[];for(const k of mapasDoNivel(L))for(const tp of tiposDe(k))if(!MDEF[tp].boss)ks.push(xpNeed(L)/xpOf(MDEF[tp],L,false));
+   const med=ks.reduce((a,b)=>a+b,0)/ks.length;out.push(`  nível ${lpad(L,2)}: XP da barra ${lpad(xpNeed(L),6)} → de ${Math.round(Math.min(...ks))} a ${Math.round(Math.max(...ks))} monstros (média ${Math.round(med)}; ${f1(xpNeed(L)/Math.floor(50*Math.pow(L,1.6)))}× o de antes)`);}
 
   out.push('','######## RESUMO (mediana contra os monstros do próprio nível) ########','Meta: herói mata em 6 a 8 ações; monstro mata o herói em 10 a 12 golpes. Chefe: luta de 90 a 180 s.');
   for(const r of resumo)out.push(`  ${pad(CL[r.cls].nome,10)} nv ${lpad(r.L,2)}: herói mata em ${lpad(f1(r.a),4)} ações (${lpad(f1(r.t),4)} s); monstro mata em ${lpad(f1(r.m),4)} golpes`);

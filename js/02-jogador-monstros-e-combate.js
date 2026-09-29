@@ -76,7 +76,8 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
 function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
-const xpNeed=l=>Math.floor(50*Math.pow(l,1.6));
+// XP da barra do nível l. Equilíbrio de 29/09/2026: ~2× os monstros por nível no nível 5 e ~4× no 40 (antes: 50·l^1,6)
+const xpNeed=l=>Math.floor(58*Math.pow(l,1.93));
 // Nível de Classe (dá os pontos de habilidade): vai até 10 na classe inicial; ao virar aprendiz (P.spec) recomeça do 1 e vai até 50.
 // A barra do caminho enche um pouco mais rápido (85%), para a promoção (Classe 25) chegar perto do nível de Base 25.
 const jobCap=()=>P.spec?50:10,jobNeed=j=>P.spec?Math.floor(xpNeed(j)*.85):xpNeed(j);
