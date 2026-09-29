@@ -151,6 +151,7 @@ cv.addEventListener('pointerdown',e=>{if(!P||P.dead)return;e.preventDefault();co
  if(hit){P.target=hit;P.auto=true;P.dest=null;P.pend=null;return;}
  for(const c of chests)if(!c.open&&hyp(c.x-w.x,c.y-6-w.y)<12){P.pend={kind:'chest',o:c};P.dest={x:c.x,y:c.y+2};P.auto=false;return;}
  if(hyp(SMITH.x-w.x,SMITH.y-16-w.y)<18){P.pend={kind:'smith',o:SMITH};P.dest={x:SMITH.x,y:SMITH.y+4};P.auto=false;return;}
+ for(const q of TALK)if(hyp(q.x-w.x,q.y-24-w.y)<14){P.pend={kind:'talk',o:q};P.dest={x:q.x,y:q.y+6};P.auto=false;return;}
  if(hyp(BAR.x-w.x,BAR.y-24-w.y)<18){P.pend={kind:'bar',o:BAR};P.dest={x:BAR.x,y:BAR.y+14};P.auto=false;return;}
  if(hyp(BOARD.x-w.x,BOARD.y-16-w.y)<18){P.pend={kind:'board',o:BOARD};P.dest={x:BOARD.x,y:BOARD.y+4};P.auto=false;return;}
  if(hyp(NPC.x-w.x,NPC.y-8-w.y)<14){P.pend={kind:'npc',o:NPC};P.dest={x:NPC.x,y:NPC.y+10};P.auto=false;return;}

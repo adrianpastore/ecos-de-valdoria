@@ -1,4 +1,4 @@
-// Ecos de Valdoria — O bar da Guilda: a taverneira Brígida e os tônicos de atributo
+// Ecos de Valdoria — O salão da Guilda: o bar da taverneira Brígida (tônicos de atributo) e a gente que conversa (Freya, Darian, Lexus)
 'use strict';
 // ================== TÔNICOS ==================
 // Cada tônico dá +TON_B (definido em 16, que soma o bônus em attrEff) num atributo por 10 minutos de jogo (o tempo só corre com o jogo aberto). Um de cada tipo ativo
@@ -43,3 +43,36 @@ function renderTaverna(){const B=$('tavernaBody');
    `<button class="btn sm" data-ton="${k}"${P.gold<TON_V?' disabled':''}>${TON_V}g</button></div>`;}
  B.innerHTML=h+`<p class="muted" style="margin:8px 0 0;font-size:13px">Os tônicos ficam na bolsa, aba Consumíveis. Tônicos diferentes funcionam juntos; tomar um igual renova o tempo. O efeito some se você cair em combate.</p>`;
  B.querySelectorAll('[data-ton]').forEach(b=>b.onclick=()=>buyTonic(b.dataset.ton));}
+
+// ================== GENTE DO SALÃO ==================
+// NPCs de ambiente (nomes do dono, 29/09/2026): só conversam. Cada E sorteia uma fala (nunca a mesma duas vezes seguidas),
+// que aparece num balão sobre a cabeça por 5 s e no registro. at = posição relativa ao centro do salão (TC).
+const SALAO=[
+ {id:'freya',n:'Freya',c:'#8fd0ff',at:[2,-4],f:['Bem-vindo à Guilda! O mural ali tem trabalho para quem tem coragem.','Aceite até 3 missões por vez e traga as provas. A Guilda paga em ouro e experiência.',
+  'Cada missão volta ao mural um tempo depois de entregue. Trabalho aqui nunca falta!','Os murais falam dos problemas de cada região. Outras cidades têm os seus.','Cansado? A Brígida, no balcão, tem um tônico para cada tipo de aventureiro.']},
+ {id:'darian',n:'Darian',c:'#e8c080',at:[-5,-2],f:['Derrube os esqueletos antes do Senhor dos Ossos, ou ele não cai nunca!','Viu círculo vermelho no chão? Saia dele. Aprendi isso do jeito difícil.',
+  'A Raposa Anciã foge de quem luta de perto. Encurrale-a, não desista.','O Wyrm Carmesim cospe fogo onde você está parado. Nunca fique parado.','Um Tônico do Touro antes de um chefe já salvou minha pele mais de uma vez.',
+  'Baú longe da vila? Pode ter dentes. Eu tenho a cicatriz para provar.','O Mestre das Máscaras se divide em cópias. Só o verdadeiro sangra.']},
+ {id:'lexus',n:'Lexus',c:'#d9a0ff',at:[-7,3],f:['Ah, um aventureiro! Um dia faço uma balada sobre você... se voltar vivo.','Dizem que a Raposa de Nove Caudas canta nas noites de lua. Eu só queria ouvir uma vez.',
+  'Estou afinando o alaúde para a noite. A Brígida prometeu uma caneca por música.','Conhece a lenda do Wyrm Carmesim? Não? Pague uma rodada e eu conto!','Toda Guilda tem um bardo. As boas têm dois. Esta tem só eu, e já basta.']}];
+def('freya',["......kkkk......",".....kYYYYk.....","....kYYYYYYk....","....kYseesYk....","....kYssssYk....",".....kssssk.....","...kkDDDDDDkk...","..ksDDDDDDDDsk..",
+ "..ksDDwwwwDDsk..","...kDDwwwwDDk...","....kDDDDDDk....","....kDDDDDDk....","...kDDDDDDDDk...","...kDDDDDDDDk...","....kbbk.kbbk...","....kkk...kkk..."],
+ {Y:'#f0d060',s:'#f0c8a0',e:K,D:'#3a5aa8',w:'#f4ecd8',b:'#3a2a1a'});
+def('darian',["......kkkk......",".....kGGGGk.....","....kGGGGGGk....","....kGseesGk....","....ksrsssGk....",".....kGGGGk.....","..kkkLLLLLLkkw..",".ksskLLggLLkskw.",
+ ".ksskLLLLLLksk..","..kkkLLLLLLkk...","....kLLLLLLk....","....kPPPPPPk....","....kPPkkPPk....","....kPPk.kPPk...","....kbbk.kbbk...","....kkk...kkk..."],
+ {G:'#b8b8b0',s:'#d8a070',e:K,r:'#b8423a',L:'#7a5230',g:'#e8b43c',w:'#c8c8d0',P:'#4a4038',b:'#2a1c12'});
+def('lexus',[".........kFk....",".....kkkkkFk....","....kHHHHHHk....","...kHHHHHHHHk...","....kseesssk....","....ksssssk.....","...kkRRRRRRkk...","..ksRRRRRRRRsk..",
+ "..kskLLLLkRRsk..","...kLLoLLLkRk...","....kLLLLkRRk...","....kPPPPPPk....","....kPPkkPPk....","....kPPk.kPPk...","....kbbk.kbbk...","....kkk...kkk..."],
+ {F:'#f4ecd8',H:'#6a3a8a',s:'#e8b088',e:K,R:'#b8423a',L:'#c8904a',o:'#3a2414',P:'#3a5a3a',b:'#4a3222'});
+for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board){const M=MAPS[id];M.talk=SALAO.map(p=>[TC.x+p.at[0],TC.y+p.at[1],p.id]);for(const[x,y,s]of M.talk)M.deco.push([x,y,s]);}
+// pontos de conversa do mapa atual (como o SMITH): na frente dos pés de cada um. setTalk é chamada ao trocar de mapa (08).
+const TALK=[];
+function setTalk(M){TALK.length=0;for(const[tx,ty,id]of M.talk||[])TALK.push({x:(tx+.5)*TILE,y:(ty+1)*TILE+8,p:SALAO.find(p=>p.id===id),line:null,until:-1});}
+function talkTo(q){const f=q.p.f.filter(l=>l!==q.line);q.line=pick(f);q.until=time+5;log(`${q.p.n}: "${q.line}"`,q.p.c);}
+// nome sobre a cabeça e, enquanto fala, um balão de pergaminho em cima (chamada pelo drawLabels do 04)
+function drawTalk(sx,sy,lab){for(const q of TALK){lab(q.p.n,q.x,q.y-30,q.p.c);if(time>=q.until)continue;
+ ctx.save();ctx.font='600 13px "Alegreya Sans",sans-serif';const ls=[];let cur='';for(const w of q.line.split(' ')){if(cur&&ctx.measureText(cur+' '+w).width>200){ls.push(cur);cur=w;}else cur=cur?cur+' '+w:w;}ls.push(cur);
+ const bw=Math.max(...ls.map(l=>ctx.measureText(l).width))+14,bh=ls.length*16+8,X=sx(q.x),Y=sy(q.y-30)-18-bh;
+ ctx.fillStyle='rgba(244,234,214,.96)';ctx.strokeStyle='#5a3a1a';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(X-bw/2,Y,bw,bh,6);ctx.fill();ctx.stroke();
+ ctx.beginPath();ctx.moveTo(X-5,Y+bh);ctx.lineTo(X,Y+bh+6);ctx.lineTo(X+5,Y+bh);ctx.fill();
+ ctx.fillStyle='#2a1a0a';ls.forEach((l,i)=>ctx.fillText(l,X,Y+17+i*16));ctx.restore();}}

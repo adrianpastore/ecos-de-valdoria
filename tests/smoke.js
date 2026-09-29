@@ -177,6 +177,14 @@
    saveReal();const s=loadSave();if(s.v!==5||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
    tonicTick(TON_T+1);if(P.tonAt[k])throw 'o efeito não acabou';if(P.st.atk!==a0)throw 'o ataque não voltou ao normal';
    info(`${TONN[k]}: ataque ${a0} → ${a1} por ${TON_T/60} min`);});
+  t('salão da Guilda: Freya, Darian e Lexus conversam em toda Guilda',()=>{
+   for(const id of Object.keys(MAPS).filter(k=>MAPS[k].interior&&MAPS[k].board)){switchMapNow(id,null);if(TALK.length!==SALAO.length)throw id+': '+TALK.length+' pessoas no salão';
+    for(const q of TALK){let pe=null; // o chão livre mais perto de onde se conversa (o Darian fica atrás de uma mesa)
+     for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){const j=ty*W+tx,x=(tx+.5)*TILE,y=(ty+.5)*TILE;if(!solid[j]&&REACH[j]&&hyp(x-q.x,y-q.y)<26&&(!pe||hyp(x-q.x,y-q.y)<hyp(pe.x-q.x,pe.y-q.y)))pe={x,y};}
+     if(!pe)throw id+': não dá para chegar perto de '+q.p.n;cura();P.x=pe.x;P.y=pe.y;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw id+': [E] não conversa com '+q.p.n+' (pegou '+(it&&it.kind)+')';
+     interact(it);const l1=q.line;if(!q.p.f.includes(l1)||!(q.until>time))throw q.p.n+' não falou';interact(it);if(q.line===l1)throw q.p.n+' repetiu a mesma fala';}
+    render(.05,0);}
+   info(SALAO.map(p=>p.n+' ('+p.f.length+' falas)').join(', '));});
   t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 

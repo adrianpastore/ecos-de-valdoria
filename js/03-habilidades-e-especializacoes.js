@@ -179,7 +179,8 @@ function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)con
  for(const n of nascs){if(n.state!=='corr')continue;const d=hyp(n.x-P.x,n.y-P.y);if(d<bd){bd=d;b={kind:'nasc',o:n};}}
  if(hyp(NPC.x-P.x,NPC.y-P.y)<bd){bd=hyp(NPC.x-P.x,NPC.y-P.y);b={kind:'npc',o:NPC};}
  if(hyp(MENTOR.x-P.x,MENTOR.y-P.y)<bd){bd=hyp(MENTOR.x-P.x,MENTOR.y-P.y);b={kind:'mentor',o:MENTOR};}
+ for(const q of TALK){const d=hyp(q.x-P.x,q.y-P.y);if(d<Math.max(bd,30)){bd=d;b={kind:'talk',o:q};}} // gente do salão da Guilda (20)
  if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};
  if(hyp(SMITH.x-P.x,SMITH.y-P.y)<Math.max(bd,30))b={kind:'smith',o:SMITH};
  if(hyp(BAR.x-P.x,BAR.y-P.y)<Math.max(bd,30))b={kind:'bar',o:BAR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else openShop();}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk')talkTo(it.o);else openShop();}
