@@ -189,3 +189,20 @@ body.toque #mini{width:128px;height:96px}
 body.toque #side{top:10px;bottom:auto;right:160px;flex-direction:row;align-items:center} body.toque .ib{width:44px;height:44px;font-size:20px} body.toque .ib small{display:none}
 body.toque #tframe{top:84px;bottom:auto;width:min(220px,30vw)} body.toque #quest{width:min(280px,34vw)}
 body.toque #log{left:max(33vw,170px);bottom:12px;width:min(320px,calc(100vw - max(33vw,170px) - 330px));font-size:13px} body.toque #prompt{bottom:110px}
+/* janelas no modo toque (etapa 2): usam a altura toda, botões maiores e, com o celular deitado, os detalhes ficam ao lado da lista */
+body.toque .panel{max-height:calc(100% - 12px);padding:10px 12px}
+body.toque .x{min-width:44px;min-height:44px;font-size:24px}
+body.toque .btn.sm{min-height:36px;padding:6px 12px}
+body.toque .phead{margin-bottom:4px}
+@media (orientation:landscape){
+ body.toque #bag,body.toque #tree,body.toque #smith{width:min(860px,calc(100vw - 12px))}
+ body.toque .bagbody{grid-template-columns:190px 1fr;gap:12px}
+ body.toque .bagbody>div:last-child{display:grid;grid-template-columns:1fr minmax(210px,34%);column-gap:10px;align-content:start}
+ body.toque #detail,body.toque #treeDet,body.toque #smithBody>.detail{grid-column:2;margin-top:0;position:sticky;top:0;align-self:start;max-height:calc(100vh - 90px);overflow:auto}
+ body.toque #detail{grid-row:1/span 4}
+ body.toque #invGrid,body.toque #smithBody>.grid{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))}
+ body.toque #tree{display:grid;grid-template-columns:1fr minmax(220px,34%);column-gap:12px;align-content:start}
+ body.toque #tree>.phead,body.toque #treeTabs{grid-column:1/-1} body.toque #treeBody{grid-column:1} body.toque #treeDet{grid-row:3}
+ body.toque #smithBody{display:grid;grid-template-columns:1fr minmax(220px,38%);column-gap:12px;align-items:start}
+ body.toque #smithBody>.flav{grid-column:1/-1} body.toque #smithBody>.detail{grid-row:2}
+}

@@ -63,6 +63,7 @@
   t('Estrada do Sul: sem árvore ao lado da passagem do rio (clear)',()=>{genWorld('estrada');const ok=!(objRows[10]||[]).some(o=>o.tx===21)&&!solid[10*W+21];genWorld(CUR);if(!ok)throw 'ainda há algo no tile 21,10';});
   t('toque: modo toque, botões em arco e joystick anda',()=>{enter({cls:'arqueira',name:'Toque'});switchMapNow('valdor',null);cura();
    setTouchUI(true);const on=document.body.classList.contains('toque');buildHotbar();const atk=document.querySelector('#hotbar .hs[data-k="Espaço"]');
+   if(innerWidth>innerHeight){toggle(bagEl,true);const col=getComputedStyle($('detail')).gridColumnStart;closeAll();if(col!=='2')throw 'no toque deitado, os detalhes da bolsa não ficam ao lado da lista';}
    P.x=(TC.x+3)*TILE+8;P.y=TC.y*TILE+8;P.dest=null;P.target=null;P.auto=false;const x0=P.x,y0=P.y;Object.assign(JOY,{on:true,x:-.7,y:-.7});tick(10);
    const d=hyp(P.x-x0,P.y-y0),face=P.face;joyEnd();setTouchUI(false);const off=!document.body.classList.contains('toque');
    if(!on||!off)throw 'a classe toque não liga/desliga';if(!atk)throw 'botão de ataque sem data-k';if(d<10||P.y>=y0)throw 'joystick não moveu o herói ('+d.toFixed(1)+'px)';if(face!==-1)throw 'herói não virou para a esquerda';
