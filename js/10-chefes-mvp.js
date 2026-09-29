@@ -65,7 +65,7 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
   m.face=P.x>m.x?1:-1;return true;}
  if(d.ai==='ossos'){const serv=mons.filter(c=>c.owner===m&&!c.dead);
   if(!a.rage&&m.hp<m.maxHp*.5){a.rage=1;a.call=0;banner('O Senhor dos Ossos se enfurece!','Os servos voltam a se erguer.');}
-  if(a.call<=0&&dP<200){a.call=a.rage?9:13;raiseBones(m,Math.min(a.rage?3:2,4-serv.length));}
+  if(a.call<=0&&dP<200){a.call=a.rage?12:16;raiseBones(m,Math.min(a.rage?3:2,3-serv.length));}
   if(a.rain<=0&&dP<200){a.rain=a.rage?4.5:6.5;for(let k=0;k<(a.rage?4:3);k++){const an=R()*6.28,r=k?rf(20,45):0;teles.push({x:P.x+Math.cos(an)*r,y:P.y+Math.sin(an)*r*.6,r:22,t:0,delay:1+k*.15,m,mult:1.1});}
    addText(m.x,m.y-mh(m)-8,'Chuva de Ossos!','#e8e2cc',true);}
   if(a.shot<=0&&dP<190){a.shot=a.rage?1.6:2.2;const b=aim();for(const o of[-.3,-.1,.1,.3])shootAt(m,b+o,115,'#e8e2cc',.9);}
@@ -76,6 +76,6 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
  return false;}
 // ergue esqueletos (guerreiros ou arqueiros) em volta do Senhor dos Ossos; somem quando ele morre
 function raiseBones(m,n){for(let k=0;k<n;k++)for(let t=0;t<20;t++){const an=R()*6.28,r=rf(24,50),x=m.x+Math.cos(an)*r,y=m.y+Math.sin(an)*r;if(blocked(x,y,5))continue;
-  const c=makeMon(R()<.5?'esqueleto':'esqArq',x,y,Math.max(1,m.lvl-4),{state:'chase',zone:9});c.owner=m;c.maxHp=c.hp=Math.round(c.maxHp*.5);mons.push(c);burst(x,y-8,'#b060ff',16,50);break;}} // servos com meia vida: renascem a cada 9–13 s
+  const c=makeMon(R()<.5?'esqueleto':'esqArq',x,y,Math.max(1,m.lvl-4),{state:'chase',zone:9});c.owner=m;c.maxHp=c.hp=Math.round(c.maxHp*.5);mons.push(c);burst(x,y-8,'#b060ff',16,50);break;}} // servos com meia vida: renascem a cada 12–16 s, no máximo 3 vivos
 function drawRingTele(t){const f=t.t/t.delay;ctx.strokeStyle=`rgba(255,150,40,${.35+f*.5})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.stroke();
  ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29);ctx.stroke();ctx.fillStyle=`rgba(255,120,30,${f*.25})`;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.ellipse(t.x,t.y,t.r-32,(t.r-32)*.55,0,0,6.29,true);ctx.fill();}

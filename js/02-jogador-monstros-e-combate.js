@@ -2,7 +2,7 @@
 'use strict';
 // ================== DADOS ==================
 const CL={
- guerreiro:{nome:'Guerreiro',desc:'Tanque corpo a corpo, com muita vida e golpes pesados.',hp:130,mp:40,atk:12,def:7,crit:5,g:{hp:15,mp:3,atk:2.6,def:1.3},range:20,atkCd:.75,proj:null,basic:'⚔️',icon:'sword',weapons:['Espada Curta','Espada Longa','Machado de Guerra','Lâmina Rúnica'],
+ guerreiro:{nome:'Guerreiro',desc:'Tanque corpo a corpo, com muita vida e golpes pesados.',hp:130,mp:40,atk:12,def:7,crit:5,g:{hp:15,mp:3,atk:2.6,def:1.3},range:20,atkCd:.62,proj:null,basic:'⚔️',icon:'sword',weapons:['Espada Curta','Espada Longa','Machado de Guerra','Lâmina Rúnica'],
   skills:[{n:'Golpe Giratório',ic:'🌀',mp:8,cd:4,type:'aoeSelf',r:38,mult:1.8,color:'#e8eef5',d:'Atinge todos ao redor (180% de dano).'},
    {n:'Grito de Guerra',ic:'📣',mp:12,cd:18,type:'buff',dur:8,atk:.35,def:.35,color:'#ff7a3a',d:'+35% de ataque e defesa por 8s.'},
    {n:'Execução',ic:'💀',mp:14,cd:7,type:'single',range:26,mult:3.2,color:'#ff3a3a',d:'Golpe brutal em um alvo (320%).'}]},
