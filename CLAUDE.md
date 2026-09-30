@@ -62,7 +62,8 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 | `js/18-desempenho.js` | Desempenho: vinheta e tom da região numa camada CSS (`#vinheta`, `vignette`), modo leve (`QUAL.leve`: resolução 1× e até 90 partículas, `capParts`), troca automática por medição (`perfTick`) e opção na ajuda (`qualPref`, guardada no aparelho em `valdoria_qualidade`) |
 | `js/19-app.js` | App instalável (PWA): registra o `sw.js` só em https/localhost (`APP_OK`; nunca em `file://` nem com `?teste`) e mostra os botões `[data-inst]` quando o navegador oferece instalar |
 | `js/20-taverna.js` | Gente do salão da Guilda (Freya, Darian, Lexus: `SALAO`, pontos de conversa `TALK`, `setTalk` chamado pelo `08`, `talkTo`, balão `drawTalk`) e o bar da Guilda (em toda Guilda, canto de baixo à direita do salão; `M.bar`, ponto de conversa `BAR`): taverneira Brígida, balcão, prateleira e os 6 tônicos de atributo (`TON`, `buyTonic`, `drinkTonic`, `tonicTick`, `tonicHUD`, janela `#taverna`). O bônus entra nos atributos por `attrEff` (`16`, `TON_B`) |
-| `js/21-arcadia.js` | Arcádia, a cidade dos estudiosos (redonda, toda de pedra, muralha redonda com portões e torres `torreA`, fosso por fora com 4 pontes; `buildMoat` e `paintMoat`, chamados pelo `genWorld` com `moat:1`; praças rúnicas `pracas`, runas no chão `RUNAS` com `runas:1`), casas de estudioso (`genArcHouse`), muro com runa `muroHA`, `paredeRuna`, `cristal`, pedra rúnica, o Planalto das Runas (nível 5 a 10, entre Valdor e Arcádia), os 4 serviços no estilo "A" e as missões da região | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
+| `js/21-arcadia.js` | Arcádia, a cidade dos estudiosos (redonda, toda de pedra, muralha redonda com portões e torres `torreA`, fosso por fora com 4 pontes; `buildMoat` e `paintMoat`, chamados pelo `genWorld` com `moat:1`; praças rúnicas `pracas`, runas no chão `RUNAS` com `runas:1`), casas de estudioso (`genArcHouse`), muro com runa `muroHA`, `paredeRuna`, `cristal`, pedra rúnica, o Planalto das Runas (nível 5 a 10, entre Valdor e Arcádia), os 4 serviços no estilo "A" e as missões da região |
+| `js/99-interface-e-inicio.js` | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
 
 ### Armadilhas da estrutura
 - **Declarações de função só "sobem" (hoisting) dentro do próprio arquivo.** O código que roda no topo de um arquivo não pode chamar funções de arquivos posteriores. Chamadas dentro de funções executadas depois (no loop do jogo) podem.
@@ -97,8 +98,10 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 
 Mapa atual (norte para cima, conforme os `exits` no código):
 ```
-                                [Covil do Wyrm]
-                                       │
+               [Arcádia]        [Covil do Wyrm]
+                   │                   │
+          [Planalto das Runas]         │
+                   │                   │
 [Floresta] ─ [Valdor] ─ [Pântano] ─ [Ruínas]
                 │
         [Estrada do Sul]
