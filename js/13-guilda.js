@@ -21,13 +21,52 @@ function genCabin(roof,roofD){const c=cnv(32,32),x=c.getContext('2d'),f=(col,a,b
  f(K,21,0,5,8);f('#8d8778',22,1,3,7);
  for(let y=0;y<15;y++){const hw=Math.min(15,2+y);f(K,16-hw-1,y+1,hw*2+2,1);f(y%2?roofD:roof,16-hw,y+1,hw*2,1);if(y%3===1)for(let i=16-hw+1;i<16+hw;i+=3)f(roofD,i,y+1,1,1);}
  return c;}
+// contorno escuro (k) em volta de tudo que foi desenhado: para desenhos grandes feitos com retângulos
+function outlineK(c){const x=c.getContext('2d'),W_=c.width,H_=c.height,d=x.getImageData(0,0,W_,H_),D=d.data,o=new Uint8ClampedArray(D),a=(i,j)=>i<0||j<0||i>=W_||j>=H_?0:D[(j*W_+i)*4+3];
+ for(let j=0;j<H_;j++)for(let i=0;i<W_;i++)if(a(i,j)<200&&(a(i-1,j)>200||a(i+1,j)>200||a(i,j-1)>200||a(i,j+1)>200)){const k=(j*W_+i)*4;o[k]=0x1b;o[k+1]=0x13;o[k+2]=0x20;o[k+3]=255;}
+ x.putImageData(new ImageData(o,W_,H_),0,0);return c;}
+// A Guilda: salão de dois andares (64×98, ocupa 4×3 tiles), visto de cima em 3/4, com torre de sino, placa de espadas cruzadas
+// e estandartes roxos. rus=0 (Valdor): térreo de pedra, enxaimel e telhado roxo; rus=1 (Pinheiral): toras e telhado verde-pinho.
+// Placa, estandartes e bandeira são roxos em toda cidade: é por eles que o jogador reconhece a Guilda.
+function guildaGrande(rus){const c=cnv(64,98),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);},G0=66,G1=94;
+ const Q=rus?{R:'#2f6a4a',RD:'#1f4a34',RL:'#4a8a64',RS:'#285a3e',E:'#12281c',T:'#4a2e18',P:'#8a5a32',PL:'#a8743c',L:'#b8844c',D:'#4a2e18'}
+  :{R:'#6a3a8a',RD:'#4a2468',RL:'#8a5aaa',RS:'#5a2e78',E:'#2a1640',T:'#6a4526',P:'#e8d6b0',PL:'#f4e6c4',L:'#a8a296',D:'#6a655c'};
+ // parede de pedra (blocos desencontrados) ou de toras, com a luz vindo da esquerda
+ const wall=(x0,y0,w,h,b)=>{for(let yy=y0;yy<y0+h;yy++)for(let xx=x0;xx<x0+w;xx++){const r=Math.floor((yy-y0)/b);
+   f(rus?((yy-y0)%3===2?'#5a3820':(xx*5+yy*3)%13===0?'#9a6a3c':'#7a4e2c'):((yy-y0)%b===0||(xx+(r%2)*b)%(b*2)===0?'#5e5a52':(xx*7+yy*13)%11===0?'#a8a296':'#8a8478'),xx,yy,1,1);}
+  f(Q.L,x0,y0,1,h);f(Q.D,x0+w-1,y0,1,h);};
+ // térreo e andar de cima (reboco com enxaimel, ou tábuas)
+ wall(4,G0,56,G1-G0,4);f(Q.D,4,G1-2,56,2);
+ f(Q.P,6,46,52,20);f(Q.PL,6,48,52,1);if(rus)for(let xx=8;xx<58;xx+=4)f('#6a4224',xx,46,1,20);
+ f(Q.T,6,46,52,2);f(Q.T,6,64,52,2);for(const bx of[6,16,26,36,46,56])f(Q.T,bx,46,2,20);
+ for(const[bx,dir]of[[18,1],[48,-1]])for(let i=0;i<8;i++)f(Q.T,dir>0?bx+i:bx-i+6,49+i*2,2,2);
+ for(const wx of[9,19,39,49]){f(K,wx,50,6,9);f('#ffd06a',wx+1,51,4,7);f('#fff0b0',wx+1,51,4,2);f(Q.T,wx+2,51,1,7);f(Q.T,wx+1,54,4,1);
+  f(Q.T,wx-1,59,8,2);for(let i=0;i<8;i+=2)f(i%4?'#ffd84a':'#d8403a',wx-1+i,58,1,1);f('#4a9a42',wx,58,1,1);f('#4a9a42',wx+4,58,1,1);}
+ f(K,29,51,6,6);f('#ffd06a',30,52,4,4);f(Q.T,31,52,2,4);f(Q.T,30,53,4,1);
+ // telhado de quatro águas, com fileiras de telhas
+ for(let yy=0;yy<24;yy++){const t=yy/23,xl=Math.round(16-t*14),xr=Math.round(47+t*14),row=Math.floor(yy/3);
+  for(let xx=xl;xx<=xr;xx++)f(xx-xl<2?Q.RL:xr-xx<2?Q.RD:yy%3===2?Q.RD:(xx+(row%2)*3)%6===0?Q.RS:Q.R,xx,yy+22,1,1);}
+ f(Q.RL,16,21,32,1);f(Q.E,2,45,60,1);
+ // chaminé de pedra
+ for(let yy=26;yy<40;yy++)for(let xx=49;xx<54;xx++)f(yy%3===0||xx===51&&yy%6<3?'#5e5a52':'#8a8478',xx,yy,1,1);f('#6a655c',48,25,7,2);
+ // torre do sino, com telhado pontudo e a bandeira roxa da Guilda
+ wall(26,16,12,20,3);f('#2a1c16',29,19,6,8);f('#e8b43c',30,22,4,4);f('#ffe08a',30,22,1,3);f('#b8842c',31,26,2,1);
+ for(let yy=0;yy<10;yy++){const hw=Math.round(1+yy*.62);for(let xx=32-hw;xx<32+hw;xx++)f(xx===32-hw?Q.RL:xx===31+hw?Q.RD:yy%3===2?Q.RD:Q.R,xx,yy+6,1,1);}
+ f(Q.D,25,15,14,1);f('#2a1c16',31,0,1,7);f('#7a3a9a',32,0,6,4);f('#9a5aba',32,0,6,1);f('#e8b43c',34,1,2,2);
+ // portão em arco, degraus, placa das espadas, estandartes, janelas e lampiões
+ f(Q.L,25,G0+7,14,G1-G0-7);f(K,26,G0+9,12,G1-G0-9);f('#7a4e2c',27,G0+10,10,G1-G0-10);
+ for(let xx=27;xx<37;xx+=3)f('#5a3820',xx,G0+10,1,G1-G0-10);f('#5a3820',31,G0+10,2,G1-G0-10);f('#e8b43c',30,G0+19,1,2);f('#e8b43c',33,G0+19,1,2);
+ f(K,27,G0+8,10,1);f(K,28,G0+7,8,1);f('#8a8478',26,G0+8,1,1);f('#8a8478',37,G0+8,1,1);
+ f('#a8a296',23,G1,18,2);f('#8a8478',21,G1+2,22,2);f('#6a655c',21,G1+3,22,1);
+ f(K,24,G0+1,16,7);f('#c8a060',25,G0+2,14,5);f('#8a6a3a',25,G0+6,14,1);
+ for(let i=0;i<5;i++){f('#dfe6ef',28+i*1.6|0,G0+2+i,1,1);f('#dfe6ef',35-(i*1.6|0),G0+2+i,1,1);}f('#e8b43c',31,G0+6,2,1);
+ for(const bx of[18,42]){f('#7a3a9a',bx,G0+3,4,12);f('#9a5aba',bx,G0+3,1,12);f('#5a2478',bx+3,G0+3,1,12);f('#e8b43c',bx+1,G0+7,2,2);f(Q.T,bx-1,G0+2,6,1);f('#7a3a9a',bx+1,G0+15,2,1);}
+ for(const wx of[8,49]){f(K,wx,G0+9,8,11);f('#ffd06a',wx+1,G0+11,6,8);f('#ffd06a',wx+2,G0+10,4,1);f('#fff0b0',wx+1,G0+11,6,2);f(Q.T,wx+4,G0+10,1,9);f(Q.L,wx,G0+20,8,1);}
+ for(const lx of[23,40]){f(K,lx,G0+10,2,1);f('#ffcf5a',lx,G0+11,2,3);f('#fff0b0',lx,G0+11,1,1);}
+ return outlineK(c);}
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
- // a casa da Guilda: uma placa com espadas cruzadas sobre a porta; o estilo muda por cidade (Valdor: casa de telhado roxo; Pinheiral: cabana verde-pinho)
- for(const[nm,roof,roofD,base]of[['guilda','#6a3a8a','#4a2468',genHouse],['guilda2','#2f6a4a','#1f4a34',genCabin]]){
-  const g=base(roof,roofD),x=g.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
-  f(K,10,14,12,7);f('#c8a060',11,15,10,5);f('#8a6a3a',11,19,10,1);
-  for(let i=0;i<6;i++){f('#dfe6ef',13+i,15+i*.66|0,1,1);f('#dfe6ef',18-i,15+i*.66|0,1,1);}f('#e8b43c',15,19,2,1);
-  reg(nm,g);}
+ // a casa da Guilda: o salão grande (guildaGrande, acima); Valdor de pedra, Pinheiral de toras
+ reg('guilda',guildaGrande(0));reg('guilda2',guildaGrande(1));
  reg('mural',box(32,26,f=>{f(K,1,0,30,22);f('#8a5a30',2,1,28,20);f('#6a4222',2,1,28,2);f('#6a4222',2,19,28,2);f('#c8a870',4,3,24,16);
   f('#f4ecd8',6,5,7,8);f('#f4ecd8',15,4,6,7);f('#fff4dc',22,6,5,9);f('#f0e0c0',12,12,8,6);
   f('#8a7a60',7,7,5,1);f('#8a7a60',7,9,4,1);f('#8a7a60',16,6,4,1);f('#8a7a60',23,8,3,1);f('#8a7a60',23,10,3,1);f('#8a7a60',13,14,6,1);
@@ -95,8 +134,8 @@ function missNote(mat){for(const id of P.miss.on){const q=MISS.find(x=>x.id===id
 
 // ================== NOME DA CASA AO PASSAR O MOUSE ==================
 // Só com mouse (no toque não existe "passar por cima"). Casas com função têm label; as comuns não mostram nada.
-function houseAt(x,y){const r0=Math.floor(y/TILE);for(let r=Math.min(H-1,r0+2);r>=Math.max(0,r0-1);r--)for(const o of objRows[r])
- if(o.label&&x>o.px-16&&x<o.px+16&&y>o.py-32&&y<o.py)return o;return null;}
+function houseAt(x,y){const r0=Math.floor(y/TILE);for(let r=Math.min(H-1,r0+7);r>=Math.max(0,r0-1);r--)for(const o of objRows[r])
+ if(o.label){const s=SPR[o.spr],hw=s?s.n.width/2:16,hh=s?s.n.height:32;if(x>o.px-hw&&x<o.px+hw&&y>o.py-hh&&y<o.py)return o;}return null;}
 $('cv').addEventListener('pointermove',e=>{const t=$('tip'),o=e.pointerType==='mouse'&&P?houseAt(worldAt(e).x,worldAt(e).y):null;
  if(!o){t.classList.add('hidden');return;}t.textContent=o.label;t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY+12)+'px';t.classList.remove('hidden');});
 $('cv').addEventListener('pointerleave',()=>$('tip').classList.add('hidden'));

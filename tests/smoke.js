@@ -128,6 +128,11 @@
    for(const s of['casaElaraR','ferrariaR','guilda2'])if(!c[s])throw 'serviço sem cabana: '+s;info(c.torreM+' torres de vigia, '+((c.cabana1||0)+(c.cabana2||0))+' cabanas comuns');});
   t('Valdor: casas comuns e o nome da Guilda ao passar o mouse',()=>{switchMapNow('valdor',null);let casas=0,g=null;for(const r of objRows)for(const o of r){if(/^house/.test(o.spr))casas++;if(o.spr==='guilda')g=o;}
    if(casas<6)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
+   const ht=houseAt(g.px,g.py-80);if(!ht||ht.label!=='Guilda de Valdor')throw 'mouse na torre da Guilda não mostrou o nome';
+   // Guilda grande: 4×3 tiles sólidos, porta livre na frente, sem lampião dentro
+   const gx=Math.round(g.px/TILE),gy=g.ty;for(let dy=0;dy<3;dy++)for(let dx=-2;dx<2;dx++)if(!solid[(gy-dy)*W+gx+dx])throw 'Guilda sem chão ocupado em '+(gx+dx)+','+(gy-dy);
+   if(objRows.some(r=>r.some(o=>o.spr==='lampiao'&&o.tx>=gx-2&&o.tx<gx+2&&o.ty<=gy&&o.ty>gy-3)))throw 'lampião dentro da Guilda';
+   const pd=MAPS.valdor.portals.guilda;if(blocked((pd[0]+.5)*TILE,(pd[1]+.5)*TILE,4))throw 'a porta da Guilda ficou bloqueada';
    if(houseAt((TC.x+.5)*TILE,(TC.y+.5)*TILE))throw 'a praça não devia ter nome';info(casas+' casas comuns + a Guilda');});
   t('casa da Mestra Elara: ela atende lá dentro',()=>{switchMapNow('valdor',null);if(MENTOR.x>0)throw 'Elara continua na praça de Valdor';
    let c=null;for(const r of objRows)for(const o of r)if(o.spr==='casaElara')c=o;if(!c||c.label!=='Casa da Mestra Elara')throw 'casa sem sprite ou nome';

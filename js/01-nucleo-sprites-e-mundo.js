@@ -187,9 +187,11 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   ground[i]=g;if(g===G.WATER||g===G.CLIFF)solid[i]=1;
   if(obj){solid[i]=1;addObj(x,y,obj==='tree'?`tree${z}_${Math.floor(rng()*4)}`:obj);}}
  if(M.town){(M.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).forEach(([hx,hy,s,lb])=>{ // lb: nome mostrado ao passar o mouse (só casas com função)
-   for(const[dx,dy]of[[0,0],[1,0],[0,-1],[1,-1]]){const r=objRows[hy+dy];for(let k=r.length-1;k>=0;k--)if(r[k].tx===hx+dx)r.splice(k,1);solid[(hy+dy)*W+hx+dx]=1;}
+   // chão ocupado: 2×2 tiles para casas de 32 px; casas mais largas (ex.: a Guilda, 64 px) ocupam 4×3, com o mesmo centro
+   const fw=SPR[s]?Math.max(2,Math.round(SPR[s].n.width/TILE)):2,fd=fw>2?3:2,x0=hx+1-fw/2;
+   for(let dy=0;dy<fd;dy++)for(let dx=0;dx<fw;dx++){const X=x0+dx,Y=hy-dy,r=objRows[Y];for(let k=r.length-1;k>=0;k--)if(r[k].tx===X)r.splice(k,1);solid[Y*W+X]=1;}
    addObj(hx,hy,s,true,lb);});
-  solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}}
+  solid[TC.y*W+TC.x]=1;addObj(TC.x,TC.y,'fountain');if(M.lanterns)for(const[lx,ly]of[[-5,-4],[5,-4],[-5,4],[5,4],[-2,-6],[2,-6]]){const X=TC.x+lx,Y=TC.y+ly;if(solid[Y*W+X])continue;solid[Y*W+X]=1;addObj(X,Y,'lampiao');}} // lampião não nasce dentro de casa
  if(M.deco)for(const[dx,dy,s,wide]of M.deco){solid[dy*W+dx]=1;if(wide)solid[dy*W+dx+1]=1;addObj(dx,dy,s,wide);} // móveis e objetos fixos (ex.: interiores)
  if(M.clear)for(const[cx,cy]of M.clear){const r=objRows[cy];for(let k=r.length-1;k>=0;k--)if(r[k].tx===cx)r.splice(k,1);const g=ground[cy*W+cx];if(g!==G.WATER&&g!==G.CLIFF)solid[cy*W+cx]=0;} // tiles sem árvore nem pedra, escolhidos à mão
  if(M.walls)buildWalls(M,road); // muralha com portões e torres (14)
