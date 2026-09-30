@@ -69,8 +69,9 @@ def('lexus',[".........kFk....",".....kkkkkFk....","....kHHHHHHk....","...kHHHHH
 function addSalao(M){M.talk=SALAO.map(p=>[TC.x+p.at[0],TC.y+p.at[1],p.id]);for(const[x,y,s]of M.talk)M.deco.push([x,y,s]);}
 for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board)addSalao(MAPS[id]);
 // pontos de conversa do mapa atual (como o SMITH): na frente dos pés de cada um. setTalk é chamada ao trocar de mapa (08).
-const TALK=[];
-function setTalk(M){TALK.length=0;for(const[tx,ty,id]of M.talk||[])TALK.push({x:(tx+.5)*TILE,y:(ty+1)*TILE+8,p:SALAO.find(p=>p.id===id),line:null,until:-1});}
+// GENTE: quem conversa fora do salão da Guilda, no mesmo formato do SALAO (ex.: a Arquimaga Selene, na Torre de Arcádia, 21)
+const TALK=[],GENTE=[];
+function setTalk(M){TALK.length=0;for(const[tx,ty,id]of M.talk||[])TALK.push({x:(tx+.5)*TILE,y:(ty+1)*TILE+8,p:SALAO.concat(GENTE).find(p=>p.id===id),line:null,until:-1});}
 function talkTo(q){const f=q.p.f.filter(l=>l!==q.line);q.line=pick(f);q.until=time+5;log(`${q.p.n}: "${q.line}"`,q.p.c);}
 // nome sobre a cabeça e, enquanto fala, um balão de pergaminho em cima (chamada pelo drawLabels do 04)
 function drawTalk(sx,sy,lab){for(const q of TALK){lab(q.p.n,q.x,q.y-30,q.p.c);if(time>=q.until)continue;

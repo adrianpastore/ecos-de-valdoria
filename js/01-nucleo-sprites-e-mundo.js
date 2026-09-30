@@ -195,7 +195,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  if(M.deco)for(const[dx,dy,s,wide]of M.deco){solid[dy*W+dx]=1;if(wide)solid[dy*W+dx+1]=1;addObj(dx,dy,s,wide);} // móveis e objetos fixos (ex.: interiores)
  if(M.clear)for(const[cx,cy]of M.clear){const r=objRows[cy];for(let k=r.length-1;k>=0;k--)if(r[k].tx===cx)r.splice(k,1);const g=ground[cy*W+cx];if(g!==G.WATER&&g!==G.CLIFF)solid[cy*W+cx]=0;} // tiles sem árvore nem pedra, escolhidos à mão
  if(M.walls)buildWalls(M,road); // muralha com portões e torres (14)
- if(M.moat)buildMoat(M,road); // fosso redondo com pontes (Arcádia, 21)
+ if(M.moat)buildMoat(M,road); // fosso redondo com pontes e a Torre no centro (Arcádia, 21)
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
  // pintura dos pixels
@@ -206,6 +206,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   for(let py=0;py<16;py++)for(let px=0;px<16;px++){const X=tx*16+px,Y=ty*16+py;let col;const gp=GPr[z];
    if(g===G.GRASS){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.55?gp[1]:gp[0];const r=rng();if(r<.08)col=gp[2];else if(r<.12)col=gp[3];
     if(z===8){const row=Math.floor(Y/6),seam=Y%6===0||(X+row*11)%29===0;col=seam?gp[2]:row%2?gp[0]:gp[1];if(!seam&&rng()<.04)col=gp[3];}
+    if(z===10){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if(!seam&&rng()<.05)col=gp[3];} // lajes de pedra (Torre de Arcádia, 21)
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
    else if(g===G.HIGH){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.5?gp[3]:gp[1];if(rng()<.06)col=gp[2];}
@@ -226,7 +227,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   else if(g===G.GRASS&&z>=5&&z<=6&&r<.08){if(r<.03){mx.fillStyle='#8a8a86';const ox=X+ri(3,11),oy=Y+ri(5,12);mx.fillRect(ox,oy,3,2);mx.fillStyle='#b0b0aa';mx.fillRect(ox,oy,2,1);}else{mx.fillStyle='#2f6a36';const ox=X+ri(2,12),oy=Y+ri(4,13);mx.fillRect(ox,oy,1,2);mx.fillRect(ox+2,oy,1,2);mx.fillRect(ox+1,oy-1,1,3);}}
   else if(g===G.GRASS&&z>=3&&z<=4&&r<.04){mx.fillStyle='#ddd6c0';const ox=X+ri(3,11),oy=Y+ri(4,12);mx.fillRect(ox,oy,4,1);mx.fillRect(ox,oy-1,1,3);mx.fillRect(ox+3,oy-1,1,3);}
  }
- if(M.moat)paintMoat(M,mx); // pontes de pedra e runas pintadas no chão (21)
+ if(M.moat||M.circulo)paintMoat(M,mx); // pontes de pedra e runas pintadas no chão; círculo mágico do salão da Torre (21)
  // minimapa base
  const mc=miniBase.getContext('2d'),mi=mc.createImageData(W,H);
  for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?(CAV?[14,11,10]:CLF_C[1]):g===G.RAMP?CLF_C[4]:g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}

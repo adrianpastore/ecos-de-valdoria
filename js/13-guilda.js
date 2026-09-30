@@ -7,8 +7,9 @@ for(const[o,r]of[[GP,GPr],[PC,PCr],[WC,WCr]])r[8]=o[8].map(hexRGB);
 CLFT[8]=['#6a4a34','#4a3222','#2a1c12','#8a6a4a','#7a5a3e','#120c08','#0d0906'].map(hexRGB);
 MINIC.obj[8]='#b08a5a';
 // um cômodo retangular no meio do mapa (M.room=[largura,altura]); o resto é parede e escuridão, como na caverna
-function roomMask(M){const C=new Uint8Array(W*H),[w,h]=M.room,x0=TC.x-(w>>1),y0=TC.y-(h>>1);
- for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++)C[y*W+x]=1;
+// com M.round, o cômodo é redondo (oval dentro do mesmo retângulo; ex.: o salão da Torre, em 21)
+function roomMask(M){const C=new Uint8Array(W*H),[w,h]=M.room,x0=TC.x-(w>>1),y0=TC.y-(h>>1),cx=x0+w/2,cy=y0+h/2;
+ for(let y=y0;y<y0+h;y++)for(let x=x0;x<x0+w;x++)if(!M.round||((x+.5-cx)/(w/2))**2+((y+.5-cy)/(h/2))**2<1)C[y*W+x]=1;
  for(const p of Object.values(M.portals))C[Math.round(p[1])*W+Math.round(p[0])]=1;return C;}
 
 // ================== SPRITES ==================

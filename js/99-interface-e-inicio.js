@@ -56,7 +56,8 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
   else if(f.k==='bolt'){ctx.strokeStyle=f.color;ctx.lineWidth=2;ctx.beginPath();f.pts.forEach(([x,y],i)=>{if(!i)ctx.moveTo(x,y);else{const[px,py]=f.pts[i-1];ctx.lineTo((px+x)/2+rf(-4,4),(py+y)/2+rf(-4,4));ctx.lineTo(x,y);}});ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=.7;ctx.stroke();}
   else{ctx.strokeStyle=f.color;ctx.lineWidth=f.big?3:2;const r=f.big?14:10,a=f.face>0?0:Math.PI;ctx.beginPath();ctx.arc(f.x-f.face*4,f.y,r,a-1.2+k*.8,a+.3+k*.8);ctx.stroke();}ctx.globalAlpha=1;}
  for(const p of parts){ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;if(p.streak)ctx.fillRect(p.x,p.y-5,1,6);else ctx.fillRect(p.x,p.y,p.s,p.s);}ctx.globalAlpha=1;
- if(MAPS[CUR].town&&R()<.15)parts.push({x:(TC.x+.5)*TILE+rf(-5,5),y:TC.y*TILE+rf(2,8),vx:rf(-8,8),vy:-25,g:60,life:.6,max:.6,color:'#bfe6ff',s:1});
+ if(MAPS[CUR].town&&R()<.15){const[fo,fy]=MAPS[CUR].fountain||[TC.x,TC.y];parts.push({x:(fo+.5)*TILE+rf(-5,5),y:fy*TILE+rf(2,8),vx:rf(-8,8),vy:-25,g:60,life:.6,max:.6,color:'#bfe6ff',s:1});}
+ if(MAPS[CUR].torre)torreFx(); // brilho do cristal no alto da Torre de Arcádia (21)
  ctx.restore();
  // tela
  vignette(P?P.zone:0); // tom da região e bordas escuras: camada CSS por cima do canvas (18)

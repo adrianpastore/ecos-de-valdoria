@@ -80,17 +80,27 @@
   t('app: manifesto e ícones no index; service worker só em https (o teste completo é o tests\\testar-app.ps1)',()=>{
    if(!document.querySelector('link[rel="manifest"][href="manifest.json"]'))throw 'sem o link do manifesto';if(!document.querySelector('link[rel="apple-touch-icon"]'))throw 'sem ícone do iPhone';
    if(location.protocol==='file:'&&APP_OK)throw 'o service worker tentaria rodar em file://';const b=document.querySelectorAll('[data-inst]');if(!b.length||[...b].some(x=>!x.classList.contains('hidden')))throw 'botão de instalar deveria começar escondido';});
-  t('Arcádia: fosso redondo, 4 pontes, centro livre para a Torre; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
+  t('Arcádia: fosso redondo, 4 pontes, a Torre no centro; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
    let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
    for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}
    if(ground[at(TC.x+12,TC.y+12)]!==G.WATER||!solid[at(TC.x+12,TC.y+12)])throw 'fosso sem água fora das pontes';
    const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;const muros=(c.muroH||0)+(c.muroV||0)+(c.muroHA||0);
    if(muros<60)throw 'muralha redonda com só '+muros+' trechos';if((c.torreA||0)<12)throw 'só '+(c.torreA||0)+' torres (8 nos portões + 4 nas diagonais)';
    if((c.cristal||0)<4||(c.paredeRuna||0)<4)throw 'praças rúnicas incompletas';
-   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(hyp(x+.5-(TC.x+.5),y+.5-(TC.y+.5))<14&&ground[at(x,y)]===G.GRASS)throw 'grama dentro da cidade em '+x+','+y;if(solid[at(TC.x,TC.y)]||!REACH[at(TC.x,TC.y)])throw 'o centro (lugar da Torre) não está livre';
+   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(hyp(x+.5-(TC.x+.5),y+.5-(TC.y+.5))<14&&ground[at(x,y)]===G.GRASS)throw 'grama dentro da cidade em '+x+','+y;if((c.torreMagos||0)!==1||!solid[at(TC.x,TC.y)])throw 'a Torre não está no centro';
    switchMapNow('planalto',null);const runas=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='runa').length,0);if(runas<10)throw 'só '+runas+' pedras rúnicas';
    switchMapNow('valdor',null);const torres=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='torre'&&o.ty<TC.y-8).length,0);if(torres<4)throw 'portão norte de Valdor sem torres ('+torres+')';
    info(agua+' tiles de fosso, 4 pontes, '+runas+' pedras rúnicas');});
+  t('Torre dos Magos: no centro de Arcádia, porta ao sul, salão redondo com a Selene; ao sair, na frente da porta',()=>{switchMapNow('arcadia',null);
+   const o=objRows.flat().find(o=>o.spr==='torreMagos');if(!o||o.label!=='Torre dos Magos')throw 'a Torre não tem o nome ao passar o mouse';
+   if(SPR.torreMagos.n.height!==TORRE_H||SPR.torreMagos.n.width!==80)throw 'desenho da Torre com tamanho errado';
+   const p=portalPt('torreArcadia');if(p.y<o.py)throw 'a porta não fica embaixo da Torre';
+   switchMapNow('torreArcadia','arcadia');const M=MAPS.torreArcadia;if(!M.round||!solid[(TC.y-6)*W+TC.x-9])throw 'o salão não é redondo (o canto deveria ser parede)';
+   if(TALK.length!==1||TALK[0].p.n!=='Arquimaga Selene')throw 'a Selene não está no salão';cura();P.x=TALK[0].x;P.y=TALK[0].y+6;const it=nearestInteract();
+   if(!it||it.kind!=='talk')throw '[E] não conversa com a Selene';interact(it);if(!(TALK[0].until>time))throw 'a Selene não falou';
+   for(const q of SALAO)if(q.id==='selene')throw 'a Selene entrou no salão da Guilda';
+   switchMapNow('arcadia','torreArcadia');if(P.y<=p.y||hyp(P.x-p.x,P.y-p.y)>3*TILE)throw 'ao sair, o herói não ficou na frente da porta';render(.05,0);
+   info('Torre de 80×'+TORRE_H+' px, salão com '+M.deco.filter(d=>d[2]==='estante').length+' estantes; Selene: '+GENTE[0].f.length+' falas');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);

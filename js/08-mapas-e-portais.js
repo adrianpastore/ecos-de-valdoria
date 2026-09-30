@@ -13,7 +13,9 @@ function switchMapNow(id,from){const prev=CUR;
  NPC.x=M.town?(TC.x+3.5)*TILE:-9999;NPC.y=M.town?(TC.y-1)*TILE:-9999;MENTOR.x=M.town?(TC.x-3.5)*TILE:-9999;MENTOR.y=M.town?(TC.y-1)*TILE:-9999;
  if(M.mentorAt!==undefined){MENTOR.x=M.mentorAt?(M.mentorAt[0]+.5)*TILE:-9999;MENTOR.y=M.mentorAt?(M.mentorAt[1]+.5)*TILE:-9999;} // Elara dentro de uma casa (15)
  if(!P)return;
- if(from){const e=M.portals[from]||homeOf(M),L=hyp(TC.x-e[0],TC.y-e[1])||1,sp=freeNear(Math.round(e[0]+(TC.x-e[0])/L*3),Math.round(e[1]+(TC.y-e[1])/L*3),ground[e[1]*W+e[0]]===G.HIGH);P.x=sp.x;P.y=sp.y;}
+ // chegada: uns 3 tiles do portal, na direção do centro; saindo de uma casa para a rua, na frente da porta (a Torre de Arcádia fica no próprio centro)
+ if(from){const e=M.portals[from]||homeOf(M),L=hyp(TC.x-e[0],TC.y-e[1])||1,rua=e[2]==='porta'&&!M.interior;
+  const sp=rua?freeNear(Math.round(e[0]),Math.round(e[1])+2):freeNear(Math.round(e[0]+(TC.x-e[0])/L*3),Math.round(e[1]+(TC.y-e[1])/L*3),ground[e[1]*W+e[0]]===G.HIGH);P.x=sp.x;P.y=sp.y;}
  Object.assign(P,{portalCD:1,target:null,auto:false,dest:null,pend:null,volley:null,queued:null});
  P.zone=zoneMap[Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE)];
  for(const a of allies){a.x=P.x+rf(-10,10);a.y=P.y+rf(-6,10);a.target=null;}
