@@ -80,6 +80,13 @@
   t('app: manifesto e ícones no index; service worker só em https (o teste completo é o tests\\testar-app.ps1)',()=>{
    if(!document.querySelector('link[rel="manifest"][href="manifest.json"]'))throw 'sem o link do manifesto';if(!document.querySelector('link[rel="apple-touch-icon"]'))throw 'sem ícone do iPhone';
    if(location.protocol==='file:'&&APP_OK)throw 'o service worker tentaria rodar em file://';const b=document.querySelectorAll('[data-inst]');if(!b.length||[...b].some(x=>!x.classList.contains('hidden')))throw 'botão de instalar deveria começar escondido';});
+  t('Arcádia: fosso redondo, 4 pontes, centro livre para a Torre; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
+   let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
+   for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}
+   if(ground[at(TC.x+12,TC.y+12)]!==G.WATER||!solid[at(TC.x+12,TC.y+12)])throw 'fosso sem água fora das pontes';if(solid[at(TC.x,TC.y)]||!REACH[at(TC.x,TC.y)])throw 'o centro (lugar da Torre) não está livre';
+   switchMapNow('planalto',null);const runas=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='runa').length,0);if(runas<10)throw 'só '+runas+' pedras rúnicas';
+   switchMapNow('valdor',null);const torres=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='torre'&&o.ty<TC.y-8).length,0);if(torres<4)throw 'portão norte de Valdor sem torres ('+torres+')';
+   info(agua+' tiles de fosso, 4 pontes, '+runas+' pedras rúnicas');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);

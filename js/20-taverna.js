@@ -33,8 +33,9 @@ def('brigida',["......kkkk......",".....kHHHHk.....","....kHHHHHHk....","....kHs
 // Em toda Guilda, no canto de baixo à direita do salão (mesmo lugar em todas as cidades, como os 4 serviços padrão):
 // prateleira atrás, a Brígida, o balcão na frente e dois barris. BAR é o ponto de conversa (como o SMITH do ferreiro).
 const BAR={x:-9999,y:-9999};
-for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board){const M=MAPS[id];M.bar=[TC.x+5,TC.y+2];
- M.deco.push([TC.x+5,TC.y+1,'prateleira',1],[TC.x+5,TC.y+2,'brigida'],[TC.x+4,TC.y+3,'balcao',1],[TC.x+6,TC.y+3,'barril'],[TC.x+7,TC.y+3,'barril']);}
+// addBar: também chamada por cidades criadas depois deste arquivo (ex.: Arcádia, 21)
+function addBar(M){M.bar=[TC.x+5,TC.y+2];M.deco.push([TC.x+5,TC.y+1,'prateleira',1],[TC.x+5,TC.y+2,'brigida'],[TC.x+4,TC.y+3,'balcao',1],[TC.x+6,TC.y+3,'barril'],[TC.x+7,TC.y+3,'barril']);}
+for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board)addBar(MAPS[id]);
 function openTaverna(){closeAll();renderTaverna();$('taverna').classList.remove('hidden');}
 function renderTaverna(){const B=$('tavernaBody');
  let h=`<p class="flav">"Um gole antes da caçada, aventureiro? Meus tônicos nunca falham!"</p>`;
@@ -64,7 +65,9 @@ def('darian',["......kkkk......",".....kGGGGk.....","....kGGGGGGk....","....kGse
 def('lexus',[".........kFk....",".....kkkkkFk....","....kHHHHHHk....","...kHHHHHHHHk...","....kseesssk....","....ksssssk.....","...kkRRRRRRkk...","..ksRRRRRRRRsk..",
  "..kskLLLLkRRsk..","...kLLoLLLkRk...","....kLLLLkRRk...","....kPPPPPPk....","....kPPkkPPk....","....kPPk.kPPk...","....kbbk.kbbk...","....kkk...kkk..."],
  {F:'#f4ecd8',H:'#6a3a8a',s:'#e8b088',e:K,R:'#b8423a',L:'#c8904a',o:'#3a2414',P:'#3a5a3a',b:'#4a3222'});
-for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board){const M=MAPS[id];M.talk=SALAO.map(p=>[TC.x+p.at[0],TC.y+p.at[1],p.id]);for(const[x,y,s]of M.talk)M.deco.push([x,y,s]);}
+// addSalao: também chamada por cidades criadas depois deste arquivo (ex.: Arcádia, 21)
+function addSalao(M){M.talk=SALAO.map(p=>[TC.x+p.at[0],TC.y+p.at[1],p.id]);for(const[x,y,s]of M.talk)M.deco.push([x,y,s]);}
+for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board)addSalao(MAPS[id]);
 // pontos de conversa do mapa atual (como o SMITH): na frente dos pés de cada um. setTalk é chamada ao trocar de mapa (08).
 const TALK=[];
 function setTalk(M){TALK.length=0;for(const[tx,ty,id]of M.talk||[])TALK.push({x:(tx+.5)*TILE,y:(ty+1)*TILE+8,p:SALAO.find(p=>p.id===id),line:null,until:-1});}

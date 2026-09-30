@@ -3,8 +3,9 @@
 // ================== SPRITES ==================
 // casa com placa: o símbolo na placa diz o que tem lá dentro (o nome só aparece com o mouse)
 // base: genHouse (casa de Valdor) ou genCabin (cabana rústica, em 13); o símbolo da placa é o mesmo em todas as cidades
+// casas mais altas que 32 px (ex.: as de Arcádia, com torrezinha) têm a porta mais embaixo: a placa desce junto
 function signHouse(roof,roofD,board,sym,base=genHouse){const g=base(roof,roofD),x=g.getContext('2d'),f=(c,a,b,w,h)=>{x.fillStyle=c;x.fillRect(a,b,w,h);};
- f(K,10,14,12,7);f(board,11,15,10,5);f('#00000033',11,19,10,1);sym(f);return g;}
+ x.translate(0,g.height-32);f(K,10,14,12,7);f(board,11,15,10,5);f('#00000033',11,19,10,1);sym(f);x.setTransform(1,0,0,1,0,0);return g;}
 const SYM_ESTRELA=f=>{f('#ffe070',15,15,2,5);f('#ffe070',13,17,6,1);f('#ffe070',14,16,4,3);f('#fff8c0',15,17,2,1);};
 const SYM_BIGORNA=f=>{f('#c8c8d0',12,16,8,2);f('#e8e8f0',12,16,8,1);f('#c8c8d0',14,18,4,1);f('#9a98a0',13,19,6,1);f('#4a3222',19,15,1,3);f('#9a98a0',18,15,3,1);};
 reg('casaElara',signHouse('#6a8a3a','#4a6a24','#5a3a7a',SYM_ESTRELA));reg('casaElaraR',signHouse('#5a7a3a','#3e5a28','#5a3a7a',SYM_ESTRELA,genCabin));
@@ -73,7 +74,8 @@ function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).fi
 // Mesmos lugares e mesmos símbolos em todas, para o jogador reconhecer de longe.
 // Cidade nova: town:1 no MAPS, guildHall(...) no 13, cityHouses(...) aqui e missões com o seu city.
 // mentorAt: onde a Elara fica em cada mapa; null = não fica ali (08 usa isso ao trocar de mapa).
-function cityHouses(city,sfx,seed,rustico){const R_=rustico?'R':''; // rustico: cabanas (vilas florestais)
+// estilo: true = cabanas (vilas florestais, sprites com 'R'); texto = sufixo do estilo da cidade (ex.: 'A' em Arcádia)
+function cityHouses(city,sfx,seed,estilo){const R_=estilo===true?'R':estilo||'';
  houseInterior({id:'casaElara'+sfx,city,at:[TC.x-7,TC.y-3],sprite:'casaElara'+R_,name:'Casa da Mestra Elara',room:[12,8],seed,
   deco:[[TC.x-5,TC.y-4,'estante'],[TC.x-4,TC.y-4,'estante'],[TC.x+3,TC.y-4,'estante'],[TC.x+4,TC.y-4,'estante'],[TC.x-1,TC.y-4,'mesaCristal',1]],
   extra:{s:'Mentora de todas as classes',mentorAt:[TC.x,TC.y-2]}});

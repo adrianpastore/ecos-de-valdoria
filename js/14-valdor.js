@@ -46,7 +46,7 @@ const WALLSTY={pedra:{h:'muroH',v:'muroV',t:'torre'},madeira:{h:'paliH',v:'paliV
 Object.assign(MAPS.valdor,{walls:[27,19,53,41],lanterns:1,deco:[[TC.x-4,TC.y-6,'banca',1],[TC.x+3,TC.y-6,'banca2',1],[TC.x-3,TC.y+7,'poco']]});
 // casas comuns, sem interior: só para a vila parecer habitada (telhados marrom e ardósia são novos)
 reg('house5',genHouse('#8a5a3a','#6a4226'));reg('house6',genHouse('#5a6a7a','#3e4a58'));
-MAPS.valdor.houses.push([29,21,'house5'],[50,21,'house6'],[39,21,'house3'],[29,39,'house4'],[50,39,'house5']);
+MAPS.valdor.houses.push([29,21,'house5'],[50,21,'house6'],[34,21,'house3'],[29,39,'house4'],[50,39,'house5']); // a do norte saiu do x 39: ali passa a estrada para o Planalto (21)
 
 // ================== ALDEIA DE PINHEIRAL ==================
 // Vila florestal e menor: cabanas rústicas de toras (genCabin, em 13) e paliçada de madeira com torres de vigia.

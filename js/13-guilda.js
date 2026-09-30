@@ -26,11 +26,13 @@ function outlineK(c){const x=c.getContext('2d'),W_=c.width,H_=c.height,d=x.getIm
  for(let j=0;j<H_;j++)for(let i=0;i<W_;i++)if(a(i,j)<200&&(a(i-1,j)>200||a(i+1,j)>200||a(i,j-1)>200||a(i,j+1)>200)){const k=(j*W_+i)*4;o[k]=0x1b;o[k+1]=0x13;o[k+2]=0x20;o[k+3]=255;}
  x.putImageData(new ImageData(o,W_,H_),0,0);return c;}
 // A Guilda: salão de dois andares (64×98, ocupa 4×3 tiles), visto de cima em 3/4, com torre de sino, placa de espadas cruzadas
-// e estandartes roxos. rus=0 (Valdor): térreo de pedra, enxaimel e telhado roxo; rus=1 (Pinheiral): toras e telhado verde-pinho.
+// e estandartes roxos. est=0 (Valdor): térreo de pedra, enxaimel e telhado roxo; est=1 (Pinheiral): toras e telhado verde-pinho;
+// est=2 (Arcádia): pedra, enxaimel e telhado azul-noite de beirada prateada.
 // Placa, estandartes e bandeira são roxos em toda cidade: é por eles que o jogador reconhece a Guilda.
-function guildaGrande(rus){const c=cnv(64,98),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);},G0=66,G1=94;
- const Q=rus?{R:'#2f6a4a',RD:'#1f4a34',RL:'#4a8a64',RS:'#285a3e',E:'#12281c',T:'#4a2e18',P:'#8a5a32',PL:'#a8743c',L:'#b8844c',D:'#4a2e18'}
-  :{R:'#6a3a8a',RD:'#4a2468',RL:'#8a5aaa',RS:'#5a2e78',E:'#2a1640',T:'#6a4526',P:'#e8d6b0',PL:'#f4e6c4',L:'#a8a296',D:'#6a655c'};
+function guildaGrande(est){const c=cnv(64,98),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);},G0=66,G1=94,rus=est===1;
+ const Q=[{R:'#6a3a8a',RD:'#4a2468',RL:'#8a5aaa',RS:'#5a2e78',E:'#2a1640',T:'#6a4526',P:'#e8d6b0',PL:'#f4e6c4',L:'#a8a296',D:'#6a655c'},
+  {R:'#2f6a4a',RD:'#1f4a34',RL:'#4a8a64',RS:'#285a3e',E:'#12281c',T:'#4a2e18',P:'#8a5a32',PL:'#a8743c',L:'#b8844c',D:'#4a2e18'},
+  {R:'#2a3a6a',RD:'#1c2850',RL:'#c8d4ec',RS:'#24325c',E:'#10162c',T:'#4a4a62',P:'#e4e0d4',PL:'#f2eee4',L:'#a8a296',D:'#6a655c'}][est];
  // parede de pedra (blocos desencontrados) ou de toras, com a luz vindo da esquerda
  const wall=(x0,y0,w,h,b)=>{for(let yy=y0;yy<y0+h;yy++)for(let xx=x0;xx<x0+w;xx++){const r=Math.floor((yy-y0)/b);
    f(rus?((yy-y0)%3===2?'#5a3820':(xx*5+yy*3)%13===0?'#9a6a3c':'#7a4e2c'):((yy-y0)%b===0||(xx+(r%2)*b)%(b*2)===0?'#5e5a52':(xx*7+yy*13)%11===0?'#a8a296':'#8a8478'),xx,yy,1,1);}
@@ -79,7 +81,7 @@ function guildaGrande(rus){const c=cnv(64,98),x=c.getContext('2d'),f=(col,a,b,w,
 // ================== MAPAS ==================
 // A porta é um portal comum com a marca 'porta' (sem redemoinho). Portais podem ter meio tile, para ficar no centro da porta.
 // Cada cidade principal tem a sua Guilda: a casa fica à direita da praça (TC.x+6, TC.y-3) e o salão mostra as missões da cidade (city).
-function guildHall(id,city,sprite,seed){const C=MAPS[city],n='Guilda de '+C.n.replace(/^(Vila|Aldeia) de /,'');
+function guildHall(id,city,sprite,seed){const C=MAPS[city],n='Guilda de '+C.n.replace(/^(Vila|Aldeia|Cidade) de /,'');
  C.houses=(C.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).filter(h=>!(h[0]===TC.x+6&&h[1]===TC.y-3)).concat([[TC.x+6,TC.y-3,sprite,n]]);
  C.portals[id]=[TC.x+6.5,TC.y-2,'porta'];
  MAPS[id]={n,s:'Mural de missões',interior:1,city,theme:8,seed,color:'#2a1c12',home:city,room:[16,10],
