@@ -170,10 +170,10 @@
    P.mats[q.mat]=q.n+2;if(missState(q)!=='pronta')throw 'não ficou pronta';const g=P.gold;missAction('entregar',q.id);
    if(P.gold!==g+r.g)throw 'ouro errado';if(P.mats[q.mat]!==2)throw 'não tirou só '+q.n+' materiais';if(missState(q)!=='espera')throw 'não entrou em espera';
    missAction('aceitar',q.id);if(P.miss.on.length)throw 'aceitou em espera';info(q.t+': +'+r.g+'g, +'+r.xp+' XP');});
-  t('bar da Guilda: Bruna em toda Guilda, tônico comprado, tomado, salvo e com fim',()=>{
+  t('bar da Guilda: Brígida em toda Guilda, tônico comprado, tomado, salvo e com fim',()=>{
    for(const id of Object.keys(MAPS).filter(k=>MAPS[k].interior&&MAPS[k].board)){if(!MAPS[id].bar)throw id+' sem bar';switchMapNow(id,null);if(BAR.x<0)throw id+': o bar não tem posição';
     const[bx,by]=MAPS[id].bar,j=(by+2)*W+bx;if(solid[j]||!REACH[j])throw id+': não dá para chegar na frente do balcão';
-    cura();P.x=(bx+.5)*TILE;P.y=(by+2.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='bar')throw id+': [E] não fala com a Bruna';}
+    cura();P.x=(bx+.5)*TILE;P.y=(by+2.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='bar')throw id+': [E] não fala com a Brígida';}
    openTaverna();if($('taverna').classList.contains('hidden'))throw 'a janela do bar não abriu';closeAll();
    const k=MAINAT[P.cls];P.tons={};P.tonAt={};recalc();P.gold=1000;const w0=weightNow();buyTonic(k);
    if(P.tons[k]!==1||P.gold!==1000-TON_V)throw 'a compra não funcionou';if(weightNow()-w0!==WPOT)throw 'o tônico não pesa';
