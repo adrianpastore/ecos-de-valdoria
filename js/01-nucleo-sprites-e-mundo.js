@@ -226,7 +226,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   else if(g===G.GRASS&&z>=5&&z<=6&&r<.08){if(r<.03){mx.fillStyle='#8a8a86';const ox=X+ri(3,11),oy=Y+ri(5,12);mx.fillRect(ox,oy,3,2);mx.fillStyle='#b0b0aa';mx.fillRect(ox,oy,2,1);}else{mx.fillStyle='#2f6a36';const ox=X+ri(2,12),oy=Y+ri(4,13);mx.fillRect(ox,oy,1,2);mx.fillRect(ox+2,oy,1,2);mx.fillRect(ox+1,oy-1,1,3);}}
   else if(g===G.GRASS&&z>=3&&z<=4&&r<.04){mx.fillStyle='#ddd6c0';const ox=X+ri(3,11),oy=Y+ri(4,12);mx.fillRect(ox,oy,4,1);mx.fillRect(ox,oy-1,1,3);mx.fillRect(ox+3,oy-1,1,3);}
  }
- if(M.moat)paintBridges(mx); // pontes de pedra por cima do fosso (21)
+ if(M.moat)paintMoat(M,mx); // pontes de pedra e runas pintadas no chão (21)
  // minimapa base
  const mc=miniBase.getContext('2d'),mi=mc.createImageData(W,H);
  for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?(CAV?[14,11,10]:CLF_C[1]):g===G.RAMP?CLF_C[4]:g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}

@@ -83,7 +83,11 @@
   t('Arcádia: fosso redondo, 4 pontes, centro livre para a Torre; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
    let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
    for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}
-   if(ground[at(TC.x+12,TC.y+12)]!==G.WATER||!solid[at(TC.x+12,TC.y+12)])throw 'fosso sem água fora das pontes';if(solid[at(TC.x,TC.y)]||!REACH[at(TC.x,TC.y)])throw 'o centro (lugar da Torre) não está livre';
+   if(ground[at(TC.x+12,TC.y+12)]!==G.WATER||!solid[at(TC.x+12,TC.y+12)])throw 'fosso sem água fora das pontes';
+   const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;const muros=(c.muroH||0)+(c.muroV||0)+(c.muroHA||0);
+   if(muros<60)throw 'muralha redonda com só '+muros+' trechos';if((c.torreA||0)<12)throw 'só '+(c.torreA||0)+' torres (8 nos portões + 4 nas diagonais)';
+   if((c.cristal||0)<4||(c.paredeRuna||0)<4)throw 'praças rúnicas incompletas';
+   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(hyp(x+.5-(TC.x+.5),y+.5-(TC.y+.5))<14&&ground[at(x,y)]===G.GRASS)throw 'grama dentro da cidade em '+x+','+y;if(solid[at(TC.x,TC.y)]||!REACH[at(TC.x,TC.y)])throw 'o centro (lugar da Torre) não está livre';
    switchMapNow('planalto',null);const runas=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='runa').length,0);if(runas<10)throw 'só '+runas+' pedras rúnicas';
    switchMapNow('valdor',null);const torres=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='torre'&&o.ty<TC.y-8).length,0);if(torres<4)throw 'portão norte de Valdor sem torres ('+torres+')';
    info(agua+' tiles de fosso, 4 pontes, '+runas+' pedras rúnicas');});
