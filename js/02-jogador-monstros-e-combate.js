@@ -84,7 +84,7 @@ const jobCap=()=>P.spec?50:10,jobNeed=j=>P.spec?Math.floor(xpNeed(j)*.85):xpNeed
 function gainJob(x){const cap=jobCap();if(P.jlvl>=cap){P.jxp=0;return false;}P.jxp+=x;let up=false;
  while(P.jlvl<cap&&P.jxp>=jobNeed(P.jlvl)){P.jxp-=jobNeed(P.jlvl);P.jlvl++;up=true;log(`Nível de Classe ${P.jlvl}! Mais 1 ponto de habilidade.`,'#8fd0ff');
   fx.push({k:'ring',x:P.x,y:P.y-4,r0:4,r1:40,t:0,max:.6,color:'#8fd0ff',w:2});}
- if(P.jlvl>=cap){P.jxp=0;if(up)log(P.spec?'Você chegou ao nível máximo de Classe.':'Nível de Classe 10! A Mestra Elara quer falar com você.','#8fd0ff');}
+ if(P.jlvl>=cap){P.jxp=0;if(up)log(P.spec?'Você chegou ao nível máximo de Classe.':`Nível de Classe 10! A ${MENTN[mentorOf()][0]} quer falar com você.`,'#8fd0ff');}
  return up;}
 function gainXp(x){const jup=gainJob(x),lv0=P.lvl;P.xp+=x;while(P.xp>=xpNeed(P.lvl)&&P.lvl<50){P.xp-=xpNeed(P.lvl);P.lvl++;recalc();P.hp=P.st.hp;P.mp=P.st.mp;
  banner(`Nível ${P.lvl}!`,`Vida e mana restauradas. +${attrGain(P.lvl)} pontos de atributo (P).`);log(`Você alcançou o nível ${P.lvl}!`,'#ffd24a');

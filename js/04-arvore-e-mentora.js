@@ -16,18 +16,20 @@ function drawExtra(e,tt){const o=e.o;
   ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(o.x-7,o.y-17,14,2);ctx.fillStyle='#5dff7a';ctx.fillRect(o.x-7,o.y-17,14*Math.max(0,o.hp/o.maxHp),2);}
  else if(e.t===7){shadow(o.x,o.y,6);drawS('mentora',o.x,o.y);}
  else if(e.t===8){drawS(o.state==='pure'?'pool1':'pool0',o.x,o.y);if(o.state!=='pure'&&R()<.25)parts.push({x:o.x+rf(-6,6),y:o.y-4,vx:0,vy:-18,g:0,life:.8,max:.8,color:'#b070ff',s:1});}}
-function mentorAlert(){if(!P||!hasTree(P.cls))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
+// w: 'elara' ou 'selene' (só a mestra que cuida do herói, mentorOf no 03, mostra o "!"); sem w, qualquer uma
+function mentorAlert(w){if(!P||!hasTree(P.cls)||(w&&mentorOf()!==w))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
 function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';
  const lab=(t,x,y,c)=>{ctx.strokeText(t,sx(x),sy(y));ctx.fillStyle=c;ctx.fillText(t,sx(x),sy(y));};
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab('Brígida',BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
- if(mentorAlert()){ctx.font='800 24px Cinzel,serif';lab('!',MENTOR.x,MENTOR.y-31+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';}
+ const bang=(x,y)=>{ctx.font='800 24px Cinzel,serif';lab('!',x,y+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';};
+ if(mentorAlert('elara'))bang(MENTOR.x,MENTOR.y-31);if(mentorAlert('selene'))for(const q of TALK)if(q.p.id==='selene')bang(q.x,q.y-37);
  portalLabels(lab);drawTalk(sx,sy,lab);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
-function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='bar'?'[E] Falar com a taverneira Brígida':it.kind==='talk'?`[E] Conversar com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
+function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='bar'?'[E] Falar com a taverneira Brígida':it.kind==='talk'?`[E] ${it.o.p.id==='selene'&&P.cls==='mago'?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
-function hudExtra(){const q=P.quest,el=$('quest');el.classList.toggle('hidden',!q);
- if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à Mestra Elara, na casa com a estrela na placa.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
+function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
+ if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
  const f=ptsFree(),fa=attrFree();$('treeBadge').textContent=f>0?f:'';$('attrBadge').textContent=fa>0?fa:'';
- if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log('A Mestra Elara quer falar com você sobre o seu futuro. Ela atende na casa com a estrela na placa, em qualquer cidade.','#d9a0ff');}}
+ if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(mentorOf()==='selene'?`A Arquimaga Selene quer falar com você sobre o seu futuro. Ela espera ${mw}, ao norte de Valdor.`:`A Mestra Elara quer falar com você sobre o seu futuro. Ela atende ${mw}.`,'#d9a0ff');}}
 
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;
@@ -40,7 +42,7 @@ function renderTree(){const body=$('treeBody'),tabs=$('treeTabs'),det=$('treeDet
  tabs.innerHTML='';for(const t of classTrees()){const b=document.createElement('button');b.className='btn sm tab'+(t===treeTab?' on':'');
   const locked=t!==CT().base&&P.spec!==t;b.textContent=(t===CT().base?CT().ic+' ':SPECS[t].ic+' ')+TREES[t]+(locked?' 🔒':'');b.onclick=()=>{treeTab=t;treeSel=null;renderTree();};tabs.append(b);}
  const ids=Object.keys(SK).filter(id=>SK[id].tree===treeTab);let h='';
- if(treeTab!==CT().base&&P.spec!==treeTab)h+=`<p class="flav">${P.spec?'Você seguiu outro caminho.':'Complete a prova da Mestra Elara no nível de Classe 10 para abrir este caminho.'} ${SPECS[treeTab].d}</p>`;
+ if(treeTab!==CT().base&&P.spec!==treeTab)h+=`<p class="flav">${P.spec?'Você seguiu outro caminho.':`Complete a prova da ${MENTN[mentorOf()][0]} no nível de Classe 10 para abrir este caminho.`} ${SPECS[treeTab].d}</p>`;
  body.innerHTML=h;
  for(const t of[1,2,3]){const ns=ids.filter(id=>SK[id].tier===t);if(!ns.length)continue;const w=document.createElement('div');w.className='tier';w.innerHTML=`<h4>${tierLabel(t,ns)}</h4>`;const g=document.createElement('div');g.className='nodes';
   for(const id of ns){const s=SK[id],r=rk(id),b=document.createElement('button');b.className='node'+(r?' has':'')+(!canLearn(id)?' can':'')+(canLearn(id)&&!r?' lock':'')+(s.act?'':' pas')+(treeSel===id?' sel':'');
@@ -56,21 +58,27 @@ function renderTree(){const body=$('treeBody'),tabs=$('treeTabs'),det=$('treeDet
 function assignSlot(id,i){const j=P.bar.indexOf(id);if(i<0){if(j>=0)P.bar[j]=null;}else{const prev=P.bar[i];P.bar[i]=id;if(j>=0&&j!==i)P.bar[j]=prev;}buildHotbar();save();}
 
 // ================== MENTORA ==================
-function openMentor(){$('mentor').classList.remove('hidden');renderMentor();}
-function renderMentor(){const b=$('mentorBody');let h='';
+// A mesma janela serve à Mestra Elara (w='elara') e à Arquimaga Selene (w='selene', só para o Mago, na Torre de Arcádia, 21).
+// A Elara manda o Mago para a Torre, mas continua redistribuindo a árvore e os atributos de todos.
+let MENT_W='elara';
+function openMentor(w){MENT_W=w||'elara';$('mentor').querySelector('h2').textContent=MENTN[MENT_W][0];$('mentor').classList.remove('hidden');renderMentor();}
+function renderMentor(){const b=$('mentorBody'),sel=MENT_W==='selene';let h='';
  const icons=t=>Object.keys(SK).filter(id=>SK[id].tree===t).map(id=>SK[id].ic).join(' ');
- if(!hasTree(P.cls))h=`<p class="flav">"Sinto em você a força de um ${CL[P.cls].nome.toLowerCase()}, mas os segredos desse caminho ainda não me foram revelados. Volte em breve."</p>`;
+ if(!sel&&mentorOf()==='selene')h=`<p class="flav">"O caminho dos Magos agora passa pela Torre de Arcádia, ao norte de Valdor. A Arquimaga Selene, aprendiz de Astrael, vai conduzir a sua ${P.spec?'promoção':'prova'}. Mas, se precisar redistribuir seus pontos, ainda posso ajudar."</p>`;
+ else if(sel&&mentorOf()!=='selene')h=`<p class="flav">"Sua prova começou com a Mestra Elara, e é com ela que deve terminar. Depois, volte à Torre: daqui em diante, é Astrael quem guia o seu caminho."</p>`;
+ else if(!hasTree(P.cls))h=`<p class="flav">"Sinto em você a força de um ${CL[P.cls].nome.toLowerCase()}, mas os segredos desse caminho ainda não me foram revelados. Volte em breve."</p>`;
  else if(P.quest){const q=P.quest,S=SPECS[q.spec];
-  h=q.done?`<p class="flav">"Você provou seu valor. O caminho de ${S.n.toLowerCase()} está aberto."</p><button class="btn gold" data-act="done">Tornar-me ${S.ap}</button>`
-   :`<p class="flav">"Continue. A prova ainda não terminou."</p><div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.trial.t}</p><div class="prog"><i style="width:${q.prog/q.goal*100}%"></i></div><p>${q.prog} de ${q.goal}</p></div><button class="btn sm" data-act="quit">Abandonar a prova</button>`;}
- else if(!P.spec){h=`<p class="flav">"${P.jlvl<10?`Ainda é cedo, jovem ${CL[P.cls].nome.toLowerCase()}. Volte quando alcançar o nível de Classe 10 e eu mostrarei os caminhos que se abrem a partir daqui.`:`Chegou a hora de escolher. Cada caminho exige uma prova, e a escolha é para sempre.`}"</p>`;
+  h=q.done?`<p class="flav">"${sel?`Astrael viu a sua prova. O caminho de ${S.n.toLowerCase()} está aberto para você.`:`Você provou seu valor. O caminho de ${S.n.toLowerCase()} está aberto.`}"</p><button class="btn gold" data-act="done">Tornar-me ${S.ap}</button>`
+   :`<p class="flav">"${sel?'As estrelas são pacientes, e você também precisa ser. A prova ainda não terminou.':'Continue. A prova ainda não terminou.'}"</p><div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.trial.t}</p><div class="prog"><i style="width:${q.prog/q.goal*100}%"></i></div><p>${q.prog} de ${q.goal}</p></div><button class="btn sm" data-act="quit">Abandonar a prova</button>`;}
+ else if(!P.spec){h=`<p class="flav">"${P.jlvl<10?(sel?'Ainda é cedo, jovem mago. Volte quando alcançar o nível de Classe 10, e eu lerei nas estrelas os caminhos que se abrem para você.':`Ainda é cedo, jovem ${CL[P.cls].nome.toLowerCase()}. Volte quando alcançar o nível de Classe 10 e eu mostrarei os caminhos que se abrem a partir daqui.`)
+   :(sel?'Em nome de Astrael, chegou a hora de escolher. Cada caminho exige uma prova, e a escolha é para sempre.':'Chegou a hora de escolher. Cada caminho exige uma prova, e a escolha é para sempre.')}"</p>`;
   for(const k of CT().specs){const S=SPECS[k];h+=`<div class="spec"><h3 style="color:${S.cor}">${S.ic} ${S.ap}</h3><p>${S.d}</p><p style="font-size:20px">${icons(k)}</p><p><b>Prova:</b> ${S.trial.t}.</p>${P.jlvl>=10?`<button class="btn sm gold" data-act="take" data-spec="${k}">Aceitar a prova</button>`:''}</div>`;}}
  else{const S=SPECS[P.spec];
-  h=P.promo>=2?`<p class="flav">"Você dominou o caminho de ${S.n.toLowerCase()}. Pouco resta que eu possa ensinar."</p>`
-   :P.jlvl>=25?`<p class="flav">"Seu poder amadureceu. Aceite o título de ${S.n}."</p><button class="btn gold" data-act="promo">Receber a promoção</button>`
+  h=P.promo>=2?`<p class="flav">"${sel?`Você dominou o caminho de ${S.n.toLowerCase()}. Que a luz de Astrael siga com você, aonde quer que vá.`:`Você dominou o caminho de ${S.n.toLowerCase()}. Pouco resta que eu possa ensinar.`}"</p>`
+   :P.jlvl>=25?`<p class="flav">"${sel?`Seu poder amadureceu. Em nome de Astrael, aceite o título de ${S.n}.`:`Seu poder amadureceu. Aceite o título de ${S.n}.`}"</p><button class="btn gold" data-act="promo">Receber a promoção</button>`
    :`<p class="flav">"Siga treinando, ${S.ap.toLowerCase()}. No nível de Classe 25 você estará pronto para a promoção e para a sua habilidade suprema."</p>`;}
  if(hasTree(P.cls))h+=`<div class="shoprow"><span>Redistribuir todos os pontos da árvore</span><button class="btn sm" data-act="respec">${respecCost()}g</button></div>`;
- h+=`<div class="shoprow"><span>Redefinir os atributos (todos voltam a 1 e os pontos voltam para você)</span><button class="btn sm" data-act="attrReset">${ATTR_RESET}g</button></div>`;
+ if(!sel)h+=`<div class="shoprow"><span>Redefinir os atributos (todos voltam a 1 e os pontos voltam para você)</span><button class="btn sm" data-act="attrReset">${ATTR_RESET}g</button></div>`;
  b.innerHTML=h;b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const a=x.dataset.act;
   if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();else if(a==='attrReset')attrReset();
   renderMentor();if(!$('tree').classList.contains('hidden'))renderTree();});}

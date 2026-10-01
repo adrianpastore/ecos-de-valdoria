@@ -147,7 +147,7 @@ cityHouses('arcadia','Arcadia',1071,'A');
 // ================== A TORRE DOS MAGOS (etapa 2) ==================
 // No centro de Arcádia, sobre o círculo grande de runas; a porta fica embaixo, virada para o sul.
 // Dentro: salão redondo de pedra, estantes seguindo a parede, o círculo mágico no meio e a Arquimaga Selene ao fundo, diante de um cristal.
-// Por enquanto a Selene só conversa; a prova e a promoção do Mago passam para ela na etapa 3.
+// Com o Mago, E abre a janela da mentora em nome dela (prova e promoção, etapa 3, em 03/04); com as outras classes, ela só conversa.
 MAPS.arcadia.torre=[TC.x,TC.y+1];MAPS.arcadia.portals.torreArcadia=[TC.x,TC.y+2,'porta'];
 MAPS.torreArcadia={n:'Torre dos Magos',s:'Arquimaga Selene',interior:1,round:1,city:'arcadia',theme:10,seed:1081,color:'#1e2a4a',home:'arcadia',room:[19,13],circulo:36,
  portals:{arcadia:[TC.x,TC.y+6,'porta']},talk:[[TC.x,TC.y-4,'selene']],
@@ -155,7 +155,8 @@ MAPS.torreArcadia={n:'Torre dos Magos',s:'Arquimaga Selene',interior:1,round:1,c
   ...[[-3,-6],[-2,-6],[2,-6],[3,-6],[-6,-5],[-5,-5],[5,-5],[6,-5],[-7,-4],[7,-4],[-8,-3],[8,-3],[-9,-1],[-9,0],[9,-1],[9,0]].map(([dx,dy])=>[TC.x+dx,TC.y+dy,'estante'])]};
 GENTE.push({id:'selene',n:'Arquimaga Selene',c:'#8fd8ff',f:['Bem-vindo à Torre, viajante. Aqui guardamos o saber de todo o reino.',
  'As runas do Planalto são mais antigas que Arcádia. Ainda não conseguimos ler todas.','O cristal lá no alto nunca se apaga. Os estudiosos juram que ele sonha.',
- 'Um dia, todo Mago que busca o seu caminho vai subir estas escadas.','Silêncio perto das estantes, por favor. Alguns livros mordem.',
+ 'Todo Mago que busca o seu caminho sobe estas escadas. Astrael guia a escolha; eu só leio as estrelas.',
+ 'Sou aprendiz de Astrael, o senhor das estrelas e do saber. Cada estrela lá fora é uma página que ele escreveu.','Silêncio perto das estantes, por favor. Alguns livros mordem.',
  'A magia não é força, é paciência. Quem tem pressa, que vá para a Guilda.']});
 // missões da Guilda de Arcádia (região: Planalto das Runas)
 MISS.push({city:'arcadia',id:'lobosRunas',t:'Uivos entre as runas',map:'planalto',mat:'lobo',n:8,lv:6,txt:'Lobos rondam as pedras rúnicas do Planalto e assustam os estudiosos que vão copiar as inscrições. Traga 8 Presas de Lobo.'},

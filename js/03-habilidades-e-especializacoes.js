@@ -155,10 +155,14 @@ function tickSkills(dt){for(const id in P.cd)P.cd[id]=Math.max(0,P.cd[id]-dt);
 // ================== MENTORA E PROVAS ==================
 const MENTOR={x:(TC.x-3.5)*TILE,y:(TC.y-1)*TILE};
 let nascs=[];
-function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.jlvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false};
+// quem cuida da prova e da promoção: o Mago vai à Arquimaga Selene, na Torre de Arcádia (21); os outros, à Mestra Elara.
+// A prova guarda quem a deu (by); prova sem 'by' (aceita com a Elara antes da Torre, em saves antigos) termina com a Elara.
+const MENTN={elara:['Mestra Elara','na casa com a estrela na placa, em qualquer cidade'],selene:['Arquimaga Selene','na Torre dos Magos, no centro de Arcádia']};
+const mentorOf=()=>P.quest?P.quest.by||'elara':P.cls==='mago'?'selene':'elara';
+function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.jlvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false,by:mentorOf()};
  if(spec==='druida'&&CUR==='floresta')placeNascs();banner('Prova: '+SPECS[spec].ap,T.t);log('Nova prova: '+T.t+'.','#ffe3a0');save();}
 function abandonTrial(){P.quest=null;nascs=[];save();log('Você abandonou a prova.','#cccccc');}
-function questCheck(){const q=P.quest;if(q&&!q.done&&q.prog>=q.goal){q.prog=q.goal;q.done=true;banner('Prova concluída!','Volte à Mestra Elara, na casa com a estrela na placa.');log('Prova concluída! Fale com a Mestra Elara.','#ffd24a');save();}}
+function questCheck(){const q=P.quest;if(q&&!q.done&&q.prog>=q.goal){q.prog=q.goal;q.done=true;const[mn,mw]=MENTN[mentorOf()];banner('Prova concluída!',`Volte à ${mn}, ${mw}.`);log(`Prova concluída! Fale com a ${mn}.`,'#ffd24a');save();}}
 function completeTrial(){const q=P.quest;if(!q||!q.done)return;P.spec=q.spec;P.promo=1;P.quest=null;P.jlvl=1;P.jxp=0;nascs=[];recalc();
  banner(SPECS[P.spec].ap,'Um novo ramo se abriu. Seu nível de Classe recomeça do 1.');log(`Você agora é ${SPECS[P.spec].ap}! Seu nível de Classe recomeça do 1 e vai até 50; cada nível dá 1 ponto para a árvore (T).`,'#ffd24a');
  for(let i=0;i<30;i++)parts.push({x:P.x+rf(-8,8),y:P.y-rf(0,16),vx:rf(-15,15),vy:rf(-90,-30),g:0,life:1,max:1,color:SPECS[P.spec].cor,s:2});buildHotbar();save();}
@@ -183,4 +187,4 @@ function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)con
  if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};
  if(hyp(SMITH.x-P.x,SMITH.y-P.y)<Math.max(bd,30))b={kind:'smith',o:SMITH};
  if(hyp(BAR.x-P.x,BAR.y-P.y)<Math.max(bd,30))b={kind:'bar',o:BAR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk')talkTo(it.o);else openShop();}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk'){if(it.o.p.id==='selene'&&P.cls==='mago')openMentor('selene');else talkTo(it.o);}else openShop();}
