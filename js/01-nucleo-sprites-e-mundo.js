@@ -154,7 +154,15 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  // quando o mapa vizinho tem estrada, ela ainda entra alguns passos por este portal e some no mato
  const stub=(x1,y1,wob)=>{const L0=hyp(TC.x-x1,TC.y-y1)||1,dx=(TC.x-x1)/L0,dy=(TC.y-y1)/L0,L=9;
   for(let s=0;s<=L*2;s++){const t=s/2,off=Math.sin(t*.7+wob)*1.2*t/L,X=Math.round(x1+dx*t-dy*off),Y=Math.round(y1+dy*t+dx*off);if(t<4)paint(X,Y);else if(rng()<1-(t-4)/(L-4))paint(X,Y,0);}};
- for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(M.road||M.interior)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
+ for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(p[3]==='trilha')continue;if(M.road||M.interior)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
+ // portal com 'trilha' (ex.: a cabana da Kaya, 22): em vez da estrada até o centro, um caminho estreito da porta até a estrada mais
+ // próxima fora da muralha. trail 1 = sem árvores (sempre dá para passar); 2 = chão de trilha, inteiro perto das pontas e aos pedaços no meio
+ const trail=new Uint8Array(W*H),Wl=M.walls,inW=(x,y)=>Wl&&x>=Wl[0]-1&&x<=Wl[2]+1&&y>=Wl[1]-1&&y<=Wl[3]+1;
+ for(const to in M.portals){const p=M.portals[to];if(p[3]!=='trilha')continue;const x1=Math.round(p[0]),y1=Math.round(p[1]);let bx=TC.x,by=TC.y,bd=1e9;
+  for(let i=0;i<W*H;i++)if(road[i]){const x=i%W,y=(i/W)|0,d=hyp(x-x1,y-y1);if(d<bd&&!inW(x,y)){bd=d;bx=x;by=y;}}
+  const L=hyp(bx-x1,by-y1)||1,st=Math.ceil(L*2),nx=-(by-y1)/L,ny=(bx-x1)/L,wob=rng()*6;
+  for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2+wob)*2.5*Math.sin(t*Math.PI),X=Math.round(x1+(bx-x1)*t+nx*off),Y=Math.round(y1+(by-y1)*t+ny*off);
+   for(const[dx,dy]of[[0,0],[1,0],[0,1]]){const j=(Y+dy)*W+X+dx;if(!trail[j])trail[j]=1;}if(Math.min(t,1-t)*L<3||rng()<.45)trail[Y*W+X]=2;}}
  const ex=Object.values(M.portals),nearP=(x,y)=>ex.some(e=>hyp(x-e[0],y-e[1])<2.6);
  const CAV=M.cave?caveMask(M,rng):M.interior?roomMask(M):null; // cavernas (11) e interiores (13): chão cavado na rocha ou num cômodo
  let HI=null,CLF=null,CLR=null;
@@ -175,7 +183,8 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng();let g=G.GRASS,obj=null;
   if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
   else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
-  else if(M.town){const d=hyp(x-TC.x,(y-TC.y)*1.3);g=d<6.5?G.PLAZA:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&c<.04)obj='tree';}
+  else if(M.town){const d=hyp(x-TC.x,(y-TC.y)*1.3),mt=M.mata?hyp(x-M.mata[0],y-M.mata[1]):99; // mata: [x, y, raio da mata fechada, raio da clareira]
+   g=d<6.5?G.PLAZA:road[i]||trail[i]===2?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&!trail[i]&&c<(M.mata&&mt<M.mata[3]?0:mt<(M.mata||[])[2]?.24:.04))obj='tree';}
   else if(road[i])g=G.PATH;
   else if(nearP(x,y)){}
   else if(CLR&&CLR[i]){}

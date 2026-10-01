@@ -155,10 +155,12 @@ function tickSkills(dt){for(const id in P.cd)P.cd[id]=Math.max(0,P.cd[id]-dt);
 // ================== MENTORA E PROVAS ==================
 const MENTOR={x:(TC.x-3.5)*TILE,y:(TC.y-1)*TILE};
 let nascs=[];
-// quem cuida da prova e da promoção: o Mago vai à Arquimaga Selene, na Torre de Arcádia (21); os outros, à Mestra Elara.
-// A prova guarda quem a deu (by); prova sem 'by' (aceita com a Elara antes da Torre, em saves antigos) termina com a Elara.
-const MENTN={elara:['Mestra Elara','na casa com a estrela na placa, em qualquer cidade'],selene:['Arquimaga Selene','na Torre dos Magos, no centro de Arcádia']};
-const mentorOf=()=>P.quest?P.quest.by||'elara':P.cls==='mago'?'selene':'elara';
+// quem cuida da prova e da promoção: cada classe com mestre próprio vai a ele (MENT_CLS); as outras, à Mestra Elara.
+// O Mago vai à Arquimaga Selene, na Torre de Arcádia (21); a Arqueira, à Caçadora Kaya, na cabana de Pinheiral (22).
+// A prova guarda quem a deu (by); prova sem 'by' (aceita com a Elara antes, em saves antigos) termina com a Elara.
+const MENTN={elara:['Mestra Elara','na casa com a estrela na placa, em qualquer cidade'],selene:['Arquimaga Selene','na Torre dos Magos, no centro de Arcádia'],
+ kaya:['Caçadora Kaya','na cabana no canto nordeste de Pinheiral']},MENT_CLS={mago:'selene',arqueira:'kaya'};
+const mentorOf=()=>P.quest?P.quest.by||'elara':MENT_CLS[P.cls]||'elara';
 function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.jlvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false,by:mentorOf()};
  if(spec==='druida'&&CUR==='floresta')placeNascs();banner('Prova: '+SPECS[spec].ap,T.t);log('Nova prova: '+T.t+'.','#ffe3a0');save();}
 function abandonTrial(){P.quest=null;nascs=[];save();log('Você abandonou a prova.','#cccccc');}
@@ -187,4 +189,4 @@ function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)con
  if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};
  if(hyp(SMITH.x-P.x,SMITH.y-P.y)<Math.max(bd,30))b={kind:'smith',o:SMITH};
  if(hyp(BAR.x-P.x,BAR.y-P.y)<Math.max(bd,30))b={kind:'bar',o:BAR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk'){if(it.o.p.id==='selene'&&P.cls==='mago')openMentor('selene');else talkTo(it.o);}else openShop();}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk'){if(it.o.p.id===MENT_CLS[P.cls])openMentor(it.o.p.id);else talkTo(it.o);}else openShop();}

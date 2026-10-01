@@ -101,24 +101,37 @@
    for(const q of SALAO)if(q.id==='selene')throw 'a Selene entrou no salão da Guilda';
    switchMapNow('arcadia','torreArcadia');if(P.y<=p.y||hyp(P.x-p.x,P.y-p.y)>3*TILE)throw 'ao sair, o herói não ficou na frente da porta';render(.05,0);
    info('Torre de 80×'+TORRE_H+' px, salão com '+M.deco.filter(d=>d[2]==='estante').length+' estantes; Selene: '+GENTE[0].f.length+' falas');});
-  t('Arcádia, etapa 3: o Mago faz a prova e a promoção com a Selene; a Elara manda para a Torre',()=>{
+  // mestres de classe (Arcádia etapa 3 e a cabana da Kaya): prova e promoção com o mestre; a Elara manda até ele; save antigo termina com a Elara
+  for(const[cls,w,casa,city,deus,lugar]of[['mago','selene','torreArcadia','arcadia','Astrael','Torre'],['arqueira','kaya','cabanaKaya','pinheiral','Ilvara','Pinheiral']])
+  t(`mestre de classe: ${cls} faz a prova e a promoção com ${MENTN[w][0]}; a Elara manda até lá`,()=>{const N=MENTN[w][0];
    const acts=()=>[...$('mentorBody').querySelectorAll('[data-act]')].map(b=>b.dataset.act),clica=a=>$('mentorBody').querySelector(`[data-act="${a}"]`).click();
-   const selene=()=>{switchMapNow('torreArcadia','arcadia');cura();P.x=TALK[0].x;P.y=TALK[0].y+6;return nearestInteract();};
-   enter({cls:'mago',name:'Selene'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));
-   if(mentorOf()!=='selene'||!mentorAlert('selene')||mentorAlert('elara'))throw 'o "!" do Mago na Classe 10 devia ficar na Selene';
-   openMentor('elara');if(acts().includes('take')||!/Torre/.test($('mentorBody').textContent)||!acts().includes('attrReset'))throw 'a Elara devia mandar o Mago para a Torre e continuar com os atributos';
-   let it=selene();if(promptText(it)!=='[E] Falar com Arquimaga Selene')throw 'texto: '+promptText(it);interact(it);
-   if($('mentor').querySelector('h2').textContent!=='Arquimaga Selene'||!/Astrael/.test($('mentorBody').textContent))throw 'a janela não é da Selene';
+   const mestre=()=>{switchMapNow(casa,city);cura();const q=TALK.find(q=>q.p.id===w);if(!q)throw N+' não está em '+casa;P.x=q.x;P.y=q.y+6;return nearestInteract();};
+   enter({cls,name:'Mestre'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));
+   if(mentorOf()!==w||!mentorAlert(w)||mentorAlert('elara'))throw `o "!" na Classe 10 devia ficar em ${N}`;
+   openMentor('elara');if(acts().includes('take')||!new RegExp(lugar).test($('mentorBody').textContent)||!acts().includes('attrReset'))throw `a Elara devia mandar para ${lugar} e continuar com os atributos`;
+   let it=mestre();if(promptText(it)!=='[E] Falar com '+N)throw 'texto: '+promptText(it);interact(it);
+   if($('mentor').querySelector('h2').textContent!==N||!new RegExp(deus).test($('mentorBody').textContent))throw 'a janela não é de '+N;
    if(acts().includes('attrReset'))throw 'o reset de atributos é só com a Elara';
-   const s=$('mentorBody').querySelector('[data-act="take"]').dataset.spec;clica('take');if(!P.quest||P.quest.by!=='selene')throw 'a prova não ficou com a Selene';
-   P.quest.prog=P.quest.goal;questCheck();hudExtra();if(!/Selene/.test($('quest').textContent))throw 'o HUD não manda voltar à Selene';
-   interact(selene());clica('done');if(P.spec!==s)throw 'não virou aprendiz com a Selene';for(let i=0;i<200&&P.jlvl<25;i++)gainXp(jobNeed(P.jlvl));
-   if(!mentorAlert('selene'))throw 'sem "!" na promoção';renderMentor();clica('promo');if(P.promo!==2)throw 'sem promoção com a Selene';$('mentor').classList.add('hidden');
-   enter({cls:'mago',name:'Antigo'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));P.quest={spec:s,prog:1,goal:1,done:true}; // prova aceita com a Elara num save antigo
-   if(mentorOf()!=='elara')throw 'prova antiga devia terminar com a Elara';interact(selene());if(acts().includes('done'))throw 'a Selene concluiu prova da Elara';
-   openMentor('elara');if(!acts().includes('done'))throw 'a Elara não concluiu a prova antiga';clica('done');if(mentorOf()!=='selene')throw 'depois da prova antiga, a promoção devia ser com a Selene';
-   $('mentor').classList.add('hidden');enter({cls:'guerreiro',name:'Torre'});interact(selene());if(!$('mentor').classList.contains('hidden')||!(TALK[0].until>time))throw 'com o Guerreiro, a Selene devia só conversar';
-   info('prova "'+SPECS[s].trial.t+'" e promoção a '+SPECS[s].n+' na Torre');});
+   const s=$('mentorBody').querySelector('[data-act="take"]').dataset.spec;clica('take');if(!P.quest||P.quest.by!==w)throw 'a prova não ficou com '+N;
+   P.quest.prog=P.quest.goal;questCheck();hudExtra();if(!$('quest').textContent.includes(N))throw 'o HUD não manda voltar a '+N;
+   interact(mestre());clica('done');if(P.spec!==s)throw 'não virou aprendiz com '+N;for(let i=0;i<200&&P.jlvl<25;i++)gainXp(jobNeed(P.jlvl));
+   if(!mentorAlert(w))throw 'sem "!" na promoção';renderMentor();clica('promo');if(P.promo!==2)throw 'sem promoção com '+N;$('mentor').classList.add('hidden');
+   enter({cls,name:'Antigo'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));P.quest={spec:s,prog:1,goal:1,done:true}; // prova aceita com a Elara num save antigo
+   if(mentorOf()!=='elara')throw 'prova antiga devia terminar com a Elara';interact(mestre());if(acts().includes('done'))throw N+' concluiu prova da Elara';
+   openMentor('elara');if(!acts().includes('done'))throw 'a Elara não concluiu a prova antiga';clica('done');if(mentorOf()!==w)throw 'depois da prova antiga, a promoção devia ser com '+N;
+   $('mentor').classList.add('hidden');enter({cls:'guerreiro',name:'Visita'});interact(mestre());const q=TALK.find(q=>q.p.id===w);
+   if(!$('mentor').classList.contains('hidden')||!(q.until>time))throw 'com o Guerreiro, '+N+' devia só conversar';
+   info(N+': prova "'+SPECS[s].trial.t+'" e promoção a '+SPECS[s].n);});
+  t('cabana da Kaya: canto nordeste de Pinheiral, fora da paliçada, na mata, com trilha (sem portão novo) e dá para chegar',()=>{switchMapNow('pinheiral',null);
+   const o=objRows.flat().find(o=>o.spr==='cabanaKaya'),p=portalPt('cabanaKaya');if(!o||o.label!=='Cabana da Caçadora Kaya')throw 'a cabana não tem o nome ao passar o mouse';
+   const tx=Math.floor(p.x/TILE),ty=Math.floor(p.y/TILE);if(tx<56||ty>18)throw 'a cabana não está no canto nordeste ('+tx+','+ty+')';
+   if(!REACH[ty*W+tx]&&!REACH[(ty+1)*W+tx])throw 'não dá para chegar na porta da cabana';
+   const ob=objRows.flat(),n=s=>ob.filter(o=>o.spr===s).length;if(n('alvo')<2||n('lenha')<1||n('varalPeles')<1)throw 'faltam alvos, lenha ou varal';
+   let arv=0,trilha=0;for(let y=ty-12;y<=ty+12;y++)for(let x=tx-12;x<=tx+12;x++){if(x<0||y<0||x>=W||y>=H)continue;if(ground[y*W+x]===G.PATH)trilha++;}
+   arv=ob.filter(o=>/^tree/.test(o.spr)&&hyp(o.tx-tx,o.ty-ty)<12).length;if(arv<40)throw 'mata rala em volta da cabana: '+arv+' árvores';if(trilha<10)throw 'sem trilha perto da cabana';
+   switchMapNow('cabanaKaya','pinheiral');const tem=s=>objRows.flat().some(o=>o.spr===s);if(!tem('lareira')||!tem('armeiro')||!tem('lobo'))throw 'falta lareira, armeiro ou o lobo Cinza';
+   switchMapNow('pinheiral','cabanaKaya');if(hyp(P.x-p.x,P.y-p.y)>3*TILE)throw 'ao sair, o herói não ficou na frente da porta';
+   info(arv+' árvores em volta, '+trilha+' tiles de trilha');});
   t('inventário: peso e capacidade',()=>{enter({cls:'guerreiro',name:'Peso'});P.mats={};const w=weightNow(),esp=(P.pots.hp+P.pots.mp)*WPOT+WT.arma+WT.peito;
    if(w!==esp)throw 'peso '+w+', esperado '+esp;if(capOf()!==725)throw 'capacidade nv1 '+capOf();info('herói novo: '+w+' / '+capOf());});
   t('inventário: elite deixa 2 materiais e o herói pega',()=>{switchMapNow('floresta',null);cura();loots.length=0;const m=makeMon('slime',P.x+30,P.y,3,{elite:true});mons.push(m);killMonster(m);
