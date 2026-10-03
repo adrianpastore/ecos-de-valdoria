@@ -116,6 +116,8 @@ iconURL('pothp');iconURL('potmp');
 // ---------- mundo ----------
 const G={GRASS:0,PATH:1,WATER:2,PLAZA:3,HIGH:4,CLIFF:5,RAMP:6};
 const ground=new Uint8Array(W*H),solid=new Uint8Array(W*H),zoneMap=new Uint8Array(W*H);
+// BRG: estrada que passa por cima da água (lago ou rio): vira ponte de madeira na pintura do chão
+const BRG=new Uint8Array(W*H);
 const objRows=Array.from({length:H},()=>[]);
 function makeNoise(rng,sp){const gw=Math.ceil(W/sp)+3,gh=Math.ceil(H/sp)+3;const g=new Float32Array(gw*gh);for(let i=0;i<g.length;i++)g[i]=rng();
  return(x,y)=>{const fx=x/sp,fy=y/sp,ix=Math.floor(fx),iy=Math.floor(fy),tx=fx-ix,ty=fy-iy,sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);const a=g[iy*gw+ix],b=g[iy*gw+ix+1],c=g[(iy+1)*gw+ix],d=g[(iy+1)*gw+ix+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;};}
@@ -179,7 +181,7 @@ function fixReach(M){const E=homeOf(M);
    if(nb.some(j=>ground[j]===G.HIGH&&!solid[j]&&!seen[j])&&nb.some(j=>seen[j])){ground[i]=G.RAMP;solid[i]=0;fixed=true;}}
   if(!fixed)break;}}
 function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const n1=makeNoise(rng,10),n2=makeNoise(rng,5),nf=makeNoise(rng,3);
- ground.fill(0);solid.fill(0);zoneMap.fill(z);for(const r of objRows)r.length=0;
+ ground.fill(0);solid.fill(0);BRG.fill(0);zoneMap.fill(z);for(const r of objRows)r.length=0;
  const road=new Uint8Array(W*H),amp=M.town?1.5:M.interior?0:4;
  const paint=(x,y,w=1)=>{for(let j=-w;j<=w;j++)for(let i=-w;i<=w;i++){const X=x+i,Y=y+j;if(X>0&&Y>0&&X<W-1&&Y<H-1)road[Y*W+X]=1;}};
  const carve=(x1,y1,wob)=>{const x0=TC.x,y0=TC.y,L=hyp(x1-x0,y1-y0)||1,st=Math.ceil(L*2),nx=-(y1-y0)/L,ny=(x1-x0)/L;for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2.5+wob)*amp*Math.sin(t*Math.PI);paint(Math.round(x0+(x1-x0)*t+nx*off),Math.round(y0+(y1-y0)*t+ny*off));}};
@@ -243,6 +245,14 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  if(M.moat)buildMoat(M,road); // fosso redondo com pontes e a Torre no centro (Arcádia, 21)
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
+ // pontes: trecho de estrada com água dos dois lados, atravessando a largura da estrada (até 4 tiles). Arcádia tem as pontes de pedra dela (21)
+ if(!M.town&&!M.moat&&!CAV)for(let i=0;i<W*H;i++){if(ground[i]!==G.PATH)continue;const x=i%W,y=(i/W)|0;
+  const wat=(dx,dy)=>{let X=x,Y=y;for(let k=0;k<5;k++){X+=dx;Y+=dy;if(X<0||Y<0||X>=W||Y>=H)return false;const g=ground[Y*W+X];if(g===G.WATER)return true;if(g!==G.PATH)return false;}return false;};
+  BRG[i]=(wat(-1,0)&&wat(1,0)?1:0)|(wat(0,-1)&&wat(0,1)?2:0);}
+ // cada ponte inteira tem um sentido só: 2 = atravessa de norte a sul (água dos lados), 3 = de leste a oeste
+ {const sb=new Uint8Array(W*H);for(let s=0;s<W*H;s++){if(!BRG[s]||sb[s])continue;const q=[s],cm=[];sb[s]=1;let v=0;
+  while(q.length){const i=q.pop();cm.push(i);v+=(BRG[i]&1)-(BRG[i]>>1&1);for(const j of[i-1,i+1,i-W,i+W])if(j>=0&&j<W*H&&BRG[j]&&!sb[j]){sb[j]=1;q.push(j);}}
+  for(const i of cm)BRG[i]=v>=0?2:3;}}
  // pintura dos pixels
  const mx=mapC.getContext('2d'),img=mx.createImageData(MW,MH),D=img.data;
  const put=(X,Y,c)=>{const o=(Y*MW+X)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2];D[o+3]=255;};
@@ -276,6 +286,17 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   const pc=PCr[z],q=Math.abs(px-7.5-(nr-nl)*8);if(vert&&q<3.5+(rng()<.5))col=rng()<.15?pc[1]:pc[0];
   const lw=ground[i-1]===G.CLIFF,rw=ground[i+1]===G.CLIFF,wd=Math.max(0,((dN?py:15-py)/5|0)-(far?0:2));
   if(vert&&lw&&px<=wd)col=px===wd?EARTH[3]:EARTH[0];else if(vert&&rw&&15-px<=wd)col=15-px===wd?EARTH[3]:EARTH[0];return col;}
+ // ponte de madeira (BRG): tábuas atravessadas, corrimão com postes nos lados de fora e a água aparecendo na borda, com sombra.
+ // O sentido vem de BRG (2 = norte a sul, 3 = leste a oeste); a estrada pode ter 2 ou 3 tiles de largura
+ const PWOOD=['#b8875a','#9a6e44','#6e4a2c','#4a301c'].map(hexRGB),KR=hexRGB(K);
+ function bridgeCol(i,px,py,z,gp){const vt=BRG[i]===2,a=vt?px:py,b=vt?py:px,d=vt?1:W,e=vt?W:1,lo=!BRG[i-d],hi=!BRG[i+d],w=WCr[z];
+  const side=(lo&&a<=1)||(hi&&a>=14);if(side){const j=a<=1?i-d:i+d;if(ground[j]!==G.WATER)return ground[j]===G.PATH?PCr[z][0]:gp[0];return a===14||a===15?w[0].map(v=>v*.72|0):w[0];}
+  // ponta que dá para a água: borda escura e sombra na tábua
+  if((b===0&&ground[i-e]===G.WATER)||(b===15&&ground[i+e]===G.WATER))return KR;if(b===14&&ground[i+e]===G.WATER)return PWOOD[3];
+  if((lo&&a===2)||(hi&&a===13))return KR;
+  if((lo&&a===3)||(hi&&a===12))return b%8<2?PWOOD[0]:b%8===2?KR:PWOOD[2];
+  if(b%4===3)return PWOOD[3];if((a===5||a===10)&&b%4===1)return PWOOD[3];
+  const pl=((b>>2)+(vt?i/W|0:i%W)*4)&1;return rng()<.08?PWOOD[2]:pl?PWOOD[0]:PWOOD[1];}
  // a trilha da subida continua 2 tiles no chão de baixo e 2 no alto, sumindo aos poucos (HT: centro da trilha em px, HS: distância)
  const HT=new Int8Array(W*H).fill(-99),HS=new Uint8Array(W*H);
  if(M.plateau)for(let i=W;i<W*(H-1);i++){if(ground[i]!==G.RAMP)continue;const tx=i%W,ty=(i/W)|0,sd=!upT(tx,ty+1)?1:!upT(tx,ty-1)?-1:0;if(!sd)continue;
@@ -290,6 +311,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
     if(z===8){const row=Math.floor(Y/6),seam=Y%6===0||(X+row*11)%29===0;col=seam?gp[2]:row%2?gp[0]:gp[1];if(!seam&&rng()<.04)col=gp[3];}
     if(z===10){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if(!seam&&rng()<.05)col=gp[3];} // lajes de pedra (Torre de Arcádia, 21)
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
+   else if(g===G.PATH&&BRG[i])col=bridgeCol(i,px,py,z,gp);
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
    else if(g===G.HIGH)col=highCol(tx,ty,px,py,gp,z);
    else if(g===G.CLIFF&&!CAV){col=cliffCol(tx,ty,px,py,z,gp);if(!col)col=gp[0];}
