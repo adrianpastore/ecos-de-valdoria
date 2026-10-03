@@ -51,14 +51,42 @@ def('fountain',["","......kkkk......",".....kwbbwk.....","......kssk......","...
 def('coin',["..kkkk..",".kgggGk.","kgglgGGk","kgglgGGk","kggggGGk","kgggGGGk",".kGGGGk.","..kkkk.."],{g:'#ffd24a',G:'#c8901a',l:'#fff6c0'});
 const RARC=['#e2e2e2','#3ddc5a','#4a9bff','#c05cff','#ff9a1f'];
 for(let r=0;r<5;r++)def('bag'+r,["....kkkk....",".....kk.....","....kcck....","...kBbbBk...","..kbbbbbbk..",".kbbbbbbbbk.",".kbbbbbbbbk.",".kBbbbbbbBk.","..kkkkkkkk.."],{b:'#a0703c',B:'#6f4a24',c:RARC[r]});
-function genTree(p,rng){const c=cnv(16,24),x=c.getContext('2d');
- for(let y=14;y<23;y++)for(let i=6;i<10;i++){x.fillStyle=(i===6||i===9)?K:(i===7?p.t1:p.t2);x.fillRect(i,y,1,1);}
- x.fillStyle=K;x.fillRect(5,23,6,1);
- for(let y=0;y<17;y++)for(let i=0;i<16;i++){const dx=i-7.5,dy=(y-8)*1.05,d=hyp(dx,dy)+(rng()-.5)*.9;
-  if(d<7.4){let col;if(d>6.3)col=K;else{const s=dx*.7+dy;col=s<-3.2?p.l:s>2.8?p.d:p.m;if(rng()<.1)col=rng()<.5?p.d:p.l;}x.fillStyle=col;x.fillRect(i,y,1,1);}}
+// árvores (24×30, ocupam 1 tile): copa em tufos sobrepostos com luz do alto à esquerda, tronco curto com raízes e sombra no chão.
+// TREEK: tufos [x, y, raio] de trás para a frente; 4 tipos (redonda, alta, larga, jovem)
+const TREEK=[[[12,7,6],[5.5,14,5.5],[18.5,14,5.5],[12,13.5,8]],[[12,5.5,6.5],[7,12,5],[17,12,5],[12,15.5,7.5]],
+ [[12,8,7.5],[6.5,14.5,6.5],[17.5,14.5,6.5]],[[12,11,4.5],[8.5,14.5,5],[15.5,14.5,5],[12,17.5,5.5]]];
+function genTree(p,rng,kind=0){const TW=24,TH=30,c=cnv(TW,TH),x=c.getContext('2d'),B=26,top=kind===3?18:17,px=(i,y,col)=>{x.fillStyle=col;x.fillRect(i,y,1,1);};
+ x.fillStyle='rgba(0,0,0,.24)';for(const[hw,y]of[[5,25],[8,26],[8,27],[5,28]])x.fillRect(12-hw,y,hw*2,1);
+ for(let y=top;y<=B;y++){px(9,y,K);px(14,y,K);for(let i=10;i<14;i++)px(i,y,i<12?(rng()<.12?p.t2:p.t1):(rng()<.15?p.t1:p.t2));}
+ px(8,B,K);px(9,B,p.t2);px(14,B,p.t2);px(15,B,K);x.fillStyle=K;x.fillRect(8,B+1,8,1);px(9,B-1,K);px(14,B-1,K);
+ // cada pixel da copa fica com o tufo mais da frente que o cobre
+ const cl=TREEK[kind],own=new Int8Array(TW*TH).fill(-1),at=(i,y)=>i<0||y<0||i>=TW||y>=TH?-1:own[y*TW+i];
+ for(let k=0;k<cl.length;k++){const[cx,cy,r]=cl[k];for(let y=0;y<TH;y++)for(let i=0;i<TW;i++)if(hyp(i+.5-cx,(y+.5-cy)*1.05)+(rng()-.5)*.8<r)own[y*TW+i]=k;}
+ for(let y=0;y<TH;y++)for(let i=0;i<TW;i++){const k=at(i,y);if(k<0)continue;const[cx,cy,r]=cl[k],nb=[at(i-1,y),at(i+1,y),at(i,y-1),at(i,y+1)];let col;
+  if(nb.some(v=>v<0))col=K; // contorno
+  else if(nb.some(v=>v<k))col=p.d; // borda de um tufo da frente sobre um de trás
+  else{const s=((i+.5-cx)*.65+(y+.5-cy))/r;col=s<-.5?p.l:s>.42?p.d:p.m;if(col===p.m&&s<-.1&&rng()<.09)col=p.l;else if(rng()<.07)col=rng()<.5?p.d:p.l;}
+  px(i,y,col);}
  return c;}
 const TPAL={0:{l:'#8fdc72',m:'#56a84a',d:'#2f6e34',t1:'#8a5a32',t2:'#6a4224'},1:{l:'#7fd06a',m:'#4a9a42',d:'#2a6430',t1:'#8a5a32',t2:'#6a4224'},2:{l:'#7a8f4a',m:'#566b36',d:'#384826',t1:'#5e4a36',t2:'#43352a'},3:{l:'#e0a040',m:'#b86a2a',d:'#7a3a1c',t1:'#6a4a32',t2:'#4a3222'},4:{l:'#6a4a3a',m:'#4a3228',d:'#2a1c16',t1:'#3a2a22',t2:'#2a1e18'}};
-{const rng=mulberry32(4242);for(let z=0;z<5;z++)for(let v=0;v<4;v++)reg(`tree${z}_${v}`,genTree(TPAL[z],rng));}
+{const rng=mulberry32(4242);for(let z=0;z<5;z++)for(let v=0;v<4;v++)reg(`tree${z}_${v}`,genTree(TPAL[z],rng,v));}
+// pedras (16×14): 4 tipos (pedregulho com rachadura, duas pedras, pedra alta, laje com pedrinha), cor de cada região e musgo (g/G)
+// onde é úmido. O mapa escolhe o tipo pela posição (rockAt), sem mexer no sorteio do gerador
+const ROCKK=[[[8,8,6.5,4.6]],[[6,9,4.6,3.6],[11.5,10.2,3.4,2.6]],[[8,7.5,4.2,6]],[[4.2,9.6,2.4,1.9],[9.5,10,5.6,2.9]]];
+function genRock(p,rng,kind){const RW=16,RH=14,c=cnv(RW,RH),x=c.getContext('2d'),st=ROCKK[kind],own=new Int8Array(RW*RH).fill(-1),at=(i,y)=>i<0||y<0||i>=RW||y>=RH?-1:own[y*RW+i];
+ x.fillStyle='rgba(0,0,0,.24)';x.fillRect(2,12,12,1);x.fillRect(1,13,14,1);
+ for(let k=0;k<st.length;k++){const[cx,cy,rx,ry]=st[k];for(let y=0;y<RH;y++)for(let i=0;i<RW;i++){const dx=(i+.5-cx)/rx,dy=(y+.5-cy)/ry;if(dx*dx+dy*dy+(rng()-.5)*.12<1)own[y*RW+i]=k;}}
+ for(let y=0;y<RH;y++)for(let i=0;i<RW;i++){const k=at(i,y);if(k<0)continue;const[cx,cy,rx,ry]=st[k],dx=(i+.5-cx)/rx,dy=(y+.5-cy)/ry,nb=[at(i-1,y),at(i+1,y),at(i,y-1),at(i,y+1)];let col;
+  if(nb.some(v=>v<0)||nb.some(v=>v>=0&&v!==k&&cy<st[v][1]))col=K;
+  else{const s=dx*.6+dy;col=s<-.62?p.l:s>.5?p.d:p.m;if(rng()<.08)col=rng()<.5?p.d:p.l;if(p.g&&dy<-.3&&s<.2&&rng()<.55)col=rng()<.3?p.G:p.g;}
+  x.fillStyle=col;x.fillRect(i,y,1,1);}
+ if(kind===0||kind===2){const[cx,cy]=st[0];let i=Math.round(cx+1),y=Math.round(cy-2);x.fillStyle=p.d;for(let n=0;n<4;n++){if(at(i,y)===0)x.fillRect(i,y,1,1);y++;i+=n%2?-1:0;}}
+ return c;}
+const RPAL={0:{l:'#d0ccc4',m:'#a29d94',d:'#6e6a63'},1:{l:'#c8c4bc',m:'#96918a',d:'#64605a',g:'#6aa84a',G:'#4a8a38'},2:{l:'#9c9c8a',m:'#707062',d:'#4a4a40',g:'#5f7a3c',G:'#44602e'},
+ 3:{l:'#e4d4a8',m:'#bca87c',d:'#867452'},4:{l:'#8e6e5e',m:'#62483e',d:'#3c2a24'},5:{l:'#c8c4bc',m:'#96918a',d:'#64605a',g:'#5a9a52',G:'#3e7a44'},7:{l:'#8a7a6a',m:'#64564a',d:'#463a32'}};
+RPAL[6]=RPAL[5];
+{const rng=mulberry32(7171);for(const z in RPAL)for(let v=0;v<4;v++)reg(`rock${z}_${v}`,genRock(RPAL[z],rng,v));}
+const rockAt=(x,y,z)=>SPR[`rock${z}_0`]?`rock${z}_${((x*7+y*13)>>>0)%4}`:'rock';
 function genHouse(roof,roofD){const c=cnv(32,32),x=c.getContext('2d');const f=(c_,a,b,w,h)=>{x.fillStyle=c_;x.fillRect(a,b,w,h);};
  f(K,3,13,26,19);f('#e8d6b0',4,14,24,17);f('#6a4526',4,14,24,2);f('#6a4526',4,29,24,2);f('#6a4526',4,14,2,17);f('#6a4526',26,14,2,17);f('#6a4526',15,16,2,13);
  f(K,12,21,8,11);f('#7a4e2c',13,22,6,10);f('#5a3820',15,22,1,10);f('#e8b43c',17,26,1,1);
@@ -202,7 +230,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   else{if(a>.78)g=G.WATER;else if(b>.62&&c<.35)obj='tree';else if(c<.03)obj=rng()<.5?'pillar':'pillar2';else if(c<.05)obj='rock';}
   if(!CAV&&(x<2||y<2||x>=W-2||y>=H-2)&&!nearP(x,y)){obj='tree';g=G.GRASS;}
   ground[i]=g;if(g===G.WATER||g===G.CLIFF)solid[i]=1;
-  if(obj){solid[i]=1;addObj(x,y,obj==='tree'?`tree${z}_${Math.floor(rng()*4)}`:obj);}}
+  if(obj){solid[i]=1;addObj(x,y,obj==='tree'?`tree${z}_${Math.floor(rng()*4)}`:obj==='rock'?rockAt(x,y,z):obj);}}
  if(M.town){(M.houses||[[TC.x-7,TC.y+4,'house0'],[TC.x+6,TC.y+4,'house1'],[TC.x-7,TC.y-3,'house2']]).forEach(([hx,hy,s,lb])=>{ // lb: nome mostrado ao passar o mouse (só casas com função)
    // chão ocupado: 2×2 tiles para casas de 32 px; casas mais largas (ex.: a Guilda, 64 px) ocupam 4×3, com o mesmo centro
    const fw=SPR[s]?Math.max(2,Math.round(SPR[s].n.width/TILE)):2,fd=fw>2?3:2,x0=hx+1-fw/2;
