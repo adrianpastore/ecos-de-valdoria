@@ -20,11 +20,11 @@ function drawExtra(e,tt){const o=e.o;
 function mentorAlert(w){if(!P||!hasTree(P.cls)||(w&&mentorOf()!==w))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
 function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';
  const lab=(t,x,y,c)=>{ctx.strokeText(t,sx(x),sy(y));ctx.fillStyle=c;ctx.fillText(t,sx(x),sy(y));};
- lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab('Brígida',BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
+ lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab(cidP().bar[0],BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
  const bang=(x,y)=>{ctx.font='800 24px Cinzel,serif';lab('!',x,y+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';};
  if(mentorAlert('elara'))bang(MENTOR.x,MENTOR.y-31);for(const q of TALK)if(MENTN[q.p.id]&&mentorAlert(q.p.id))bang(q.x,q.y-37); // mestres de classe (Selene, Kaya)
  portalLabels(lab);drawTalk(sx,sy,lab);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
-function promptText(it){return it.kind==='smith'?'[E] Falar com o ferreiro':it.kind==='bar'?'[E] Falar com a taverneira Brígida':it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
+function promptText(it){return it.kind==='smith'?`[E] Falar com ${cidP().smith[0].replace(/^(\S+) (.+)/,(m,c,n)=>n+' ('+c.toLowerCase()+')')}`:it.kind==='bar'?`[E] Falar com a taverneira ${cidP().bar[0]}`:it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;

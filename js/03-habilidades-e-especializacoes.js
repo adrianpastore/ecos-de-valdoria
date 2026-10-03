@@ -250,7 +250,7 @@ let nascs=[];
 // quem cuida da prova e da promoção: cada classe com mestre próprio vai a ele (MENT_CLS); as outras, à Mestra Elara.
 // O Mago vai à Arquimaga Selene, na Torre de Arcádia (21); a Arqueira, à Caçadora Kaya, na cabana de Pinheiral (22).
 // A prova guarda quem a deu (by); prova sem 'by' (aceita com a Elara antes, em saves antigos) termina com a Elara.
-const MENTN={elara:['Mestra Elara','na casa com a estrela na placa, em qualquer cidade'],selene:['Arquimaga Selene','na Torre dos Magos, no centro de Arcádia'],
+const MENTN={elara:['Mestra Elara','na casa com a estrela na placa, em Valdor'],selene:['Arquimaga Selene','na Torre dos Magos, no centro de Arcádia'],
  kaya:['Caçadora Kaya','na cabana no canto nordeste de Pinheiral']},MENT_CLS={mago:'selene',arqueira:'kaya'};
 const mentorOf=()=>P.quest?P.quest.by||'elara':MENT_CLS[P.cls]||'elara';
 function acceptTrial(spec){if(!hasTree(P.cls)||SPECS[spec].cls!==P.cls||P.jlvl<10||P.spec||P.quest)return;const T=SPECS[spec].trial;P.quest={spec,prog:0,goal:T.goal,done:false,by:mentorOf()};

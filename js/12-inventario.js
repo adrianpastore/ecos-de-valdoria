@@ -82,11 +82,11 @@ function stackDetail(d,key){const[kind,id]=key.split(':'),near=hyp(NPC.x-P.x,NPC
   h=`<h3>${id==='hp'?'Poção de vida':'Poção de mana'}</h3><div class="meta">Consumível • ${n} na bolsa • peso ${WPOT} cada</div><div>Recupera 45% da ${id==='hp'?'vida':'mana'}. Atalho: ${id==='hp'?'Q':'R'}.</div>`;
   acts=`<button class="btn sm gold" data-a="use">Usar</button><button class="btn sm" data-a="drop1">Descartar 1</button>`;}
  else if(kind==='ton'){const n=P.tons[id],t=P.tonAt[id];if(!n){sel=null;return renderBag();}
-  h=`<h3>${TONN[id]}</h3><div class="meta">Consumível • ${n} na bolsa • peso ${WPOT} cada</div><div>+${TON_B} de ${attrN(id)[1]} por ${TON_T/60} minutos. Da taverneira Brígida, no bar da Guilda.</div>`+
+  h=`<h3>${TONN[id]}</h3><div class="meta">Consumível • ${n} na bolsa • peso ${WPOT} cada</div><div>+${TON_B} de ${attrN(id)[1]} por ${TON_T/60} minutos. Do bar da Guilda.</div>`+
    (t>0?`<div class="pos">Ativo: faltam ${mmss(t)}. Tomar outro renova o tempo.</div>`:'');
   acts=`<button class="btn sm gold" data-a="use">Tomar</button><button class="btn sm" data-a="drop1">Descartar 1</button>`;}
  else{const M=LOOTM[id],n=P.mats[id]||0;if(!n){sel=null;return renderBag();}
-  h=`<h3>${M.n}</h3><div class="meta">Item • ${n} na bolsa • peso ${M.w} cada</div><div>Deixado por: ${MDEF[id].n}. O Mercador Bento paga ${M.v}g por unidade.</div>`;
+  h=`<h3>${M.n}</h3><div class="meta">Item • ${n} na bolsa • peso ${M.w} cada</div><div>Deixado por: ${MDEF[id].n}. O mercador da praça paga ${M.v}g por unidade.</div>`;
   acts=near?`<button class="btn sm gold" data-a="sell1">Vender 1 por ${M.v}g</button>`+(n>1?`<button class="btn sm" data-a="sellAll">Vender ${n} por ${M.v*n}g</button>`:'')
    :`<button class="btn sm" data-a="drop1">Descartar 1</button>`+(n>1?`<button class="btn sm" data-a="dropAll">Descartar todos</button>`:'');}
  d.innerHTML=h+`<div class="acts">${acts}</div>`;d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>stackAction(b.dataset.a,kind,id));}

@@ -36,9 +36,9 @@ const BAR={x:-9999,y:-9999};
 // addBar: também chamada por cidades criadas depois deste arquivo (ex.: Arcádia, 21)
 function addBar(M){M.bar=[TC.x+5,TC.y+2];M.deco.push([TC.x+5,TC.y+1,'prateleira',1],[TC.x+5,TC.y+2,'brigida'],[TC.x+4,TC.y+3,'balcao',1],[TC.x+6,TC.y+3,'barril'],[TC.x+7,TC.y+3,'barril']);}
 for(const id in MAPS)if(MAPS[id].interior&&MAPS[id].board)addBar(MAPS[id]);
-function openTaverna(){closeAll();renderTaverna();$('taverna').classList.remove('hidden');}
+function openTaverna(){closeAll();$('taverna').querySelector('h2').textContent='Bar da '+cidP().bar[0];renderTaverna();$('taverna').classList.remove('hidden');} // a taverneira da cidade (24)
 function renderTaverna(){const B=$('tavernaBody');
- let h=`<p class="flav">"Um gole antes da caçada, aventureiro? Meus tônicos nunca falham!"</p>`;
+ let h=`<p class="flav">"${cidP().bar[2]}"</p>`;
  for(const[k,n]of TON){const have=P.tons[k]||0,on=P.tonAt[k]>0;
   h+=`<div class="shoprow ton"><img src="${tonIcon(k)}" alt=""><span><b>${n}</b><br><small>+${TON_B} de ${attrN(k)[1]} por ${TON_T/60} minutos${have?` • você tem ${have}`:''}${on?` • ativo: ${mmss(P.tonAt[k])}`:''}</small></span>`+
    `<button class="btn sm" data-ton="${k}"${P.gold<TON_V?' disabled':''}>${TON_V}g</button></div>`;}

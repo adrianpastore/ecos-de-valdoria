@@ -52,9 +52,9 @@ function refine(it,roll=R){const r=it.ref||0;if(!it||r>=10)return;const cost=ref
  else log(`O refinamento falhou, mas ${it.name} resistiu.`,'#ffb040');
  recalc();if(!$('smith').classList.contains('hidden'))renderSmith();save();}
 let smithSel=null;
-function openSmith(){closeAll();smithSel=null;renderSmith();$('smith').classList.remove('hidden');}
+function openSmith(){closeAll();smithSel=null;$('smith').querySelector('h2').textContent=cidP().smith[0];renderSmith();$('smith').classList.remove('hidden');} // o ferreiro da cidade (24)
 function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).filter(Boolean),...P.inv];
- let h=`<p class="flav">"Traga ouro e o minério certo, e eu deixo seu equipamento mais forte. Até o +5 não tem perigo. Depois disso... às vezes o metal não aguenta."</p>`;
+ let h=`<p class="flav">"${cidP().smith[2]}"</p>`;
  h+=list.length?'<div class="grid">'+list.map((it,i)=>`<button class="slot${smithSel===it?' sel':''}" data-i="${i}" title="${it.name}" style="border-color:${RARC[it.rar]}"><img src="${iconOf(it)}" alt="">${it.ref?`<span class="qt">+${it.ref}</span>`:''}</button>`).join('')+'</div>':'<p>Você não tem equipamentos.</p>';
  const it=smithSel;
  if(it){const r=it.ref||0,m=refMat(it),M=LOOTM[m],have=P.mats[m]||0,eq=Object.values(P.equip).includes(it);
@@ -75,8 +75,10 @@ function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).fi
 // Cidade nova: town:1 no MAPS, guildHall(...) no 13, cityHouses(...) aqui e missões com o seu city.
 // mentorAt: onde a Elara fica em cada mapa; null = não fica ali (08 usa isso ao trocar de mapa).
 // estilo: true = cabanas (vilas florestais, sprites com 'R'); texto = sufixo do estilo da cidade (ex.: 'A' em Arcádia)
+// Desde 03/10/2026 (decisão do dono) a Elara fica só em Valdor: nas outras cidades, no lugar da casa dela entra uma casa comum.
 function cityHouses(city,sfx,seed,estilo){const R_=estilo===true?'R':estilo||'';
- houseInterior({id:'casaElara'+sfx,city,at:[TC.x-7,TC.y-3],sprite:'casaElara'+R_,name:'Casa da Mestra Elara',room:[12,8],seed,
+ if(city!=='valdor')(MAPS[city].houses=MAPS[city].houses||[]).push([TC.x-7,TC.y-3,estilo===true?'cabana1':estilo==='A'?'arcCasa1':'house3']);
+ else houseInterior({id:'casaElara'+sfx,city,at:[TC.x-7,TC.y-3],sprite:'casaElara'+R_,name:'Casa da Mestra Elara',room:[12,8],seed,
   deco:[[TC.x-5,TC.y-4,'estante'],[TC.x-4,TC.y-4,'estante'],[TC.x+3,TC.y-4,'estante'],[TC.x+4,TC.y-4,'estante'],[TC.x-1,TC.y-4,'mesaCristal',1]],
   extra:{s:'Mentora de todas as classes',mentorAt:[TC.x,TC.y-2]}});
  houseInterior({id:'ferraria'+sfx,city,at:[TC.x+6,TC.y+4],sprite:'ferraria'+R_,name:'Ferreiro',room:[14,8],seed:seed+10,

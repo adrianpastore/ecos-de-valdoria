@@ -188,7 +188,7 @@
   t('Pinheiral: paliçada de madeira e cabanas rústicas',()=>{switchMapNow('pinheiral',null);const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;
    const saidas=Object.values(MAPS.pinheiral.portals).filter(p=>p[2]!=='porta').length;if(!c.paliH||!c.paliV)throw 'sem paliçada';if((c.torreM||0)<4+2*saidas)throw 'só '+(c.torreM||0)+' torres de vigia';
    if(c.muroH||c.torre)throw 'Pinheiral não devia ter muro de pedra';if(Object.keys(c).some(k=>/^house\d/.test(k)))throw 'ainda há casa de Valdor em Pinheiral';
-   for(const s of['casaElaraR','ferrariaR','guilda2'])if(!c[s])throw 'serviço sem cabana: '+s;info(c.torreM+' torres de vigia, '+((c.cabana1||0)+(c.cabana2||0))+' cabanas comuns');});
+   for(const s of['ferrariaR','guilda2'])if(!c[s])throw 'serviço sem cabana: '+s;if(c.casaElaraR)throw 'a casa da Elara devia ser só em Valdor';info(c.torreM+' torres de vigia, '+((c.cabana1||0)+(c.cabana2||0))+' cabanas comuns');});
   t('Valdor: casas comuns e o nome da Guilda ao passar o mouse',()=>{switchMapNow('valdor',null);let casas=0,g=null;for(const r of objRows)for(const o of r){if(/^house/.test(o.spr))casas++;if(o.spr==='guilda')g=o;}
    if(casas<6)throw 'só '+casas+' casas comuns';const h=houseAt(g.px,g.py-10);if(!h||h.label!=='Guilda de Valdor')throw 'mouse sobre a Guilda mostrou: '+(h&&h.label);
    const ht=houseAt(g.px,g.py-80);if(!ht||ht.label!=='Guilda de Valdor')throw 'mouse na torre da Guilda não mostrou o nome';
@@ -202,16 +202,23 @@
    switchMapNow('casaElara','valdor');cura();if(!(MENTOR.x>0))throw 'Elara não está na casa';P.x=MENTOR.x;P.y=MENTOR.y+14;const it=nearestInteract();if(!it||it.kind!=='mentor')throw 'não dá para falar com ela';
    interact(it);if($('mentor').classList.contains('hidden'))throw 'janela da mentora não abriu';closeAll();
 });
-  t('toda cidade principal tem Bento, Guilda, Elara e ferreiro',()=>{const cid=Object.keys(MAPS).filter(k=>MAPS[k].town);if(cid.length<2)throw 'cidades: '+cid;
-   for(const c of cid){switchMapNow(c,null);if(!(NPC.x>0))throw c+': sem o Bento na praça';if(MENTOR.x>0)throw c+': Elara devia estar dentro de casa';
-    const sp=new Set();for(const r of objRows)for(const o of r)if(o.label)sp.add(o.spr);for(const s of['casaElara','ferraria'])if(![...sp].some(x=>x.startsWith(s)))throw c+': sem a casa '+s;
+  t('cidades: mercador, Guilda e ferreiro em todas; a Elara só em Valdor; gente própria em cada uma',()=>{const cid=Object.keys(MAPS).filter(k=>MAPS[k].town);if(cid.length<2)throw 'cidades: '+cid;
+   for(const c of cid){switchMapNow(c,null);if(!(NPC.x>0))throw c+': sem mercador na praça';if(MENTOR.x>0)throw c+': Elara devia estar dentro de casa';
+    if(!CIDP[c])throw c+': sem gente própria (CIDP, 24)';if(cidP()!==CIDP[c])throw c+': a praça não usa a gente da cidade';
+    const sp=new Set();for(const r of objRows)for(const o of r)if(o.label)sp.add(o.spr);if(![...sp].some(x=>x.startsWith('ferraria')))throw c+': sem ferreiro';
+    const elara=[...sp].some(x=>x.startsWith('casaElara'));if(elara!==(c==='valdor'))throw c+(elara?': a casa da Elara devia ser só em Valdor':': Valdor sem a casa da Elara');
     if(![...sp].some(s=>/^guilda/.test(s)))throw c+': sem Guilda';
+    openShop();if(shopEl.querySelector('h2').textContent!==CIDP[c].merc[0])throw c+': a loja não mostra o mercador da cidade';closeAll();
     for(const to in MAPS[c].portals){const I=MAPS[to];if(!I.interior)continue;switchMapNow(to,c);cura();
      if(I.mentorAt){P.x=MENTOR.x;P.y=MENTOR.y+14;if((nearestInteract()||{}).kind!=='mentor')throw to+': não fala com a Elara';}
-     if(I.smith){P.x=SMITH.x;P.y=SMITH.y+4;if((nearestInteract()||{}).kind!=='smith')throw to+': não fala com o ferreiro';}
-     if(I.board){P.x=BOARD.x;P.y=BOARD.y+6;if((nearestInteract()||{}).kind!=='board')throw to+': não acha o mural';}
+     if(I.smith){P.x=SMITH.x;P.y=SMITH.y+4;if((nearestInteract()||{}).kind!=='smith')throw to+': não fala com o ferreiro';
+      if(!I.deco.some(d=>d[2]===CIDP[c].smith[1]))throw to+': o ferreiro não é o da cidade';openSmith();if($('smith').querySelector('h2').textContent!==CIDP[c].smith[0])throw to+': janela com outro ferreiro';closeAll();}
+     if(I.board){P.x=BOARD.x;P.y=BOARD.y+6;if((nearestInteract()||{}).kind!=='board')throw to+': não acha o mural';
+      if(!I.deco.some(d=>d[2]===CIDP[c].bar[1]))throw to+': a taverneira não é a da cidade';if(TALK.map(q=>q.p.id).join()!==CIDP[c].salao.join())throw to+': o salão não tem a gente da cidade';}
      switchMapNow(c,to);}}
-   info(cid.map(c=>MAPS[c].n).join(' e ')+': os 4 serviços');});
+   // ninguém se repete entre as cidades
+   const nomes=cid.flatMap(c=>[CIDP[c].merc[0],CIDP[c].smith[0],CIDP[c].bar[0],...CIDP[c].salao]);if(new Set(nomes).size!==nomes.length)throw 'gente repetida entre as cidades';
+   info(cid.map(c=>MAPS[c].n+' ('+CIDP[c].merc[0]+')').join(', '));});
   t('ferreiro: casa, interior e conversa',()=>{switchMapNow('valdor',null);let c=null;for(const r of objRows)for(const o of r)if(o.spr==='ferraria')c=o;if(!c||c.label!=='Ferreiro')throw 'casa sem sprite ou nome';
    switchMapNow('ferraria','valdor');cura();if(!(SMITH.x>0))throw 'ferreiro sem posição';P.x=SMITH.x;P.y=SMITH.y+4;const it=nearestInteract();if(!it||it.kind!=='smith')throw 'não dá para falar com ele';
    interact(it);if($('smith').classList.contains('hidden'))throw 'painel não abriu';closeAll();});

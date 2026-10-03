@@ -46,7 +46,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
    else if(l.kind==='mat'){shadow(l.x,l.y,3);drawS('mat_'+l.mat,l.x,y+1);}
    else{shadow(l.x,l.y,3);drawS('pot'+l.pot,l.x,y+2,1,.65);}}
   else if(e.t>=6)drawExtra(e,tt);
-  else if(e.t===4){shadow(o.x,o.y,6);drawS('npc',o.x,o.y);drawS('coin',o.x,o.y-20+Math.sin(tt*3)*1.5);}
+  else if(e.t===4){shadow(o.x,o.y,6);drawS(cidP().merc[1],o.x,o.y);drawS('coin',o.x,o.y-20+Math.sin(tt*3)*1.5);}
   else{if(!P.dead){shadow(P.x,P.y,6);}ctx.globalAlpha=P.dead?.35:P.stealth?.35:1;drawS(P.form?'urso':heroSpr(),P.x+(P.swingT>0?P.face*1.5:0),P.y-(P.moving&&Math.floor(P.animT*8)%2?1:0),P.face,1,P.hitT>0);ctx.globalAlpha=1;}}
  // projéteis e efeitos
  drawMProj();for(const p of projs){if(p.arrow){const sp=hyp(p.vx,p.vy);ctx.strokeStyle=p.color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-p.vx/sp*7,p.y-p.vy/sp*7);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(p.x-.5,p.y-.5,1,1);}
@@ -66,7 +66,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
  for(const m of mons){if(!inView(m.x,m.y))continue;const isT=P&&P.target===m;if(!(isT||m.hp<m.maxHp||m.elite||m.boss||m.d.clone))continue;
   const w=Math.max(28,m.r*2.6)*S/3,X=sx(m.x),Y=sy(m.y-mh(m))-8;ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(X-w/2-1,Y-1,w+2,6);ctx.fillStyle=m.elite||m.boss?'#ff9a1f':'#e0403a';ctx.fillRect(X-w/2,Y,w*Math.max(0,m.fake?m.fake.hp/m.fake.maxHp:m.hp/m.maxHp),4);
   if(isT||m.elite||m.boss||m.d.clone){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';const s=`${m.elite?'★ ':''}${m.name} • ${m.lvl}`;ctx.strokeText(s,X,Y-4);ctx.fillStyle=conColor(m.lvl);ctx.fillText(s,X,Y-4);}}
- ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';ctx.strokeText('Mercador Bento',sx(NPC.x),sy(NPC.y-26));ctx.fillStyle='#ffd24a';ctx.fillText('Mercador Bento',sx(NPC.x),sy(NPC.y-26));drawLabels(sx,sy,tt);
+ ctx.font='700 13px "Alegreya Sans",sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.85)';ctx.strokeText(cidP().merc[0],sx(NPC.x),sy(NPC.y-26));ctx.fillStyle='#ffd24a';ctx.fillText(cidP().merc[0],sx(NPC.x),sy(NPC.y-26));drawLabels(sx,sy,tt);
  for(const t of texts){ctx.globalAlpha=Math.min(1,t.life*2);ctx.font=`700 ${t.big?22:15}px "Pixelify Sans",monospace`;ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(t.t,sx(t.x),sy(t.y));ctx.fillStyle=t.c;ctx.fillText(t.t,sx(t.x),sy(t.y));}ctx.globalAlpha=1;}
 function drawMini(){mini.imageSmoothingEnabled=false;mini.drawImage(miniBase,0,0,360,270);const f=360/W;for(const to in MAPS[CUR].portals){const pp=portalPt(to);mini.fillStyle='#ff6a3a';mini.fillRect(pp.x/TILE*f-5,pp.y/TILE*f-5,10,10);}
  for(const c of chests)if(!c.open){mini.fillStyle=c.tier===4?'#ff9a1f':'#ffd84a';mini.fillRect(c.x/TILE*f-2,c.y/TILE*f-2,5,5);}
@@ -128,7 +128,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  else{P.inv.splice(i,1);sel=null;}
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
-function openShop(){toggle(shopEl,true);}
+function openShop(){const m=cidP().merc;shopEl.querySelector('h2').textContent=m[0];shopEl.querySelector('.flav').textContent=`"${m[2]}"`;toggle(shopEl,true);} // quem atende é o mercador da cidade (24)
 function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('attr')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
