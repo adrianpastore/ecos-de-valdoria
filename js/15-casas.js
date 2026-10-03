@@ -77,7 +77,7 @@ function renderSmith(){const B=$('smithBody'),list=[...Object.values(P.equip).fi
 // estilo: true = cabanas (vilas florestais, sprites com 'R'); texto = sufixo do estilo da cidade (ex.: 'A' em Arcádia)
 // Desde 03/10/2026 (decisão do dono) a Elara fica só em Valdor: nas outras cidades, no lugar da casa dela entra uma casa comum.
 function cityHouses(city,sfx,seed,estilo){const R_=estilo===true?'R':estilo||'';
- if(city!=='valdor')(MAPS[city].houses=MAPS[city].houses||[]).push([TC.x-7,TC.y-3,estilo===true?'cabana1':estilo==='A'?'arcCasa1':'house3']);
+ if(city!=='valdor')(MAPS[city].houses=MAPS[city].houses||[]).push([TC.x-7,TC.y-3,estilo===true?'cabana1':estilo==='A'?'arcCasa1':estilo==='D'?'deserto1':'house3']);
  else houseInterior({id:'casaElara'+sfx,city,at:[TC.x-7,TC.y-3],sprite:'casaElara'+R_,name:'Casa da Mestra Elara',room:[12,8],seed,
   deco:[[TC.x-5,TC.y-4,'estante'],[TC.x-4,TC.y-4,'estante'],[TC.x+3,TC.y-4,'estante'],[TC.x+4,TC.y-4,'estante'],[TC.x-1,TC.y-4,'mesaCristal',1]],
   extra:{s:'Mentora de todas as classes',mentorAt:[TC.x,TC.y-2]}});

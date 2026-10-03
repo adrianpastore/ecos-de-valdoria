@@ -33,10 +33,12 @@ function outlineK(c){const x=c.getContext('2d'),W_=c.width,H_=c.height,d=x.getIm
 function guildaGrande(est){const c=cnv(64,98),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);},G0=66,G1=94,rus=est===1;
  const Q=[{R:'#6a3a8a',RD:'#4a2468',RL:'#8a5aaa',RS:'#5a2e78',E:'#2a1640',T:'#6a4526',P:'#e8d6b0',PL:'#f4e6c4',L:'#a8a296',D:'#6a655c'},
   {R:'#2f6a4a',RD:'#1f4a34',RL:'#4a8a64',RS:'#285a3e',E:'#12281c',T:'#4a2e18',P:'#8a5a32',PL:'#a8743c',L:'#b8844c',D:'#4a2e18'},
-  {R:'#2a3a6a',RD:'#1c2850',RL:'#c8d4ec',RS:'#24325c',E:'#10162c',T:'#4a4a62',P:'#e4e0d4',PL:'#f2eee4',L:'#a8a296',D:'#6a655c'}][est];
+  {R:'#2a3a6a',RD:'#1c2850',RL:'#c8d4ec',RS:'#24325c',E:'#10162c',T:'#4a4a62',P:'#e4e0d4',PL:'#f2eee4',L:'#a8a296',D:'#6a655c'},
+  {R:'#b8603a',RD:'#8a4428',RL:'#d8845a',RS:'#9a5030',E:'#4a2010',T:'#6a4a2a',P:'#ecdcb8',PL:'#f6eacc',L:'#e0c890',D:'#9a7a50'}][est]; // 3: arenito e terracota (Sahrem, 25)
+ const arn=est===3,PE=arn?['#9a7a50','#ecd4a0','#cdb07a']:['#5e5a52','#a8a296','#8a8478'];
  // parede de pedra (blocos desencontrados) ou de toras, com a luz vindo da esquerda
  const wall=(x0,y0,w,h,b)=>{for(let yy=y0;yy<y0+h;yy++)for(let xx=x0;xx<x0+w;xx++){const r=Math.floor((yy-y0)/b);
-   f(rus?((yy-y0)%3===2?'#5a3820':(xx*5+yy*3)%13===0?'#9a6a3c':'#7a4e2c'):((yy-y0)%b===0||(xx+(r%2)*b)%(b*2)===0?'#5e5a52':(xx*7+yy*13)%11===0?'#a8a296':'#8a8478'),xx,yy,1,1);}
+   f(rus?((yy-y0)%3===2?'#5a3820':(xx*5+yy*3)%13===0?'#9a6a3c':'#7a4e2c'):((yy-y0)%b===0||(xx+(r%2)*b)%(b*2)===0?PE[0]:(xx*7+yy*13)%11===0?PE[1]:PE[2]),xx,yy,1,1);}
   f(Q.L,x0,y0,1,h);f(Q.D,x0+w-1,y0,1,h);};
  // térreo e andar de cima (reboco com enxaimel, ou tábuas)
  wall(4,G0,56,G1-G0,4);f(Q.D,4,G1-2,56,2);

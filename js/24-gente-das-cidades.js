@@ -52,7 +52,9 @@ GENTE.push(
   'Viu círculo vermelho no chão? Saia dele. Nenhum escudo de mana segura aquilo.','Dizem que algo antigo dorme embaixo da Torre. A Selene não gosta que falem disso.','Mana acabando? Recue, respire, volte. Paciência também é magia.']},
  {id:'elio',n:'Elio',c:'#d9a0ff',at:[-7,3],f:['Esta harpa é de cristal do Planalto. Cada corda canta numa runa diferente.','Toco para os estudiosos estudarem. Eles dizem que ajuda. Eu digo que é verdade.',
   'A Celeste me paga em chá. Já bebi tanto que enxergo as estrelas de dia.','Conhece a canção de Astrael? Fala de estrelas que viraram gente.','Toda Guilda tem um bardo. O de Pinheiral toca flauta para árvores, coitado.']});
-// troca, nos interiores de cada cidade, o ferreiro, a taverneira e a gente do salão pelos daquela cidade
-{const base=CIDP.valdor.salao;for(const id in MAPS){const M=MAPS[id],C=CIDP[M.city];if(!M.interior||!C||C===CIDP.valdor)continue;
+// troca, nos interiores de cada cidade, o ferreiro, a taverneira e a gente do salão pelos daquela cidade.
+// Cidade criada depois deste arquivo (ex.: Sahrem, 25) chama de novo depois de criar os interiores dela (não estraga quem já foi trocado)
+function gentePorCidade(){const base=CIDP.valdor.salao;for(const id in MAPS){const M=MAPS[id],C=CIDP[M.city];if(!M.interior||!C||C===CIDP.valdor)continue;
  const tr=s=>s==='ferreiro'?C.smith[1]:s==='brigida'?C.bar[1]:base.includes(s)?C.salao[base.indexOf(s)]:s;
  if(M.deco)for(const d of M.deco)d[2]=tr(d[2]);if(M.talk)M.talk=M.talk.map(([x,y,s])=>[x,y,tr(s)]);}}
+gentePorCidade();
