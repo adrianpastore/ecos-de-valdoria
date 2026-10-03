@@ -85,6 +85,33 @@ const SKICON={
  muralha:{g:'#5a8ae0',p:{b:'#3a6ae0',B:'#2a4aa0',m:'#e0e6f0',M:'#9aa4b4',l:'#ffffff'},s:["kkkkkkkkkkkk","klBkklMkklBk","kbBkkmMkkbBk","kbBkkmMkkbBk","kbBkkmMkkbBk","kbBkkmMkkbBk","kbBkkmMkkbBk","kbBkkmMkkbBk",".kk..kk..kk."]},
  contra:{g:'#4a8aff',p:{m:'#e8eef4',h:'#e8b43c',b:'#7a4e2c'},s:["kk........kk","kmk......kmk",".kmk....kmk.","..kmk..kmk..","...kmkkmk...","....kmmk....","...kmkkmk...",".khkk..kkhk.","..kh....hk..",".kbhk..khbk.","kbk......kbk","kk........kk"]},
  estandarte:{g:'#ffb040',p:{r:'#3a6ae0',w:'#ffd84a',b:'#8a5a2c',y:'#ffd84a'},s:["kk..........","kyk.........","kbkkkkkkkkk.","kbkrrrrrrrk.","kbkrrwwrrrk.","kbkrwrrwrrk.","kbkrrwwrrrk.","kbkrrrrrrk..","kbkrk.krk...","kbkk...k....","kbk.........","kkk........."]},
+ // Arqueira
+ multi:{g:'#6ac040',p:{m:'#e8eef4',M:'#9aa4b4',b:'#e0c090',f:'#ff5a4a'},s:["......m.....",".....mMm....","..m...b...m.",".mMm..b..mMm","..b...b...b.","..b...b...b.","..b...b...b.","..b..fbf..b.","..b..f.f..b.",".fbf.....fbf",".f.f.....f.f"]},
+ aguia:{g:'#5ab0ff',p:{w:'#f4f0e8',b:'#8a5a30',y:'#ffc030',e:'#ffd040'},s:["...kkkkk....","..kwwwwwk...",".kwwwwwwwk..",".kwwkewwwyk.","kwwwkkwwyyyk","kbwwwwwwkyyk","kbbwwwwk.kyk","kbbbbbbk..k.","kbbbbbk.....",".kbbbk......","..kkk......."]},
+ perfurante:{g:'#4aa8ff',p:{y:'#ffe060',f:'#ff5a4a',b:'#e0c090',m:'#e8eef4'},s:["...yy.......","...yy....k..","ff.yy....mk.","fbbbbbbbbmmk","ff.yy....mk.","...yy....k..","...yy......."]},
+ passos:{g:'#8ad04a',p:{w:'#ffffff',b:'#9a6a3a',s:'#d0ffd0'},s:["k.k.........","kwkwk.kkkk..",".kwwkkbbbk..","..kwwkbbbk..","...kkkbbbk..",".s...kbbbk..",".....kbbbkk.","s.s..kbbbbbk",".s...kbbbbbk",".....kkkkkkk"]},
+ chuva:{g:'#5a8ae0',p:{f:'#ffffff',b:'#e0c090',m:'#e8eef4',M:'#9aa4b4'},s:["f.f.........","fbf......f.f",".b.......fbf",".b...f.f..b.","mMm..fbf..b.",".m....b..mMm","..f.f.b...m.","..fbfmMmf.f.","...b..m.fbf.","...b.....b..","..mMm....b..","...m....mMm."]},
+ // Caçadora
+ companheiro:{g:'#d8a86a',p:{g:'#8a8a98',w:'#e8e8f0',y:'#ffd040'},s:[".kk......kk.",".kgk....kgk.",".kggkkkkggk.","kggggggggggk","kgyggggggygk","kggggwwggggk",".kggwwwwggk.",".kgwwkkwwgk.","..kwwwwwwk..","...kwwwwk...","....kkkk...."]},
+ marca:{g:'#d8a86a',p:{r:'#ff3a3a',w:'#ffffff'},s:["....kkkk....","..kkrrrrkk..",".krrk..krrk.",".krk.ww.krk.","krk..ww..krk","krwwwrrwwwrk","krwwwrrwwwrk","krk..ww..krk",".krk.ww.krk.",".krrk..krrk.","..kkrrrrkk..","....kkkk...."]},
+ vinculo:{g:'#ff7aa0',p:{b:'#f0c890'},s:["...kk..kk...","..kbbkkbbk..","..kbbkkbbk..","kk.kk..kk.kk","kbbk....kbbk","kbbk.kk.kbbk",".kk.kbbk.kk.","...kbbbbk...","..kbbbbbbk..","..kbbbbbbk..","...kbbbbk...","....kkkk...."]},
+ uivo:{g:'#5a6ae0',p:{y:'#fff0b0',l:'#ffffff',d:'#d8c880'},s:["...kkkkkk...",".kkllllyykk.",".klllyyyyyk.","kllyyyyyddyk","klyyyyyyddyk","kyyddyyyyyyk","kyyddyyyyyyk","kyyyyyyyyyyk",".kyyyddyyyk.",".kkyyyyyykk.","...kkkkkk..."]},
+ matilha:{g:'#c06a30',p:{b:'#fff4e0'},s:["......b.b.b.","............",".......bbb..","......bbbbb.",".......bbb..","............",".b.b.b......","............","..bbb.......",".bbbbb......","..bbb......."]},
+ fera:{g:'#ff6a20',p:{g:'#4a4a5a',r:'#ff3030',w:'#ffffff'},s:["kk........kk","kgk......kgk","kggkkkkkkggk","kggggggggggk","kgrkggggkrgk","kggggggggggk",".kgggkkgggk.",".kgkwkkwkgk.","..kgwwwwgk..","...kggggk...","....kkkk...."]},
+ // Patrulheira
+ armadilha:{g:'#8ad04a',p:{l:'#ffffff',M:'#8a98a8',b:'#9a6a3a'},s:[".kk..kk..kk.",".lM..lM..lM.","klMkklMkklMk","kllMkllMkllM","kkkkkkkkkkkk","kbbbbbbbbbbk","kkkkkkkkkkkk"]},
+ rajada:{g:'#8ad04a',p:{w:'#ffffff',b:'#8a5a30',s:'#e0c090',f:'#ff5a4a',m:'#e8eef4'},s:["..kk........","..wbk.......","..w.bk......","..w..bk.....","..w...bk.k..","ffsssssssmmk","..w...bk.k..","..w..bk.....","..w.bk......","..wbk.......","..kk........"]},
+ precisao:{g:'#8ad04a',p:{r:'#e83030',w:'#ffffff',y:'#ffd040'},s:["...kkkkkk...",".kkrrrrrrkk.",".krwwwwwwrk.","krwwrrrrwwrk","krwrrwwrrwrk","krwrwyywrwrk","krwrwyywrwrk","krwrrwwrrwrk","krwwrrrrwwrk",".krwwwwwwrk.",".kkrrrrrrkk.","...kkkkkk..."]},
+ rede:{g:'#5ab0a0',p:{w:'#f4ecd0'},s:["w...w...w...",".w.w.w.w.w.w","..w...w...w.",".w.w.w.w.w.w","w...w...w...",".w.w.w.w.w.w","..w...w...w.",".w.w.w.w.w.w","w...w...w...",".w.w.w.w.w.w","..w...w...w.",".w.w.w.w.w.w"]},
+ recuo:{g:'#8ad04a',p:{w:'#ffffff',s:'#d0ffd0'},s:["...kkkkkk...","..kwwwwwwk..",".kwwkkkkwwk.",".kwk....kwk.","kwwwk...kwk.",".kwk....kwk.","..k.....kwk.","........kwk.",".s.s....kwk.","s.s.s...kkk."]},
+ tempestade2:{g:'#8ad04a',p:{w:'#d0f0e0'},s:["kkkkkkkkkkkk","kwwwwwwwwwwk",".kkkkkkkkkk.",".kwwwwwwwwk.","..kkkkkkkk..","...kwwwwwk..","...kkkkkkk..","....kwwwk...","....kkkkk...",".....kwk....",".....kk....."]},
+ // Assassina
+ veneno:{g:'#b070ff',p:{b:'#9a6a3a',w:'#c8d8e0',g:'#7aff4a',G:'#3a9a20',l:'#e0ffd0'},s:["....kkkk....","....kbbk....","....kwwk....","....kwwk....","...kwwwwk...","..kggggggk..",".kglgggggGk.",".kglggggGGk.",".kgggggggGk.",".kgggggGGGk.","..kGGGGGGk..","...kkkkkk..."]},
+ sombras:{g:'#b070ff',p:{c:'#9a70d0',C:'#5a3a8a',d:'#3a2060',y:'#ffe0ff'},s:["....kkkk....","...kccCCk...","..kccCCCCk..",".kcCkkkkCCk.",".kcCykkyCCk.",".kcCkkkkCCk.","kcCCCkkkCCCk","kcCCCCCCCCCk","kcCCCCCCCCdk","kcCCdCCCdCdk","kkkkkkkkkkkk"]},
+ letal:{g:'#b070ff',p:{y:'#e8b43c',b:'#5a3a2a',l:'#ffffff',M:'#9aa4b4',r:'#ff3030'},s:[".....kk.....","....kyyk....","....kbbk....","....kbbk....","..kkkyykkk..","..kyyyyyyk..","....klMk....","....klMk....","....krMk....","....klMk....",".....kk.....",".....rr....."]},
+ leque:{g:'#b070ff',p:{l:'#ffffff',M:'#9aa4b4',y:'#e8b43c',b:'#5a3a2a'},s:[".....kk.....","kk..klMk..kk","klk.klMk.klk",".klk.lM.klk.","..klklMklk..","...kllMMk...","..kkyyyykk..","...kbbbbk...","....kbbk....","....kkkk...."]},
+ toxinas:{g:'#b070ff',p:{g:'#7aff4a'},s:["...kkkkkk...","..kggggggk..",".kggggggggk.",".kgkkggkkgk.",".kgkkggkkgk.",".kgggkkgggk.","..kgkggkgk..","...kkkkkk...","....g..g....","....g......."]},
+ sentenca:{g:'#ff4060',p:{b:'#6a3a8a',y:'#d0a0ff'},s:["...kkkkkk...","..kbbbbbbk..",".kbbbyybbbk.","kbbyyyyyybbk","kbbbbyybbbbk",".kbbbyybbbk.",".kbbbyybbbk.",".kbbbbbbbbk.","..kbbbbbbk..","..kbbbbbbk..","...kkkkkk..."]},
 };
 const skMix=(a,b,t)=>'#'+hexRGB(a).map((v,i)=>Math.round(v+(hexRGB(b)[i]-v)*t).toString(16).padStart(2,'0')).join('');
 const skIcCache={};
