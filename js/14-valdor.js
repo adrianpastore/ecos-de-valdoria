@@ -28,7 +28,46 @@ function buildWalls(M,road){const[x0,y0,x1,y1]=M.walls,on=(x,y)=>(x===x0||x===x1
  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){if(!on(x,y)||gate(x,y))continue;const i=y*W+x,r=objRows[y];
   for(let k=r.length-1;k>=0;k--)if(r[k].tx===x)r.splice(k,1); // tira árvores que estavam no caminho do muro
   const corner=(x===x0||x===x1)&&(y===y0||y===y1),byGate=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>gate(x+dx,y+dy));
-  const st=WALLSTY[M.wallStyle||'pedra'];solid[i]=1;addObj(x,y,corner||byGate?st.t:y===y0||y===y1?st.h:st.v);}}
+  const st=WALLSTY[M.wallStyle||'pedra'];solid[i]=1;addObj(x,y,corner||byGate?st.t:y===y0||y===y1?st.h:st.v);}
+ // arcos sobre os portões, de torre a torre (não bloqueiam: o herói passa por baixo). Muro de cima e de baixo: arco visto de frente;
+ // muro dos lados: passarela elevada por cima da estrada. O desenho é gerado na largura de cada portão (genArchH/genArchV)
+ const sty=M.wallStyle||'pedra',mad=sty==='madeira';
+ for(const y of[y0,y1])for(let x=x0+1;x<x1;x++){if(!gate(x,y))continue;let e=x;while(e<x1-1&&gate(e+1,y))e++;const nm=`arcoH_${sty}_${e-x+1}`;
+  if(!SPR[nm])reg(nm,genArchH(e-x+1,sty));objRows[y].push({tx:x,ty:y,spr:nm,px:(x+e+1)/2*TILE,py:(y+1)*TILE});x=e;}
+ for(const x of[x0,x1])for(let y=y0+1;y<y1;y++){if(!gate(x,y))continue;let e=y;while(e<y1-1&&gate(x,e+1))e++;const nm=`arcoV_${sty}_${e-y+1}`;
+  if(!SPR[nm])reg(nm,genArchV(e-y+1,mad));objRows[e].push({tx:x,ty:e,spr:nm,px:(x+.5)*TILE,py:(e+1)*TILE});y=e;}}
+// arco de frente: n tiles de vão; os pilares (6 px) ficam por cima da beirada das torres. Pedra: ameias, aduelas e pedra de fecho com o
+// brasão dourado de Valdor (sty 'pedra') ou a runa azul e a estrela prateada de Arcádia ('arcana', 21). Madeira: pórtico de toras com
+// uma placa de pinheiro pendurada
+function genArchH(n,sty){const mad=sty==='madeira';const w=n*16+8,h=46,c=cnv(w,h),x=c.getContext('2d'),f=(col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);},cx=w/2;
+ if(mad){const TR='#8a5a30',TRC='#a8743c',TRE='#5a3820';
+  for(const px of[0,w-6]){f(K,px,6,6,40);f(TR,px+1,7,4,38);f(TRC,px+1,7,1,38);for(const y of[16,28,40])f(TRE,px+1,y,4,1);}
+  f(K,0,3,w,8);f(TR,1,4,w-2,6);f(TRC,1,4,w-2,1);f(TRE,1,8,w-2,1);for(let i=6;i<w-6;i+=9)f(TRE,i,5,1,3);
+  f(K,4,13,w-8,4);f(TR,5,14,w-10,2);f(TRC,5,14,w-10,1);
+  for(let k=0;k<5;k++){f(TRE,6+k,17+k,1,1);f(TRE,w-7-k,17+k,1,1);} // mãos-francesas
+  f(TRE,cx-5,17,1,4);f(TRE,cx+4,17,1,4);f(K,cx-7,20,14,10);f('#c8a060',cx-6,21,12,8);f('#a8844a',cx-6,28,12,1);
+  f('#2f6a4a',cx-1,22,2,1);f('#2f6a4a',cx-2,23,4,2);f('#2f6a4a',cx-3,25,6,2);f('#6a4222',cx-1,27,2,1);
+  return c;}
+ const PED='#8d8778',PEDC='#b8b2a4',PEDT='#a09a8a',REJ='#6d685c',PEDE='#5d584c';
+ for(let mx=1;mx<w-5;mx+=8){f(K,mx,0,6,5);f(PEDC,mx+1,1,4,4);}
+ f(K,0,4,w,42);f(PED,1,5,w-2,40);f(PEDT,1,5,w-2,4);for(const y of[13,18,26,32,38])f(REJ,1,y,w-2,1);
+ for(let i=3,r=0;i<w-2;i+=6,r++){f(REJ,i,9,1,4);f(REJ,i+3,13,1,5);}
+ // vão do arco: tudo abaixo da curva fica transparente; aduelas claras em volta, com juntas
+ const yT=i=>{const t=(i+.5-cx)/(cx-6);return Math.round(21+11*(1-Math.sqrt(Math.max(0,1-t*t))));};
+ for(let i=6;i<w-6;i++){const y=yT(i);x.clearRect(i,y+1,1,h);f(K,i,y,1,1);f(PEDC,i,y-3,1,3);if((i-6)%5===0)f(REJ,i,y-3,1,3);}
+ f(K,5,yT(6),1,h);f(K,w-6,yT(w-7),1,h);for(const px of[1,w-5])f(PEDE,px,44,4,1);
+ f(K,cx-3,13,6,yT(cx)-12);f(PEDC,cx-2,14,4,yT(cx)-14);
+ if(sty==='arcana'){f('#6ad8ff',cx-1,15,2,4);f('#d8f8ff',cx-1,16,1,1);f('#e8f0ff',cx-1,10,2,1);f('#c8d4ec',cx-4,10,1,1);f('#c8d4ec',cx+3,10,1,1);}
+ else{f('#e8b43c',cx-1,16,2,3);f('#c8323a',cx-1,19,2,1);}
+ return c;}
+// passarela por cima de um portão do muro do lado: a mesma largura do muro (como muroV/paliV), um pouco elevada, com a face de
+// frente embaixo e a sombra dela na estrada dos dois lados (mostra que a estrada passa por baixo)
+function genArchV(n,mad){const w=16,h=n*16+10,c=cnv(w,h),x=c.getContext('2d'),f=(col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);};
+ const[A,B,C,D,E]=mad?['#a8743c','#8a5a30','#5a3820','#4a3018','#8a5a30']:['#b8b2a4','#a09a8a','#6d685c','#5d584c','#8d8778'];
+ x.fillStyle='rgba(0,0,0,.3)';x.fillRect(0,12,3,h-14);x.fillRect(13,12,3,h-14);
+ f(K,3,0,10,h);f(A,4,1,8,h-12);f(B,4,1,2,h-12);for(let y=6;y<h-11;y+=5)f(C,4,y,8,1);
+ f(E,4,h-11,8,9);f(C,4,h-7,8,1);f(D,4,h-3,8,1);f(K,3,h-12,10,1);
+ return c;}
 // estilos de muralha: pedra (Valdor) e madeira (paliçada de vilas florestais, como Pinheiral)
 const WALLSTY={pedra:{h:'muroH',v:'muroV',t:'torre'},madeira:{h:'paliH',v:'paliV',t:'torreM'}};
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};

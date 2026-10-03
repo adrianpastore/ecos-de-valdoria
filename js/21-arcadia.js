@@ -107,6 +107,13 @@ function buildMoat(M,road){const cx=TC.x+.5,cy=TC.y+.5,axis=(x,y)=>Math.abs(x-TC
  const diag=[1,2,3,4].map(q=>wallT.filter(([x,y])=>(x>=TC.x)===(q%2===1)&&(y>=TC.y)===(q>2)).reduce((b,t)=>{const s=Math.abs(Math.abs(t[0]-TC.x)-Math.abs(t[1]-TC.y));return!b||s<b[2]?[t[0],t[1],s]:b;},null));
  for(const[x,y]of wallT){const dx=x-TC.x,dy=y-TC.y,torre=Math.abs(dx)===2&&Math.abs(dy)>5||Math.abs(dy)===2&&Math.abs(dx)>5||diag.some(t=>t&&t[0]===x&&t[1]===y);
   addObj(x,y,torre?'torreA':Math.abs(dx)>Math.abs(dy)*2.2?'muroV':(x+y)%3?'muroH':'muroHA');}
+ // arcos sobre os 4 portões (14): de frente nos portões norte e sul, passarela por cima nos portões leste e oeste. Ficam na fileira da
+ // muralha mais perto da cidade, de torre a torre
+ const ring=(x,y)=>{const d=hyp(x+.5-cx,y+.5-cy);return d>=WALL_IN&&d<MOAT_IN;},rs=[];for(let k=1;k<20;k++)rs.push(k);
+ const yN=TC.y-rs.find(k=>ring(TC.x,TC.y-k)),yS=TC.y+rs.find(k=>ring(TC.x,TC.y+k)),xW=TC.x-rs.find(k=>ring(TC.x-k,TC.y)),xE=TC.x+rs.find(k=>ring(TC.x+k,TC.y));
+ if(!SPR.arcoH_arcana_3)reg('arcoH_arcana_3',genArchH(3,'arcana'));if(!SPR.arcoV_pedra_3)reg('arcoV_pedra_3',genArchV(3,false));
+ for(const y of[yN,yS])objRows[y].push({tx:TC.x-1,ty:y,spr:'arcoH_arcana_3',px:(TC.x+.5)*TILE,py:(y+1)*TILE});
+ for(const x of[xW,xE])objRows[TC.y+1].push({tx:x,ty:TC.y+1,spr:'arcoV_pedra_3',px:(x+.5)*TILE,py:(TC.y+2)*TILE});
  // a Torre no centro (M.torre = tile de baixo, no meio): ocupa 5×3 tiles; o nome aparece ao passar o mouse
  if(M.torre){const[tx,ty]=M.torre;for(let y=ty-2;y<=ty;y++)for(let x=tx-2;x<=tx+2;x++){const r=objRows[y];for(let k=r.length-1;k>=0;k--)if(r[k].tx===x)r.splice(k,1);solid[y*W+x]=1;}
   addObj(tx,ty,'torreMagos',false,'Torre dos Magos');}}
