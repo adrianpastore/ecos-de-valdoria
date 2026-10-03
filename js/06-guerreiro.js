@@ -44,7 +44,8 @@ function initSkills(){const ct=CLASS_TREE[P.cls];
  else{P.ranks=P.ranks||{[P.cls+'0']:1,[P.cls+'1']:1,[P.cls+'2']:1};P.bar=P.bar||[P.cls+'0',P.cls+'1',P.cls+'2',null,null,null];}
  P.spec=P.spec||null;P.promo=P.promo||0;P.quest=P.quest||null;P.cd={};P.shield=null;P.banner=null;
  // save antigo com mais pontos gastos do que o nível de Classe dá (herói passou do nível 10 sem especializar): devolve tudo de graça
- if(ct&&ptsFree()<0){P.ranks={[ct.free]:1};P.bar=[ct.free,null,null,null,null,null];log('Seus pontos de habilidade foram devolvidos: agora eles vêm do nível de Classe. Abra a árvore (T).','#8fd0ff');}}
+ // (no modo ?dev não: o "Aprender todas" do menu de testes passa dos pontos de propósito)
+ if(ct&&ptsFree()<0&&!DEV){P.ranks={[ct.free]:1};P.bar=[ct.free,null,null,null,null,null];log('Seus pontos de habilidade foram devolvidos: agora eles vêm do nível de Classe. Abra a árvore (T).','#8fd0ff');}}
 function trialKill(T,m,src){return T.kind==='skill'?(src==='skill'||src==='corpse'):T.kind==='type'?m.type===T.typ:T.kind==='elite'?(m.elite||m.boss):T.kind==='lowhp'?P.hp<P.st.hp*.5:T.kind==='clean'?!m.hurtP:false;}
 function hitCount(){const q=P.quest;if(q&&!q.done&&SPECS[q.spec].trial.kind==='hits'){q.prog++;questCheck();}}
 function preHurt(d,m,mult){if(m)m.hurtP=true;

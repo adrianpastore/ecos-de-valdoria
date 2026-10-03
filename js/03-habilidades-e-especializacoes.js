@@ -30,6 +30,43 @@ const SK={
  urso:{tree:'druida',tier:2,lvl:15,pts:4,max:5,act:1,ic:'🐻',n:'Forma de Urso',type:'bear',mp:25,cd:30,dur:[20,2],m:[1.5,.15],d:e=>`Por ${e.dur}s: +50% de vida, +40% de defesa e ataques de garra (${pc(e.mult)}).`},
  ira:{tree:'druida',tier:3,lvl:25,pts:8,promo:2,max:3,act:1,ic:'🌳',n:'Ira da Floresta',type:'pulse',mp:45,cd:30,r:70,m:[1.4,.25],d:e=>`6 pulsos em 6s ao seu redor: ${pc(e.mult)} de dano e 5% de cura cada.`}};
 for(const c of[])CL[c].skills.forEach((s,i)=>SK[c+i]=Object.assign({tree:c,act:1,max:1,lvl:1},s));
+// ================== ÍCONES DAS HABILIDADES ==================
+// 16×16: moldura escura, fundo brilhando na cor `g` e o símbolo `s` (até 12×12) por cima, com as cores de `p`.
+// Habilidade sem desenho aqui continua com o emoji `ic`.
+const SKICON={
+ fogo:{g:'#ff8a2a',p:{C:'#ff7a1a',d:'#c03a10',y:'#ffd23a',l:'#fff6c0'},s:["....k.......","...kCk..k...","...kCk.kCk..","..kyCCkkCk..","..kyCCCCCk..",".kCyyCCCCCk.",".kCyllyCCdk.","kCyllllyCCdk","kCyllllyCddk",".kCyyyyCCdk.","..kdCCCddk..","...kkkkkk..."]},
+ mente:{g:'#8a6cff',p:{C:'#f0a0e8',c:'#ffe0fa',d:'#8a3a86'},s:["...kkkkkk...","..kcCCkCCk..",".kcCddkCdCk.",".kCdCCkdCCk.","kcCCdCkCCdCk","kCdCCdkCdCCk","kCCdCCkCCdCk",".kCCdCkdCCk.","..kddkkkddk.","...kk...kk.."]},
+ gelo:{g:'#5fd0ff',p:{c:'#bff4ff',l:'#ffffff'},s:[".....k.....","..k.kck.k..",".kck.c.kck.","..kckckck..","....clc....","kcccclcccck","....clc....","..kckckck..",".kck.c.kck.","..k.kck.k..",".....k....."]},
+ foco:{g:'#c070ff',p:{l:'#f4eaff',C:'#b050ff',d:'#5a1a9a'},s:["....kkkk....","..kkllllkk..",".klllCClllk.","kllCCddCCllk","kllCdlkdCllk","kllCdkkdCllk","kllCCddCCllk",".klllCClllk.","..kkllllkk..","....kkkk...."]},
+ meteoro:{g:'#ff5020',p:{b:'#9a7a6a',B:'#d0b0a0',d:'#5a3a34',y:'#ffe060',C:'#ff6a20'},s:["..........kk","........kkyk",".......kyyCk","......kyyCk.","....kkyCCk..","..kkCyyCk...",".kCBBbCk....","kCBBbbdCk...","kyBbbbdyk...","kCbbddbCk...",".kCdddCk....","..kkkkk....."]},
+ // Bruxo
+ raio:{g:'#4aa8ff',p:{l:'#ffffff',c:'#aee6ff'},s:["......kkkk..",".....klllk..","....kllck...","...kllck....","..kllckkkk..",".kllllllllk.","..kkkkcllk..","....kcllk...","...kcllk....","..kcllk.....","..kclk......","..kkk......."]},
+ lanca:{g:'#4ac8ff',p:{l:'#ffffff',c:'#bff4ff',C:'#5ab8e0'},s:[".........kkk","........kllk",".......klcCk","......klcCk.",".....klcCk..","....klcCk...","...klcCk....","..klcCk.....",".kkcCk......","kCkkk.......","kCCk........","kkk........."]},
+ sobrecarga:{g:'#ff9a30',p:{y:'#ffd040',l:'#fff8d0',r:'#ff6a20',b:'#8ad8ff'},s:[".....kk.....","..k..kyk..k.",".krk.kyk.kbk","..krkyyykbk.","...kyllyk...","kkkyllllykkk","kryyllllyybk","kkkyllllykkk","...kyllyk...","..kbkyyykrk.",".kbk.kyk.krk","..k..kyk..k."]},
+ conv:{g:'#6a8cff',p:{c:'#d0dcff',C:'#7a9aff'},s:["...kkkkkk...","..kcccccck..",".kcCkkkkCck.","kcCk....kCck","kcCk.kkk.kCk","kCk.kcck.kCk","kCk.kCk.kcCk","kCk..kkkcCk.","kcCk...kcCk.",".kcCkkkCck..","..kccCCk....","...kkkk....."]},
+ tempestade:{g:'#a070ff',p:{l:'#ece4ff',C:'#9a70e0',y:'#ffe860'},s:["....kkkk....","..kkllllkk..",".kllllllllk.","kllllllllllk","kCCllllCCCCk",".kCCCCCCCCk.","..kkkyykkk..","....kyk.....","...kyyk.....","....kyyk....","....kyk.....",".....k......"]},
+ // Necromante
+ esqueleto:{g:'#4ac070',p:{l:'#f0ecd8',c:'#b8b098',g:'#7dff9a'},s:["...kkkkkk...","..kllllllk..",".kllllllllk.","kllllllllllk","klkkkllkkkck","klkgkllkgkck","kllkkllkkllk",".klllkklllk.","..kclllllck.","..klkllklk..","...kkkkkk..."]},
+ dreno:{g:'#4ac070',p:{r:'#e83848',R:'#b01828',d:'#6a0a18',l:'#ffd0d0'},s:[".....kk.....",".....kRk....","....kRRk....","....kRrRk...","...kRrrRk...","..kRrrrrRk..","..kRllrrRk..",".kRrllrrrRk.",".kRrlrrrrRk.",".kRrrrrrdRk.","..kRrrrddk..","...kkkkkk..."]},
+ ossos:{g:'#6a9a80',p:{l:'#f0ecd8',c:'#b8b098'},s:[".kk......kk.","kllk....kllk","klllk..klllk",".kkllkkllkk.","...kllllk...","....kllk....","...kclllk...",".kkclkkllkk.","kcllk..kllck","kclk....klck",".kk......kk."]},
+ maldicao:{g:'#9a50e0',p:{c:'#e0b0ff',C:'#9a50e0',d:'#5a2090',y:'#b8ff70'},s:["...kkkkkk...","..kcccccck..",".kcCCCCCCck.","kcCkkCCkkCck","kCCkyCCkyCCk","kCCCCCCCCCCk","kCCCkkkkCCCk","kCCCCCCCCCCk","kCCCdCCCdCCk","kCdkkCdkkCdk",".kk..kk..kk."]},
+ cadaver:{g:'#9a50e0',p:{g:'#6ae060',l:'#f4ffe0'},s:["....k..k....","..k.kgkgk.k.",".kgkgggggkgk","..kgglllggk.",".kgllllllgk.","kgllkllkllgk","kglllkklllgk",".kgllllllgk.","..kgglllggk.",".kgkgggggkgk","..k.kgkgk.k.","....k..k...."]},
+ exercito:{g:'#7a50c0',p:{l:'#f0ecd8',g:'#7dff9a'},s:["....kkkk....","...kllllk...","...kgllgk...","...kllllk...","....kllk....",".kkkk..kkkk.","kllllkkllllk","kgllgkkgllgk","kllllkkllllk",".klkk..klkk.",".kkkk..kkkk."]},
+ // Druida
+ rejuv:{g:'#ffd860',p:{l:'#e0ffd0',g:'#5ad050',G:'#2a8a30'},s:["..kkk..kkk..",".kllgkkgggk.","kllggggggggk","klggggggggGk","kgggggggggGk",".kgggggggGk.","..kgggggGk..","...kgggGk...","....kgGk....",".....kk....."]},
+ raizes:{g:'#d0a050',p:{g:'#8ad04a',G:'#2a8a30',b:'#9a6a3a'},s:["..kk....kk..",".kGgk..kgGk.",".kgGgkkgGgk.","..kkgGGgkk..","....kGGk....",".....kbk....",".....kbk....","..kkkbbbkkk.",".kbbbkbkbbbk","kbk.kbbk.kbk","kk..kbk...kk","....kk......"]},
+ espinhos:{g:'#e0c070',p:{g:'#6ac040',G:'#3a8a30',l:'#f0ffd0',b:'#c08040'},s:[".....kk.....","....kglk....",".k..kgGk..k.","kgk.kgGk.kgk","kgGkkgGkkgGk","kgGgggGgggGk",".kkgggGggkk.","...klgGgk...","...kggGlk...","...klgGgk...","..kbbbbbbk..","..kkkkkkkk.."]},
+ urso:{g:'#c08040',p:{b:'#9a6034',d:'#e0a070',l:'#e8c090'},s:[".kk......kk.","kbbk....kbbk","kbdkkkkkkdbk",".kbbbbbbbbk.","kbbbbbbbbbbk","kbbkbbbbkbbk","kbbbbllbbbbk","kbbbllkllbbk",".kbblllllbk.","..kbbllbbk..","...kkkkkk..."]},
+ ira:{g:'#ff7a30',p:{g:'#5ad050',G:'#2a8a30',l:'#d0ffa0',b:'#8a5a30'},s:["...kkkkkk...",".kkgGggGgkk.","kgGgggggGggk","kggGgllgggGk","kGggglllgggk",".kgGgggGggk.","..kkkbbkkk..","....kbbk....","....kbbk....","..kkbbbbkk..",".kbk.kk.kbk."]}};
+const skMix=(a,b,t)=>'#'+hexRGB(a).map((v,i)=>Math.round(v+(hexRGB(b)[i]-v)*t).toString(16).padStart(2,'0')).join('');
+const skIcCache={};
+function skIconURL(id){const D=SKICON[id];if(!D)return null;if(skIcCache[id])return skIcCache[id];
+ const c=cnv(16,16),x=c.getContext('2d'),g=D.g,dark=skMix(g,'#0a0710',.82),mid=skMix(g,'#0a0710',.55),hi=skMix(g,'#0a0710',.3),rim=skMix(g,'#000000',.35);
+ for(let j=0;j<16;j++)for(let i=0;i<16;i++){if((i<1||i>14)&&(j<1||j>14))continue;const d=hyp(i-7.5,j-7.5);
+  x.fillStyle=i===0||i===15||j===0||j===15?K:i===1||i===14||j===1||j===14?rim:d<2.6?g:d<4.2?hi:d<5.6?mid:dark;x.fillRect(i,j,1,1);}
+ const s=mk(D.s,D.p);x.drawImage(s,(16-s.width)>>1,(16-s.height)>>1);return skIcCache[id]=toURL(c,4);}
+// HTML do ícone: a imagem desenhada, ou o emoji enquanto a habilidade não tem desenho
+const skIcHTML=id=>{const u=skIconURL(id);return u?`<img class="ski" src="${u}" alt="">`:SK[id].ic;};
 const rk=id=>(P&&P.ranks&&P.ranks[id])||0;
 
 

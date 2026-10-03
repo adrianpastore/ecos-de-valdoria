@@ -46,10 +46,10 @@ function renderTree(){const body=$('treeBody'),tabs=$('treeTabs'),det=$('treeDet
  body.innerHTML=h;
  for(const t of[1,2,3]){const ns=ids.filter(id=>SK[id].tier===t);if(!ns.length)continue;const w=document.createElement('div');w.className='tier';w.innerHTML=`<h4>${tierLabel(t,ns)}</h4>`;const g=document.createElement('div');g.className='nodes';
   for(const id of ns){const s=SK[id],r=rk(id),b=document.createElement('button');b.className='node'+(r?' has':'')+(!canLearn(id)?' can':'')+(canLearn(id)&&!r?' lock':'')+(s.act?'':' pas')+(treeSel===id?' sel':'');
-   b.innerHTML=`<span class="ni">${s.ic}</span><span class="nn">${s.n}</span><span class="nr">${r}/${s.max}${s.act?'':' • passiva'}</span>`;b.onclick=()=>{treeSel=id;renderTree();};g.append(b);}
+   b.innerHTML=`<span class="ni">${skIcHTML(id)}</span><span class="nn">${s.n}</span><span class="nr">${r}/${s.max}${s.act?'':' • passiva'}</span>`;b.onclick=()=>{treeSel=id;renderTree();};g.append(b);}
   w.append(g);body.append(w);}
  if(!treeSel){det.innerHTML='<span style="color:var(--muted)">Toque numa habilidade para ver o que ela faz. Contorno verde: pode aprender agora. Tracejado: passiva.</span>';return;}
- const id=treeSel,s=SK[id],r=rk(id);let d=`<h3>${s.ic} ${s.n}</h3><div class="meta">${s.act?`Ativa • ${Math.round(s.mp*(1-P.st.mpCut))} de mana • recarga ${+(s.cd*(1-P.st.cdr)).toFixed(1)}s`:'Passiva'} • rank ${r}/${s.max}</div>`;
+ const id=treeSel,s=SK[id],r=rk(id);let d=`<h3>${skIcHTML(id)} ${s.n}</h3><div class="meta">${s.act?`Ativa • ${Math.round(s.mp*(1-P.st.mpCut))} de mana • recarga ${+(s.cd*(1-P.st.cdr)).toFixed(1)}s`:'Passiva'} • rank ${r}/${s.max}</div>`;
  if(r)d+=`<div><b>Atual:</b> ${s.d(eff(id,r))}</div>`;if(r<s.max)d+=`<div><b>${r?'Próximo rank':'Ao aprender'}:</b> ${s.d(eff(id,r+1))}</div>`;
  const why=canLearn(id);d+=why?`<div class="why">${why}</div>`:`<div class="acts"><button class="btn sm gold" id="learnBtn">${r?'Melhorar':'Aprender'} (1 ponto)</button></div>`;
  if(s.act&&r){d+=`<div class="slots">Na barra:`;for(let i=0;i<6;i++)d+=`<button class="btn sm${P.bar[i]===id?' on':''}" data-slot="${i}">${i+1}</button>`;d+=P.bar.includes(id)?`<button class="btn sm" data-slot="-1">Tirar</button>`:'';d+='</div>';}

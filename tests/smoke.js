@@ -57,6 +57,12 @@
    b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
    killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
    info(serv.length+' servos, a '+dist.toFixed(0)+' tiles da escada');});
+  t('habilidades: ícones desenhados na barra e na árvore',()=>{for(const id in SKICON){if(!SK[id])throw id+' não é habilidade';const D=SKICON[id];if(D.s.length>12||D.s.some(r=>r.length>12))throw id+' maior que 12×12';
+    if(!/^data:image\/png/.test(skIconURL(id)))throw id+' sem imagem';}
+   enter({cls:'mago',name:'Icones'});P.ranks.fogo=1;P.bar[0]='fogo';buildHotbar();if(!document.querySelector('#hotbar .hs[data-k="1"] img.ski'))throw 'a barra não mostra o ícone da Bola de Fogo';
+   treeSel='fogo';renderTree();if(!document.querySelector('#treeBody .node img.ski'))throw 'a árvore não mostra o ícone';if(!$('treeDet').querySelector('img.ski'))throw 'o detalhe não mostra o ícone';
+   if(skIconURL('giro')!==null||skIcHTML('giro')!==SK.giro.ic)throw 'habilidade sem desenho deveria usar o emoji';treeSel=null;info(Object.keys(SKICON).length+' ícones');});
+  t('menu de testes: escondido e save de verdade sem ?dev',()=>{if(DEV||$('devBtn')||$('devm'))throw 'o menu de testes apareceu sem ?dev';if(SAVEKEY!=='valdoria_save_v1')throw 'a chave do save mudou: '+SAVEKEY;});
   // inventário em abas, peso e materiais
   t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>16))throw k+' mais largo que 16';}
    const vis=new Set(Object.keys(LOOTM).map(k=>MATSHP[k][0].join('/')));if(vis.size!==Object.keys(LOOTM).length)throw 'dois materiais com o mesmo desenho';info(Object.keys(LOOTM).length+' materiais');});

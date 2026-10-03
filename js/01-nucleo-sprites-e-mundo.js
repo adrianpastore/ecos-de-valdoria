@@ -3,7 +3,9 @@
 const $=id=>document.getElementById(id);
 const TILE=16,W=80,H=60,MW=W*TILE,MH=H*TILE;
 const TC={x:40,y:30},LAIR=TC;
-const K='#1b1320',SAVEKEY='valdoria_save_v1';
+// com ?dev no endereço (menu de testes, 23) o herói fica num save separado e o de verdade não é tocado
+const DEV=/[?&]dev\b/.test(location.search);
+const K='#1b1320',SAVEKEY='valdoria_save_v1'+(DEV?'_dev':'');
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const R=Math.random,ri=(a,b)=>a+Math.floor(R()*(b-a+1)),rf=(a,b)=>a+R()*(b-a),pick=a=>a[Math.floor(R()*a.length)],clamp=(v,a,b)=>v<a?a:v>b?b:v,hyp=Math.hypot;
 let uidN=1;const uid=()=>'i'+Date.now().toString(36)+(uidN++);

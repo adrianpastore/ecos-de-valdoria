@@ -83,7 +83,7 @@ let hbEls=[];
 // os botões agem ao encostar (pointerdown), não no clique: assim funcionam com outro dedo segurando o joystick (17)
 function buildHotbar(){if(!P)return;const hb=$('hotbar');hb.innerHTML='';hbEls=[];const c=CL[P.cls];
  HB.forEach(h=>{if(h.s!=null&&h.s>=3&&!hasTree(P.cls))return;const b=document.createElement('button');b.className='hs';const id=h.s!=null?P.bar[h.s]:null,sk=id&&SK[id];
-  const ic=h.s!=null?(sk?sk.ic:''):h.p?'':(P.form?'🐾':c.basic);if(h.s!=null&&!sk)b.classList.add('empty');
+  const ic=h.s!=null?(sk?skIcHTML(id):''):h.p?'':(P.form?'🐾':c.basic);if(h.s!=null&&!sk)b.classList.add('empty');
   b.innerHTML=`<span class="ic">${ic}</span><span class="k">${h.k==='Espaço'?'␣':h.k}</span><span class="n"></span><span class="cd"></span>`;
   if(h.p){const im=document.createElement('img');im.src=iconURL('pot'+h.p);im.style.cssText='width:70%;image-rendering:pixelated';b.querySelector('.ic').append(im);}
   b.title=sk?`${sk.n}${hasTree(P.cls)?' (rank '+rk(id)+')':''}, ${sk.mp} de mana: ${typeof sk.d==='function'?sk.d(eff(id,rk(id))):sk.d}`:h.s!=null?'Vazio: escolha uma habilidade na árvore (T)':h.p?(h.p==='hp'?'Poção de vida':'Poção de mana'):'Atacar o alvo mais próximo';
