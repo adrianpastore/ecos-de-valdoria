@@ -100,6 +100,8 @@ const toRGB=o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[k,v.map(hexRGB
 const GPr=toRGB(GP),PCr=toRGB(PC),WCr=toRGB(WC),PLZ=['#8d8778','#6d685c','#a09a8a'].map(hexRGB);
 const mapC=cnv(MW,MH),miniBase=cnv(W,H);
 const MINIC={obj:['#2f6e34','#2a6430','#384826','#7a3a1c','#2a1c16','#244a2c','#285030']};
+// EARTH: barranco dos morros (platôs): terra, terra escura, terra mais escura, contorno, pedrinha
+const EARTH=['#9a6e46','#7e5636','#5e3e26','#3a2616','#c09868'].map(hexRGB);
 const CLF_C=['#6f6a60','#4f4a42','#35312c','#9a9488','#86806f'].map(hexRGB),CLFT={}; // CLFT[tema]: cores de paredão próprias (a caverna usa)
 let CUR='valdor';
 const MAPS={
@@ -181,7 +183,11 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    const n=Math.min(cand.length,comp.length>60?2:1);
    for(let k=0;k<n;k++){const i=cand.splice(Math.floor(rng()*cand.length),1)[0];CLF[i]=2;const x=i%W,y=(i/W)|0;
     for(const[dx,dy]of[[0,1],[0,2],[-1,1],[1,1]]){const X=x+dx,Y=y+dy;if(X>0&&Y>0&&X<W&&Y<H&&!HI[Y*W+X])CLR[Y*W+X]=1;}
-    if(hi(x,y-1)&&CLF[(y-1)*W+x]===1)CLF[(y-1)*W+x]=2;}}}
+    if(hi(x,y-1)&&CLF[(y-1)*W+x]===1)CLF[(y-1)*W+x]=2;
+    // a subida tem 3 tiles de largura onde o barranco ao lado também dá para o sul (uma abertura no morro, não uma escada)
+    const sd=!hi(x,y+1)?1:!hi(x,y-1)?-1:0; // para que lado a subida desce (sul ou norte)
+    if(sd)for(const dx of[-1,1]){const X=x+dx;if(CLF[y*W+X]!==1||hi(X,y+sd))continue;CLF[y*W+X]=2;if(CLF[(y-sd)*W+X]===1)CLF[(y-sd)*W+X]=2;
+     for(const[ex,ey]of[[0,sd],[0,2*sd],[dx,sd]]){const j=(y+ey)*W+X+ex;if(j>=0&&j<W*H&&!HI[j])CLR[j]=1;}}}}}
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng();let g=G.GRASS,obj=null;
   if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
   else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
@@ -212,6 +218,43 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  // pintura dos pixels
  const mx=mapC.getContext('2d'),img=mx.createImageData(MW,MH),D=img.data;
  const put=(X,Y,c)=>{const o=(Y*MW+X)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2];D[o+3]=255;};
+ // platôs fora das cavernas são morros de terra, vistos de cima e um pouco de frente: barranco de terra no lado sul (com a grama
+ // pendendo na borda e sombra no chão de baixo), terra fina nas laterais, só a beirada no norte e cantos de fora arredondados.
+ // A entrada é uma subida de grama (rampa), sem escada. null = aquele pixel mostra o chão de baixo
+ const upT=(x,y)=>{if(x<0||y<0||x>=W||y>=H)return false;const g=ground[y*W+x];return g===G.HIGH||g===G.CLIFF||g===G.RAMP;};
+ // grama de cima mais clara que a de baixo, para o platô se destacar
+ const hiMid={},hiM=(gp,z)=>hiMid[z]||(hiMid[z]=gp[0].map((c,i)=>(c+gp[3][i]*3)>>2));
+ const highCol=(tx,ty,px,py,gp,z)=>{const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;return rng()<.05?gp[1]:v>.5?gp[3]:hiM(gp,z);};
+ // barranco: f = linha a partir da borda (0 a 12 no tile do morro, 13 a 18 descendo sobre o chão de baixo)
+ // (a grama pende 2 a 4 px na borda; a base é irregular: null = já é o chão de baixo)
+ const earthCol=(px,f,h,gp)=>{const od=2+((px*5+h)%4===0)+((px*3+h)%7===0),fm=16+((px*7+h)%3===0)+((px*5+h*3)%5<2)*2;
+  if(f<od)return gp[2];if(f===od||f===fm)return EARTH[3];if(f>fm)return null;if(f===fm-1)return EARTH[2];
+  const r=rng();return r<.05?EARTH[4]:r<.1?EARTH[2]:(px*11+h*3)%13===0&&f<od+4?EARTH[3]:(f+((px+h)>>2)%2)%5===0?EARTH[1]:EARTH[0];};
+ function cliffCol(tx,ty,px,py,z,gp){const N=!upT(tx,ty-1),S=!upT(tx,ty+1),Wo=!upT(tx-1,ty),E=!upT(tx+1,ty),h=(tx*7+ty*13)&15,R=3;
+  const m=Math.min(N&&Wo?px+py:99,N&&E?15-px+py:99);
+  if(m<R)return null;if(m===R)return EARTH[3];
+  if(S&&py>=3){if((Wo&&px===0)||(E&&px===15))return EARTH[3];return earthCol(px,py-3,h,gp)||EARTH[3];}
+  if((N&&py===0)||(Wo&&px===0)||(E&&px===15))return EARTH[3];
+  if((Wo&&px===1)||(E&&px===14))return EARTH[1];
+  if((N&&py===1)||(Wo&&px===2)||(E&&px===13))return gp[2];
+  return highCol(tx,ty,px,py,gp,z);}
+ // subida: a grama vai do tom do alto ao tom de baixo (2 tiles de rampa), e o barranco afina dos lados
+ // a subida desce para o lado em que o vizinho é chão de baixo (quase sempre o sul); no meio dela, uma trilha de terra batida
+ function rampCol(i,tx,ty,px,py,z,gp){const R_=G.RAMP,dS=!upT(tx,ty+1)||ground[i+W]===R_&&!upT(tx,ty+2),dN=!dS&&(!upT(tx,ty-1)||ground[i-W]===R_&&!upT(tx,ty-2));
+  const vert=dS||dN,a=vert?py:px,far=vert?(dS?ground[i+W]===R_:ground[i-W]===R_):false,s=(dN?15-a:a)+(far?0:16);
+  const t=s/31+(rng()-.5)*.22;let col=t<.3?gp[3]:t<.55?hiM(gp,z):t<.8?gp[1]:gp[0];if(rng()<.05)col=gp[2];
+  // trilha de terra no meio da abertura inteira (conta quantos tiles de subida há de cada lado)
+  let nl=0,nr=0;while(nl<4&&ground[i-nl-1]===R_)nl++;while(nr<4&&ground[i+nr+1]===R_)nr++;
+  const pc=PCr[z],q=Math.abs(px-7.5-(nr-nl)*8);if(vert&&q<3.5+(rng()<.5))col=rng()<.15?pc[1]:pc[0];
+  const lw=ground[i-1]===G.CLIFF,rw=ground[i+1]===G.CLIFF,wd=Math.max(0,((dN?py:15-py)/5|0)-(far?0:2));
+  if(vert&&lw&&px<=wd)col=px===wd?EARTH[3]:EARTH[0];else if(vert&&rw&&15-px<=wd)col=15-px===wd?EARTH[3]:EARTH[0];return col;}
+ // a trilha da subida continua 2 tiles no chão de baixo e 2 no alto, sumindo aos poucos (HT: centro da trilha em px, HS: distância)
+ const HT=new Int8Array(W*H).fill(-99),HS=new Uint8Array(W*H);
+ if(M.plateau)for(let i=W;i<W*(H-1);i++){if(ground[i]!==G.RAMP)continue;const tx=i%W,ty=(i/W)|0,sd=!upT(tx,ty+1)?1:!upT(tx,ty-1)?-1:0;if(!sd)continue;
+  let nl=0,nr=0;while(nl<4&&ground[i-nl-1]===G.RAMP)nl++;while(nr<4&&ground[i+nr+1]===G.RAMP)nr++;if(nl!==((nl+nr)>>1))continue;
+  const off=(nr-nl)*8;let top=ty;while(ground[(top-sd)*W+tx]===G.RAMP)top-=sd;
+  for(const[cx,o]of off>0?[[tx,off],[tx+1,off-16]]:[[tx,off]])
+   for(const[y,d]of[[ty+sd,1],[ty+2*sd,2],[top-sd,1],[top-2*sd,2]]){if(y<0||y>=H)continue;const j=y*W+cx;if(ground[j]===G.RAMP)continue;HT[j]=o;HS[j]=d;}}
  const edge=(tx,ty,px,py,t)=>{let d=99;const gt=(x,y)=>(x<0||y<0||x>=W||y>=H)?t:ground[y*W+x];if(gt(tx-1,ty)!==t)d=Math.min(d,px);if(gt(tx+1,ty)!==t)d=Math.min(d,15-px);if(gt(tx,ty-1)!==t)d=Math.min(d,py);if(gt(tx,ty+1)!==t)d=Math.min(d,15-py);return d;};
  for(let ty=0;ty<H;ty++)for(let tx=0;tx<W;tx++){const i=ty*W+tx,g=ground[i],z=zoneMap[i];
   for(let py=0;py<16;py++)for(let px=0;px<16;px++){const X=tx*16+px,Y=ty*16+py;let col;const gp=GPr[z];
@@ -220,13 +263,21 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
     if(z===10){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if(!seam&&rng()<.05)col=gp[3];} // lajes de pedra (Torre de Arcádia, 21)
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
-   else if(g===G.HIGH){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.5?gp[3]:gp[1];if(rng()<.06)col=gp[2];}
+   else if(g===G.HIGH)col=highCol(tx,ty,px,py,gp,z);
+   else if(g===G.CLIFF&&!CAV){col=cliffCol(tx,ty,px,py,z,gp);if(!col)col=gp[0];}
+   else if(g===G.RAMP&&!CAV)col=rampCol(i,tx,ty,px,py,z,gp);
    else if(g===G.CLIFF){const gb=ty+1<H?ground[(ty+1)*W+tx]:0,sb=gb!==G.HIGH&&gb!==G.CLIFF&&gb!==G.RAMP,cc=CLFT[z]||CLF_C;
     if(CAV&&!sb&&deepRock(tx,ty))col=rng()<.1?cc[5]:cc[6];
     else if(sb&&py>=4){col=(px%5===0||rng()<.08)?cc[1]:cc[0];if(py>=14)col=cc[2];}else{col=rng()<.15?cc[3]:cc[4];if(sb&&py>=3)col=cc[3];}}
    else if(g===G.RAMP){const cc=CLFT[z]||CLF_C;col=(py%4<2)?cc[4]:cc[1];if(px<2||px>13)col=cc[0];}
    else if(g===G.PLAZA){const row=Math.floor(Y/5),mort=Y%5===0||(X+(row%2)*4)%9===0;col=mort?PLZ[1]:(rng()<.1?PLZ[2]:PLZ[0]);const e=edge(tx,ty,px,py,g);if(e<2&&rng()<.5)col=gp[0];}
    else{const w=WCr[z];col=w[0];if(((X+Y*3)>>2)%9===0&&rng()<.35)col=w[1];const e=edge(tx,ty,px,py,g);if(e<1)col=w[2];else if(e<3&&rng()<.5)col=w[1];}
+   if(HT[i]>-99&&(g===G.GRASS||g===G.HIGH)){const q=Math.abs(px-7.5-HT[i]);if(q<3.6-HS[i]*.6&&rng()<1.15-HS[i]*.3)col=rng()<.15?PCr[z][1]:PCr[z][0];}
+   // sombra do platô no chão logo abaixo do paredão (e um pouco à direita dele)
+   if(M.plateau&&!upT(tx,ty)){const fa=ty>0&&ground[i-W]===G.CLIFF;
+    const ec=fa&&py<7?earthCol(px,py+13,((tx*7+(ty-1)*13)&15),gp):null;
+    if(ec){const wo=!upT(tx-1,ty-1),eo=!upT(tx+1,ty-1);col=(wo&&px===0)||(eo&&px===15)?EARTH[3]:ec;}
+    else if((fa&&py<10)||(px<2&&upT(tx-1,ty)&&ground[i-1]!==G.RAMP))col=col.map(v=>v*.62|0);}
    put(X,Y,col);}}
  mx.putImageData(img,0,0);
  // decoração
@@ -241,7 +292,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  if(M.moat||M.circulo)paintMoat(M,mx); // pontes de pedra e runas pintadas no chão; círculo mágico do salão da Torre (21)
  // minimapa base
  const mc=miniBase.getContext('2d'),mi=mc.createImageData(W,H);
- for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?(CAV?[14,11,10]:CLF_C[1]):g===G.RAMP?CLF_C[4]:g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}
+ for(let i=0;i<W*H;i++){const z=zoneMap[i],g=ground[i];let c=g===G.CLIFF?(CAV?[14,11,10]:EARTH[1]):g===G.RAMP?(CAV?CLF_C[4]:GPr[z][3]):g===G.HIGH?GPr[z][3]:solid[i]&&g!==G.WATER?hexRGB(MINIC.obj[z]):g===G.WATER?WCr[z][0]:g===G.PATH?PCr[z][0]:g===G.PLAZA?PLZ[0]:GPr[z][0];mi.data.set([c[0],c[1],c[2],255],i*4);}
  mc.putImageData(mi,0,0);
 }
 genWorld('valdor');
