@@ -62,6 +62,11 @@
    enter({cls:'mago',name:'Icones'});P.ranks.fogo=1;P.bar[0]='fogo';buildHotbar();if(!document.querySelector('#hotbar .hs[data-k="1"] img.ski'))throw 'a barra não mostra o ícone da Bola de Fogo';
    treeSel='fogo';renderTree();if(!document.querySelector('#treeBody .node img.ski'))throw 'a árvore não mostra o ícone';if(!$('treeDet').querySelector('img.ski'))throw 'o detalhe não mostra o ícone';
    for(const id in SK)if(!SKICON[id])throw SK[id].n+' sem ícone desenhado';treeSel=null;info(Object.keys(SKICON).length+' ícones');});
+  t('cenário: pontes, arcos nos portões e cachoeiras',()=>{enter({cls:'guerreiro',name:'Cena'});switchMapNow('pantano',null);if(!BRG.some(v=>v))throw 'o Pântano ficou sem ponte';
+   const arcos=id=>{switchMapNow(id,null);let a=0;for(const r of objRows)for(const o of r)if(/^arco/.test(o.spr)){a++;if(solid[o.ty*W+o.tx])throw 'arco em cima de tile sólido em '+id;}return a;};
+   const av=arcos('valdor'),ap=arcos('pinheiral'),aa=arcos('arcadia');if(av<4||ap<3||aa<4)throw `arcos: Valdor ${av}, Pinheiral ${ap}, Arcádia ${aa}`;
+   let c=0;for(const id of['encosta2','encosta5']){switchMapNow(id,null);c+=FALLS.length;}if(!c)throw 'nenhuma cachoeira nas Encostas';
+   switchMapNow('valdor',null);info(`arcos: ${av}+${ap}+${aa}, cachoeiras nas Encostas 02 e 05: ${c}`);});
   t('menu de testes: escondido e save de verdade sem ?dev',()=>{if(DEV||$('devBtn')||$('devm'))throw 'o menu de testes apareceu sem ?dev';if(SAVEKEY!=='valdoria_save_v1')throw 'a chave do save mudou: '+SAVEKEY;});
   // inventário em abas, peso e materiais
   t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>16))throw k+' mais largo que 16';}

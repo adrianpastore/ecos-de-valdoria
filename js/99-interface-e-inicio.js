@@ -17,6 +17,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
  ctx.fillStyle='#0b0907';ctx.fillRect(0,0,VW,VH);ctx.save();ctx.scale(S,S);ctx.translate(-CX,-CY);
  const x0=Math.max(0,Math.floor(CX)),y0=Math.max(0,Math.floor(CY)),x1=Math.min(MW,Math.ceil(CX+vw)+1),y1=Math.min(MH,Math.ceil(CY+vh)+1);
  ctx.drawImage(mapC,x0,y0,x1-x0,y1-y0,x0,y0,x1-x0,y1-y0);
+ if(FALLS.length)fallsFx(tt); // cachoeiras dos morros (01)
  const inView=(x,y,m=40)=>x>CX-m&&x<CX+vw+m&&y>CY-m&&y<CY+vh+m*2;
  // chão: avisos
  for(const t of teles){if(t.ring){drawRingTele(t);continue;}const f=t.t/t.delay;ctx.fillStyle=`rgba(255,${t.fire?60:30},30,${.15+f*.2})`;ctx.beginPath();ctx.ellipse(t.x,t.y,t.r,t.r*.55,0,0,6.29);ctx.fill();ctx.strokeStyle='rgba(255,60,40,.9)';ctx.lineWidth=1;ctx.stroke();ctx.fillStyle='rgba(255,80,40,.35)';ctx.beginPath();ctx.ellipse(t.x,t.y,t.r*f,t.r*f*.55,0,0,6.29);ctx.fill();}

@@ -117,7 +117,7 @@ iconURL('pothp');iconURL('potmp');
 const G={GRASS:0,PATH:1,WATER:2,PLAZA:3,HIGH:4,CLIFF:5,RAMP:6};
 const ground=new Uint8Array(W*H),solid=new Uint8Array(W*H),zoneMap=new Uint8Array(W*H);
 // BRG: estrada que passa por cima da água (lago ou rio): vira ponte de madeira na pintura do chão
-const BRG=new Uint8Array(W*H);
+const BRG=new Uint8Array(W*H);let FALLS=[]; // FALLS: cachoeiras do mapa atual (genWorld)
 const objRows=Array.from({length:H},()=>[]);
 function makeNoise(rng,sp){const gw=Math.ceil(W/sp)+3,gh=Math.ceil(H/sp)+3;const g=new Float32Array(gw*gh);for(let i=0;i<g.length;i++)g[i]=rng();
  return(x,y)=>{const fx=x/sp,fy=y/sp,ix=Math.floor(fx),iy=Math.floor(fy),tx=fx-ix,ty=fy-iy,sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);const a=g[iy*gw+ix],b=g[iy*gw+ix+1],c=g[(iy+1)*gw+ix],d=g[(iy+1)*gw+ix+1];return a+(b-a)*sx+(c-a)*sy+(a-b-c+d)*sx*sy;};}
@@ -243,6 +243,15 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  if(M.clear)for(const[cx,cy]of M.clear){const r=objRows[cy];for(let k=r.length-1;k>=0;k--)if(r[k].tx===cx)r.splice(k,1);const g=ground[cy*W+cx];if(g!==G.WATER&&g!==G.CLIFF)solid[cy*W+cx]=0;} // tiles sem árvore nem pedra, escolhidos à mão
  if(M.walls)buildWalls(M,road); // muralha com portões e torres (14)
  if(M.moat)buildMoat(M,road); // fosso redondo com pontes e a Torre no centro (Arcádia, 21)
+ // cachoeiras (morros): onde o barranco do lado sul cai direto num lago, a água desce por ele, e um riacho de até 3 tiles no alto a
+ // alimenta. Até 2 por mapa, nos trechos mais largos (1 ou 2 tiles). FALLS = [x0, x1, y] da fileira do barranco; o 99 anima por cima (fallsFx)
+ FALLS=[];if(M.plateau){const runs=[],okF=(X,y)=>ground[y*W+X]===G.CLIFF&&ground[(y+1)*W+X]===G.WATER&&ground[(y-1)*W+X]===G.HIGH;
+  for(let y=6;y<H-6;y++)for(let x=2;x<W-2;x++){if(!okF(x,y))continue;let e=x;while(okF(e+1,y))e++;runs.push([x,e,y]);x=e;}
+  runs.sort((a,b)=>(b[1]-b[0])-(a[1]-a[0])||a[2]-b[2]||a[0]-b[0]);
+  for(const[a,b,y]of runs){if(FALLS.length>=2)break;if(FALLS.some(f=>Math.abs(f[2]-y)<6&&Math.abs(f[0]-a)<8))continue;
+   const w=Math.min(2,b-a+1),x0=a+((b-a+1-w)>>1),x1=x0+w-1;FALLS.push([x0,x1,y]);
+   for(let k=1;k<=3;k++){const Y=y-k;let ok=true;for(let X=x0;X<=x1;X++)if(ground[Y*W+X]!==G.HIGH||nearP(X,Y))ok=false;if(!ok)break;
+    for(let X=x0;X<=x1;X++){const j=Y*W+X;ground[j]=G.WATER;solid[j]=1;const r=objRows[Y];for(let q=r.length-1;q>=0;q--)if(r[q].tx===X)r.splice(q,1);}}}}
  if(M.plateau)fixReach(M);
  computeReach(M);linkReach(M);
  // pontes: trecho de estrada com água dos dois lados, atravessando a largura da estrada (até 4 tiles). Arcádia tem as pontes de pedra dela (21)
@@ -297,6 +306,10 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   if((lo&&a===3)||(hi&&a===12))return b%8<2?PWOOD[0]:b%8===2?KR:PWOOD[2];
   if(b%4===3)return PWOOD[3];if((a===5||a===10)&&b%4===1)return PWOOD[3];
   const pl=((b>>2)+(vt?i/W|0:i%W)*4)&1;return rng()<.08?PWOOD[2]:pl?PWOOD[0]:PWOOD[1];}
+ // cachoeira (FALLS): a água desce pelo barranco em faixas verticais, mais clara na borda de cima; py vai até 21 (desce sobre o lago)
+ const isFall=(tx,ty)=>FALLS.some(f=>ty===f[2]&&tx>=f[0]&&tx<=f[1]);
+ function fallCol(tx,ty,px,py,z){const w=WCr[z],eL=!isFall(tx-1,ty)&&px===0,eR=!isFall(tx+1,ty)&&px===15;if(eL||eR)return EARTH[3];
+  if(py<2)return w[0];if(py<4)return rng()<.6?w[2]:w[1];const s=(px+tx*16)%5;return s===0?w[2]:s===2?w[1]:rng()<.1?w[1]:w[0];}
  // a trilha da subida continua 2 tiles no chão de baixo e 2 no alto, sumindo aos poucos (HT: centro da trilha em px, HS: distância)
  const HT=new Int8Array(W*H).fill(-99),HS=new Uint8Array(W*H);
  if(M.plateau)for(let i=W;i<W*(H-1);i++){if(ground[i]!==G.RAMP)continue;const tx=i%W,ty=(i/W)|0,sd=!upT(tx,ty+1)?1:!upT(tx,ty-1)?-1:0;if(!sd)continue;
@@ -314,6 +327,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    else if(g===G.PATH&&BRG[i])col=bridgeCol(i,px,py,z,gp);
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
    else if(g===G.HIGH)col=highCol(tx,ty,px,py,gp,z);
+   else if(g===G.CLIFF&&!CAV&&isFall(tx,ty))col=fallCol(tx,ty,px,py,z);
    else if(g===G.CLIFF&&!CAV){col=cliffCol(tx,ty,px,py,z,gp);if(!col)col=gp[0];}
    else if(g===G.RAMP&&!CAV)col=rampCol(i,tx,ty,px,py,z,gp);
    else if(g===G.CLIFF){const gb=ty+1<H?ground[(ty+1)*W+tx]:0,sb=gb!==G.HIGH&&gb!==G.CLIFF&&gb!==G.RAMP,cc=CLFT[z]||CLF_C;
@@ -325,6 +339,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    if(HT[i]>-99&&(g===G.GRASS||g===G.HIGH)){const q=Math.abs(px-7.5-HT[i]);if(q<3.6-HS[i]*.6&&rng()<1.15-HS[i]*.3)col=rng()<.15?PCr[z][1]:PCr[z][0];}
    // sombra do platô no chão logo abaixo do paredão (e um pouco à direita dele)
    if(M.plateau&&!upT(tx,ty)){const fa=ty>0&&ground[i-W]===G.CLIFF;
+    if(fa&&isFall(tx,ty-1)){if(py<6)col=fallCol(tx,ty-1,px,py+16,z);else if(py<10&&rng()<.75-(py-6)*.15)col=rng()<.5?WCr[z][2]:[236,246,255];put(X,Y,col);continue;}
     const ec=fa&&py<7?earthCol(px,py+13,((tx*7+(ty-1)*13)&15),gp):null;
     if(ec){const wo=!upT(tx-1,ty-1),eo=!upT(tx+1,ty-1);col=(wo&&px===0)||(eo&&px===15)?EARTH[3]:ec;}
     else if((fa&&py<10)||(px<2&&upT(tx-1,ty)&&ground[i-1]!==G.RAMP))col=col.map(v=>v*.62|0);}
@@ -346,3 +361,8 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  mc.putImageData(mi,0,0);
 }
 genWorld('valdor');
+// animação das cachoeiras (chamada pelo render do 99, logo depois do chão): faixas claras descendo pelo barranco, espuma no lago e névoa
+function fallsFx(tt){for(const[x0,x1,y]of FALLS){const X=x0*TILE,Y=y*TILE+3,w=(x1-x0+1)*TILE,h=TILE+3;
+  ctx.fillStyle='rgba(255,255,255,.45)';for(let c=X+2;c<X+w-2;c+=3){const o=(tt*46+c*7.3)%(h+6)-6,a=Math.max(Y,Y+o),b=Math.min(Y+h,Y+o+5);if(b>a)ctx.fillRect(c,a,1,b-a);}
+  ctx.fillStyle='rgba(240,250,255,.75)';for(let k=0;k<w/3;k++)ctx.fillRect((X+R()*w)|0,(Y+h+3+R()*4)|0,2,1);
+  if(R()<.15)parts.push({x:X+R()*w,y:Y+h+4,vx:rf(-6,6),vy:rf(-12,-4),g:0,life:.7,max:.7,color:'#e8f6ff',s:1});}}
