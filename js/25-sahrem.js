@@ -1,8 +1,8 @@
 // Ecos de Valdoria — Sahrem, a cidade do deserto (etapa 1): a Orla do Deserto (grama virando areia) e a cidade das caravanas,
 // com a grande pirâmide no meio. Ideias e decisões do dono em 03/10/2026 (CLAUDE.md, item 17 do roteiro).
 'use strict';
-// Sahrem é uma cidade aberta de caravanas e mercadores (padroeira: Fenna): chão de arenito, casas de barro de teto reto, tendas de
-// feira, um oásis com palmeiras no lugar da fonte e, no centro do mapa (cercada por um lago), a pirâmide do Rei Sethkar, com a porta selada (a masmorra
+// Sahrem é a cidade das caravanas e mercadores (padroeira: Fenna), com muralha quadrada de arenito: chão de arenito, casas de barro de teto reto, tendas de
+// feira, um oásis com palmeiras no lugar da fonte e, no centro do mapa (cercada por um lago), a pirâmide do Rei Sethkar, com a porta aberta para a tumba (a masmorra
 // embaixo dela é a etapa 3). Etapa 2 (04/10/2026): a Guilda com cara de deserto, os monstros do deserto e as dunas a oeste, leste e sul.
 
 // ================== TEMA 11: DESERTO ==================
@@ -99,7 +99,8 @@ reg('obelisco',(()=>{const c=cnv(12,36),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x
   f(K,2,19,20,29);f(PED,3,19,18,28);f('#b0905e',16,19,5,28);for(const y of[24,30,36,42])f(REJ,3,y,18,1);
   f(K,9,25,6,9);f(K,10,24,4,1);f('#2a2016',10,26,4,7);f(PEDE,3,46,18,1);}));}
 WALLSTY.arenito={h:'muroHD',v:'muroVD',t:'torreD'};
-// A grande pirâmide (176×124): dez degraus de arenito, luz da esquerda, ponta de ouro e a porta selada, virada para o sul, com o selo
+// A grande pirâmide (176×124): dez degraus de arenito, luz da esquerda, ponta de ouro e a porta virada para o sul; desde a etapa 3 ela
+// está aberta (escuridão lá dentro, a laje de pedra caída de lado e o selo do Rei Sethkar partido no chão)
 // do Rei Sethkar. Ocupa 9×4 tiles no centro do mapa
 function genPiramide(){const W_=176,H_=124,c=cnv(W_,H_),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);},cx=88;
  for(let k=0;k<10;k++){const w=14+k*18,y0=13+k*11,xl=cx-w/2;
@@ -107,8 +108,9 @@ function genPiramide(){const W_=176,H_=124,c=cnv(W_,H_),x=c.getContext('2d'),f=(
    f(top?(u<.6?'#f4e2b0':'#dcc48c'):joint?'#b8985e':u<.25?'#ecd49c':u>.72?'#bc9c66':'#d8bc84',X,y,1,1);}}
  for(let y=0;y<14;y++){const hw=Math.round(y*.55)+1;f('#e8c048',cx-hw,y,hw*2,1);f('#fff0a0',cx-hw,y,1,1);f('#b8902a',cx+hw-1,y,1,1);}
  f('#9a7a4e',68,82,40,7);f('#c8a870',68,82,40,1);f(K,70,89,36,35);f('#2a1c12',71,90,34,34);
- f('#b09060',74,91,28,33);f('#9a7a50',74,91,1,33);f('#c8a874',75,91,26,1);for(let y=98;y<122;y+=6)f('#9a7a50',74,y,28,1);
- f('#c8902a',82,99,12,12);f('#e8c048',83,100,10,10);f('#7a4a1a',86,103,4,4);f('#4a2a10',87,104,2,2); // o selo
+ f('#1a100a',73,93,30,31);f('#120a06',76,100,24,24);for(let y=96;y<124;y+=7)f('#2a1c12',73,y,30,1); // a passagem aberta, escura
+ f('#b09060',104,113,16,10);f('#c8a874',104,113,16,1);f('#9a7a50',104,118,16,1); // a laje caída
+ f('#c8902a',58,116,6,6);f('#e8c048',59,117,4,4);f('#c8902a',111,107,6,5);f('#e8c048',112,108,4,3); // o selo partido
  f('#e4cc9c',50,120,24,4);f('#e4cc9c',104,119,26,5);f('#f0dcb0',54,120,6,1);f('#f0dcb0',110,119,6,1);
  return outlineK(c);}
 reg('piramide',genPiramide());
@@ -127,7 +129,7 @@ GENTE.push(
  {id:'farid',n:'Farid',c:'#8fd0ff',at:[2,-4],f:['Bem-vindo à Guilda de Sahrem! O mural fala dos problemas da Orla e das dunas.','Até 3 missões por vez, somando todas as Guildas. Está tudo no meu livro-razão.',
   'Cada missão volta ao mural um tempo depois de entregue. As caravanas nunca param.','A Samira, no balcão, serve chá de hortelã e tônicos. Beba antes de sair no sol.','A Mestra Elara mora em Valdor. Para mudar seus atributos, a viagem é longa.']},
  {id:'tarek',n:'Tarek',c:'#e8c080',at:[-5,-2],f:['Já guiei caravanas por todas as dunas. A areia muda de lugar; as estrelas, não.','Dizem que o Rei Sethkar ainda manda dentro da pirâmide. Eu não entro lá nem pago.',
-  'A porta da pirâmide está selada desde antes de Sahrem existir. Melhor assim.','No deserto, a água é ouro. Leve poções de vida, aventureiro.','Esta cicatriz? Um escorpião do tamanho de uma carroça. Ele saiu pior.']},
+  'A porta da pirâmide se abriu na última tempestade de areia. Quem desce volta calado... quando volta.','No deserto, a água é ouro. Leve poções de vida, aventureiro.','Esta cicatriz? Um escorpião do tamanho de uma carroça. Ele saiu pior.']},
  {id:'zuri',n:'Zuri',c:'#d9a0ff',at:[-7,3],f:['Quer uma história? A do rei que quis viver para sempre é a minha preferida... e a mais triste.','Fenna sorri para as caravanas. Por isso Sahrem nunca passou fome.',
   'Meu pandeiro já tocou em todas as cidades. A de Valdor tem o melhor público.','A Samira paga as histórias com chá. Eu conto devagar para ganhar mais um copo.','Contam que Kharzen prometeu ao Rei Sethkar um reino eterno. Prometeu e cumpriu, do pior jeito.']});
 
@@ -200,7 +202,7 @@ function sahremGen(M){const[ox,oy]=M.fountain,tira=(X,Y)=>{const r=objRows[Y];fo
   const dc=M.deco.find(d=>d[0]===x&&d[1]===y);if(dc){const r=objRows[y];for(let k=r.length-1;k>=0;k--)if(r[k].tx===x&&r[k].spr!==dc[2])r.splice(k,1);continue;}tira(x,y);ground[i]=passa?G.PATH:borda?G.WATER:G.PLAZA;solid[i]=borda&&!passa?1:0;}
  for(let y=b1+1;y<M.praca[1]-3;y++)for(let x=px-1;x<=px+1;x++){tira(x,y);ground[y*W+x]=G.PATH;solid[y*W+x]=0;} // da passagem até a praça
  for(let y=py-3;y<=py;y++)for(let x=px-4;x<=px+4;x++){tira(x,y);solid[y*W+x]=1;}
- objRows[py].push({tx:px-4,ty:py,spr:'piramide',px:(px+.5)*TILE,py:(py+1)*TILE,label:'Grande Pirâmide (selada)'});}
+ objRows[py].push({tx:px-4,ty:py,spr:'piramide',px:(px+.5)*TILE,py:(py+1)*TILE,label:'Grande Pirâmide'});}
 // os serviços (sem a casa da Elara, que fica só em Valdor): mercador na praça, Guilda com bar e salão, e a ferraria
 {const n0=MAPS.sahrem.houses.length;guildHall('guildaSahrem','sahrem','guilda4',1131);addBar(MAPS.guildaSahrem);addSalao(MAPS.guildaSahrem);
  cityHouses('sahrem','Sahrem',1141,'D');
@@ -216,3 +218,58 @@ MISS.push({city:'sahrem',id:'lagartosOrla',t:'Cristas ao sol',map:'orla',mat:'la
  {city:'sahrem',id:'saqueadoresDunas',t:'Lenços vermelhos',map:'dunasL',mat:'saqueador',n:8,lv:26,txt:'Saqueadores das Dunas roubam as caravanas no leste. Traga 8 Lenços de Saqueador e ensine que Sahrem não é presa fácil.'},
  {city:'sahrem',id:'escorpioesDunas',t:'Ferrões na areia',map:'dunasL',mat:'escorpiao',n:8,lv:27,txt:'Escorpiões Rubros se escondem perto dos poços do leste. Traga 8 Ferrões de Escorpião (com cuidado).'},
  {city:'sahrem',id:'serpentesDunas',t:'Silvos ao sul',map:'dunasS',mat:'serpente',n:10,lv:28,txt:'Serpentes das Dunas cospem veneno em quem se aproxima da pirâmide pelo sul. Traga 10 Peles de Serpente.'});
+
+// ================== ETAPA 3: A TUMBA DENTRO DA PIRÂMIDE ==================
+// Três andares escuros (como a Caverna de Pinheiral, 11), mas de salões retos e corredores de 3 tiles em ângulo reto (tumbaMask, ligado
+// pelo campo mask do 01), chão de lajes de arenito (tema 12, pintado no 01), urnas e colunas de hieróglifos no miolo dos salões (caveObj).
+// A porta da pirâmide abre para o 1º andar. O Rei Sethkar (o chefe do fundo) é a etapa 4
+GP[12]=['#6e5a40','#66533a','#4e3e2a','#86704e'];PC[12]=['#7a6446','#6a563c','#8a7452'];WC[12]=['#1e2a34','#26343e','#4a6a7a'];
+for(const[o,r]of[[GP,GPr],[PC,PCr],[WC,WCr]])r[12]=o[12].map(hexRGB);
+CLFT[12]=['#7a5e3a','#5e462a','#3e2c1a','#a8885a','#947448','#1e150c','#150e08'].map(hexRGB);MINIC.obj[12]='#c8a870';
+def('urna',["","","","","......kkkk......",".....kgGGgk.....","......kUUk......",".....kUUUuk.....","....kUUUUUuk....","...kUGGGGGGuk...","...kUUhUhUUuk...","...kUUUUUUUuk...","....kUUUUUuk....",".....kUUUuk.....","....kkkkkkkk...."],{U:'#b8703a',u:'#7a4422',G:'#e8c048',g:'#b8902a',h:'#2a1a10'});
+// coluna de arenito (16×34) com hieróglifos pintados de azul e ocre
+reg('colunaT',(()=>{const c=cnv(16,34),x=c.getContext('2d'),f=(col,a,b,w,h)=>{x.fillStyle=col;x.fillRect(a,b,w,h);};
+ f('#c8a870',1,0,14,4);f('#ecd4a0',1,0,14,1);f('#9a7a4e',1,3,14,1);f('#d8bc84',3,4,10,25);f('#ecd4a0',3,4,2,25);f('#a8885a',11,4,2,25);
+ for(let y=7;y<27;y+=5){f('#3a6ab8',5,y,2,2);f('#c8862a',8,y+1,3,1);f('#3a6ab8',8,y+2,1,1);f('#7a4422',6,y+3,4,1);}
+ f('#c8a870',1,29,14,5);f('#ecd4a0',1,29,14,1);f('#9a7a4e',1,33,14,1);return outlineK(c);})());
+def('mumia',["......kkkk......",".....kWWwWk.....","....kWwWWwWk....","....kWeWWeWk....","....kwWWWWwk....",".....kWwWWk.....","...kkWWWwWWkkkk.","..kWwWWwWWWWWWWk","..kWWwWWwWkkkkk.","...kWWWwWWk.....","....kWwWWWk.....","....kWWwWWk.....","...kWWwkWWwk....","...kWwk.kWWk....","...kWWk.kwWk....","...kkk...kkk...."],{W:'#d8ccb0',w:'#a89a78',e:'#5aff8a'});
+def('besouroT',["","","","","","","","","......kkk.......",".....kBbBk......",".....kBBBk......","..kkk.kkk..kkk..",".kBbBk....kBbBk.",".kBBBk....kBBBk.","..kkk......kkk.."],{B:'#2a4a7a',b:'#6a9ad8'});
+def('sentinela',["....k..k.....k..","...kJkkJk...kSk.","...kJJJJk...kSk.","...kJeJJJJk..n..","...kJJJJkkk..n..","....kJJk.....n..","..kkGGGGkk...n..",".kJJGgGGJJk.kn..",".kJkCCCCkJJkJnk.",".kJkCCCCk.kkkn..","..k.kCCk.....n..","....kWWWk....n..","...kWWkWWk...n..","...kJk.kJk...n..","...kJk.kJk......","...kkk.kkk......"],{J:'#2a2a3a',e:'#ffd040',G:'#e8c048',g:'#fff0a0',C:'#d8c8a0',W:'#e8e0c8',S:'#d8d8e8',n:'#8a6a3a'});
+def('sacerdote',["...k.k.k....kk..","...kIkIkk..kOOk.","...kIIIIIk.kOOk.","...kSSSSSk..kk..","...kSeSeSk..n...","....kSSSk...n...","..kkRRRRRkk.n...",".kRRRrRRRRRkn...",".kRRRrRRRRsknk..","..kRRrRRRRk.n...","..kRRrRRRRk.n...","..kRRrRRRRk.n...",".kRRRrRRRRRkn...",".kRRRRRRRRRkn...",".kkkkkkkkkkkn...","............k..."],{I:'#6a6a72',S:'#b89a8a',e:'#ff4040',R:'#4a2a5a',r:'#c8a040',s:'#b89a8a',O:'#c060ff',n:'#5a3a20'});
+Object.assign(MDEF,{
+ besouroT:{n:'Enxame de Escaravelhos',hp:40,atk:12,def:3,spd:80,xp:18,r:6,aggro:110,cd:.7,pack:[4,6]},
+ mumia:{n:'Múmia Enfaixada',hp:220,atk:24,def:10,spd:26,xp:50,r:8,aggro:80,cd:1.7,poison:1},
+ sentinela:{n:'Sentinela Chacal',hp:180,atk:28,def:12,spd:52,xp:55,r:8,aggro:100,cd:1.4,slam:{every:6,r:30,mult:1.7,delay:.8}},
+ sacerdote:{n:'Sacerdote de Kharzen',hp:120,atk:26,def:6,spd:40,xp:52,r:7,aggro:140,cd:1.8,ranged:120,projC:'#c060ff'}});
+for(const[k,n,c]of[['besouroT','Asa de Escaravelho','#3a5a8a'],['mumia','Atadura Antiga','#e8dcc0'],['sentinela','Lâmina de Bronze','#c8862a'],['sacerdote','Amuleto Profano','#8a3ab0']])
+ LOOTM[k]={n,c,w:1,v:clamp(Math.round(MDEF[k].xp/3),2,15)};
+Object.assign(MATSHP,{
+ besouroT:[["kk......kk","kCk....kCk",".kCk..kCk.",".kcCkkCdk.","..kCeeCk..","..kCeeCk..",".kcCkkCdk.",".kCk..kCk.","kk......kk"],{e:'#1e2a3a'}],
+ mumia:[["..kkkkkk..",".kCCdCCCk.","kCdCCCdCCk","kCCCdCCCdk","kdCCCdCCCk",".kCCCCdCk.","..kCdCCk..","...kCCk...","....kk...."]],
+ sentinela:[["........kk",".......kck","......kcCk",".....kcCk.","....kcCk..","...kcCk...","kk.kCdk...","keekdk....",".kkk......"],{e:'#5a3a20'}],
+ sacerdote:[["...kkkk...","..kCCCCk..","..kCk.kCk.","..kCk.kCk.","...kCCCk..","....kek...","...kefek..","..kefffek.","...keeek..","....kkk..."],{e:'#e8c048',f:'#c060ff'}]});
+for(const k of['besouroT','mumia','sentinela','sacerdote']){const c=LOOTM[k].c,s=MATSHP[k];def('mat_'+k,s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)},s[1]));}
+// salões retangulares (7 a 13 de largura, 5 a 9 de altura) ligados por corredores de 3 tiles em L (árvore mínima + 2 atalhos), e um
+// salãozinho em volta de cada escada ou porta
+function tumbaMask(M,rng){const C=new Uint8Array(W*H),n=a=>Math.floor(rng()*a);
+ const box=(x0,y0,x1,y1)=>{for(let y=Math.max(2,Math.min(y0,y1));y<=Math.min(H-3,Math.max(y0,y1));y++)for(let x=Math.max(2,Math.min(x0,x1));x<=Math.min(W-3,Math.max(x0,x1));x++)C[y*W+x]=1;};
+ const hall=(a,b)=>{if(rng()<.5){box(a.x,a.y-1,b.x,a.y+1);box(b.x-1,a.y,b.x+1,b.y);}else{box(a.x-1,a.y,a.x+1,b.y);box(a.x,b.y-1,b.x,b.y+1);}};
+ const rooms=[];for(let k=0;k<400&&rooms.length<10;k++){const w=3+n(4),h=2+n(3),x=5+w+n(W-10-2*w),y=5+h+n(H-10-2*h);
+  if(rooms.some(o=>Math.abs(o.x-x)<o.w+w+4&&Math.abs(o.y-y)<o.h+h+4))continue;rooms.push({x,y,w,h});}
+ for(const p of Object.values(M.portals))rooms.push({x:clamp(Math.round(p[0]),5,W-6),y:clamp(Math.round(p[1]),4,H-5),w:2,h:2});
+ for(const r of rooms)box(r.x-r.w,r.y-r.h,r.x+r.w,r.y+r.h);
+ const inT=[rooms[0]],out=rooms.slice(1);
+ while(out.length){let best=null;for(const a of inT)for(const b of out){const d=Math.abs(a.x-b.x)+Math.abs(a.y-b.y);if(!best||d<best.d)best={a,b,d};}
+  hall(best.a,best.b);inT.push(best.b);out.splice(out.indexOf(best.b),1);}
+ for(let k=0;k<2;k++)hall(rooms[n(rooms.length)],rooms[n(rooms.length)]);
+ return C;}
+const TUMBA={cave:1,dark:1,mask:tumbaMask,caveObj:['urna','colunaT'],theme:12};
+Object.assign(MAPS,{
+ tumba1:{...TUMBA,n:'Pirâmide de Sahrem • 1º andar',s:'Nível 30 a 33 • escuridão',seed:1201,color:'#1e140a',lv:[30,33],home:'sahrem',portals:{sahrem:[40,56],tumba2:[8,7]},
+  count:24,chests:5,tier:3,mons:[['besouroT',.45],['mumia',1]]},
+ tumba2:{...TUMBA,n:'Pirâmide de Sahrem • 2º andar',s:'Nível 33 a 36 • escuridão',seed:1202,color:'#1a1008',lv:[33,36],home:'tumba1',portals:{tumba1:[8,7],tumba3:[71,52]},
+  count:24,chests:5,tier:4,mons:[['mumia',.35],['sentinela',.7],['sacerdote',1]]},
+ tumba3:{...TUMBA,n:'Pirâmide de Sahrem • câmara do rei',s:'Nível 36 a 40 • escuridão',seed:1203,color:'#140c06',lv:[36,40],home:'tumba2',portals:{tumba2:[71,52]},
+  count:20,chests:4,tier:4,elite:.12,mons:[['sacerdote',.3],['sentinela',.6],['mumia',.85],['besouroT',1]]}});
+// a porta da pirâmide (o tile da frente dela, embaixo no meio) agora leva ao 1º andar
+MAPS.sahrem.portals.tumba1=[MAPS.sahrem.piramide[0],MAPS.sahrem.piramide[1]+1,'porta'];

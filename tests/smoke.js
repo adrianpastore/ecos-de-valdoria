@@ -99,6 +99,11 @@
    if(!MAPS.sahrem.walls||MAPS.sahrem.wallStyle!=='arenito')throw 'Sahrem sem muralha de arenito';
    switchMapNow('dunasS',null);let alto=0;for(let i=0;i<W*H;i++)if(ground[i]===G.HIGH)alto++;if(alto<100)throw 'dunas sem morros ('+alto+' tiles altos)';
    const ms=MISS.filter(q=>q.city==='sahrem');if(ms.length<8)throw 'só '+ms.length+' missões em Sahrem';for(const q of ms)if(!des.includes(q.mat))throw q.id+' pede material de fora';info(ms.length+' missões em Sahrem');});
+  t('Sahrem: a porta da pirâmide leva à tumba de 3 andares, com urnas, colunas e monstros próprios',()=>{const p=MAPS.sahrem.portals.tumba1,[px,py]=MAPS.sahrem.piramide;
+   if(!p||p[0]!==px||p[1]!==py+1||p[2]!=='porta')throw 'a porta da pirâmide não leva à tumba';const tum=['besouroT','mumia','sentinela','sacerdote'];
+   for(const id of['tumba1','tumba2','tumba3']){const M=MAPS[id];if(!M.dark||M.mask!==tumbaMask)throw id+' não é tumba escura';for(const[tp]of M.mons)if(!tum.includes(tp))throw id+' tem '+tp;
+    switchMapNow(id,null);const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;if(!c.urna&&!c.colunaT)throw id+' sem urnas nem colunas';}
+   if(MAPS.tumba3.lv[1]!==40)throw 'o fundo devia ir até o nível 40';});
   t('Arcádia: fosso redondo, 4 pontes, a Torre no centro; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
    let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
    for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}

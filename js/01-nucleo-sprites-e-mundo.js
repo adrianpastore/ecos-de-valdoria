@@ -203,7 +203,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2+wob)*2.5*Math.sin(t*Math.PI),X=Math.round(x1+(bx-x1)*t+nx*off),Y=Math.round(y1+(by-y1)*t+ny*off);
    for(const[dx,dy]of[[0,0],[1,0],[0,1]]){const j=(Y+dy)*W+X+dx;if(!trail[j])trail[j]=1;}if(Math.min(t,1-t)*L<3||rng()<.45)trail[Y*W+X]=2;}}
  const ex=Object.values(M.portals),nearP=(x,y)=>ex.some(e=>hyp(x-e[0],y-e[1])<2.6);
- const CAV=M.cave?caveMask(M,rng):M.interior?roomMask(M):null; // cavernas (11) e interiores (13): chão cavado na rocha ou num cômodo
+ const CAV=M.cave?(M.mask||caveMask)(M,rng):M.interior?roomMask(M):null; // cavernas (11) e interiores (13): chão cavado na rocha ou num cômodo; mask: outro gerador de salões (a tumba de Sahrem, 25)
  let HI=null,CLF=null,CLR=null;
  if(M.plateau){const np=makeNoise(rng,7);HI=new Uint8Array(W*H);CLF=new Uint8Array(W*H);CLR=new Uint8Array(W*H);
   for(let y=5;y<H-5;y++)for(let x=5;x<W-5;x++){const i=y*W+x;if(!road[i]&&!nearP(x,y)&&hyp(x-TC.x,y-TC.y)>4&&np(x,y)>M.plateau)HI[i]=1;}
@@ -227,7 +227,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  // (ex.: a Orla do Deserto, grama virando areia, 25). Cada tile usa o tema dele (zoneMap) para chão, árvores, pedras e água
  if(M.blend){const[za,zb,y0,y1]=M.blend;for(let y=0;y<H;y++)for(let x=0;x<W;x++)zoneMap[y*W+x]=(y-y0)/(y1-y0)+(nf(x,y)-.5)*.6>.5?zb:za;}
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng(),zt=zoneMap[i];let g=G.GRASS,obj=null;
-  if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
+  if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=(M.caveObj||['rock','estalagmite'])[c<.018?0:1];}
   else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
   else if(M.town){const d=hyp(x-HX,(y-HY)*1.3),mt=M.mata?hyp(x-M.mata[0],y-M.mata[1]):99; // mata: [x, y, raio da mata fechada, raio da clareira]
    g=d<6.5?G.PLAZA:road[i]||trail[i]===2?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&!trail[i]&&c<(M.mata&&mt<M.mata[3]?0:mt<(M.mata||[])[2]?.24:.04))obj='tree';}
@@ -335,6 +335,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    if(g===G.GRASS){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.55?gp[1]:gp[0];const r=rng();if(r<.08)col=gp[2];else if(r<.12)col=gp[3];
     if(z===8){const row=Math.floor(Y/6),seam=Y%6===0||(X+row*11)%29===0;col=seam?gp[2]:row%2?gp[0]:gp[1];if(!seam&&rng()<.04)col=gp[3];}
     if(z===10){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if(!seam&&rng()<.05)col=gp[3];} // lajes de pedra (Torre de Arcádia, 21)
+    if(z===12){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X*3+Y*5)%37===0?gp[3]:row%3===1?gp[1]:gp[0];} // lajes de arenito (tumba de Sahrem, 25)
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH&&BRG[i])col=bridgeCol(i,px,py,z,gp);
    else if(g===G.PATH){const p=PCr[z];const r=rng();col=r<.12?p[1]:r<.18?p[2]:p[0];const e=edge(tx,ty,px,py,g);if(e<3&&rng()<(3-e)/4)col=gp[0];}
