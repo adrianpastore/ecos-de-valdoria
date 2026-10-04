@@ -132,6 +132,8 @@ const mapC=cnv(MW,MH),miniBase=cnv(W,H);
 const MINIC={obj:['#2f6e34','#2a6430','#384826','#7a3a1c','#2a1c16','#244a2c','#285030']};
 // EARTH: barranco dos morros (platôs): terra, terra escura, terra mais escura, contorno, pedrinha
 const EARTH=['#9a6e46','#7e5636','#5e3e26','#3a2616','#c09868'].map(hexRGB);
+// EARTHT[tema]: barranco com outra cor naquele tema (ex.: areia nas dunas, 25); o genWorld troca o EARTH antes de pintar
+const EARTH0=EARTH.map(c=>c.slice()),EARTHT={};
 const CLF_C=['#6f6a60','#4f4a42','#35312c','#9a9488','#86806f'].map(hexRGB),CLFT={}; // CLFT[tema]: cores de paredão próprias (a caverna usa)
 let CUR='valdor';
 const MAPS={
@@ -184,11 +186,14 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  ground.fill(0);solid.fill(0);BRG.fill(0);zoneMap.fill(z);for(const r of objRows)r.length=0;
  const road=new Uint8Array(W*H),amp=M.town?1.5:M.interior?0:4;
  const paint=(x,y,w=1)=>{for(let j=-w;j<=w;j++)for(let i=-w;i<=w;i++){const X=x+i,Y=y+j;if(X>0&&Y>0&&X<W-1&&Y<H-1)road[Y*W+X]=1;}};
- const carve=(x1,y1,wob)=>{const x0=TC.x,y0=TC.y,L=hyp(x1-x0,y1-y0)||1,st=Math.ceil(L*2),nx=-(y1-y0)/L,ny=(x1-x0)/L;for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2.5+wob)*amp*Math.sin(t*Math.PI);paint(Math.round(x0+(x1-x0)*t+nx*off),Math.round(y0+(y1-y0)*t+ny*off));}};
+ // praca:[x,y] = centro da praça de uma cidade que não fica no meio do mapa (Sahrem, 25: a pirâmide está no centro); as estradas partem dela.
+ // via:{destino:[x,y]} = a estrada até aquele portal passa antes por esse ponto (para contornar algo, como o lago da pirâmide)
+ const[HX,HY]=M.praca||[TC.x,TC.y];
+ const carve=(x1,y1,wob,x0=HX,y0=HY)=>{const L=hyp(x1-x0,y1-y0)||1,st=Math.ceil(L*2),nx=-(y1-y0)/L,ny=(x1-x0)/L;for(let s=0;s<=st;s++){const t=s/st,off=Math.sin(t*Math.PI*2.5+wob)*amp*Math.sin(t*Math.PI);paint(Math.round(x0+(x1-x0)*t+nx*off),Math.round(y0+(y1-y0)*t+ny*off));}};
  // quando o mapa vizinho tem estrada, ela ainda entra alguns passos por este portal e some no mato
  const stub=(x1,y1,wob)=>{const L0=hyp(TC.x-x1,TC.y-y1)||1,dx=(TC.x-x1)/L0,dy=(TC.y-y1)/L0,L=9;
   for(let s=0;s<=L*2;s++){const t=s/2,off=Math.sin(t*.7+wob)*1.2*t/L,X=Math.round(x1+dx*t-dy*off),Y=Math.round(y1+dy*t+dx*off);if(t<4)paint(X,Y);else if(rng()<1-(t-4)/(L-4))paint(X,Y,0);}};
- for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(p[3]==='trilha')continue;if(M.road||M.interior)carve(p[0],p[1],wob);else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
+ for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(p[3]==='trilha')continue;if(M.road||M.interior){const v=M.via&&M.via[to];if(v){carve(v[0],v[1],wob);carve(p[0],p[1],wob,v[0],v[1]);}else carve(p[0],p[1],wob);}else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
  // portal com 'trilha' (ex.: a cabana da Kaya, 22): em vez da estrada até o centro, um caminho estreito da porta até a estrada mais
  // próxima fora da muralha. trail 1 = sem árvores (sempre dá para passar); 2 = chão de trilha, inteiro perto das pontas e aos pedaços no meio
  const trail=new Uint8Array(W*H),Wl=M.walls,inW=(x,y)=>Wl&&x>=Wl[0]-1&&x<=Wl[2]+1&&y>=Wl[1]-1&&y<=Wl[3]+1;
@@ -224,7 +229,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,a=n1(x,y),b=n2(x,y),c=rng(),zt=zoneMap[i];let g=G.GRASS,obj=null;
   if(CAV){g=!CAV[i]?G.CLIFF:road[i]?G.PATH:G.GRASS;if(g===G.GRASS&&M.cave&&c<.05&&!nearP(x,y)&&caveRoom(CAV,x,y))obj=c<.018?'rock':'estalagmite';}
   else if(HI&&HI[i]){g=CLF[i]===1?G.CLIFF:CLF[i]===2?G.RAMP:G.HIGH;if(g===G.HIGH&&c<.05&&!nearP(x,y))obj='tree';}
-  else if(M.town){const d=hyp(x-TC.x,(y-TC.y)*1.3),mt=M.mata?hyp(x-M.mata[0],y-M.mata[1]):99; // mata: [x, y, raio da mata fechada, raio da clareira]
+  else if(M.town){const d=hyp(x-HX,(y-HY)*1.3),mt=M.mata?hyp(x-M.mata[0],y-M.mata[1]):99; // mata: [x, y, raio da mata fechada, raio da clareira]
    g=d<6.5?G.PLAZA:road[i]||trail[i]===2?G.PATH:G.GRASS;if(g===G.GRASS&&d>13&&!trail[i]&&c<(M.mata&&mt<M.mata[3]?0:mt<(M.mata||[])[2]?.24:.04))obj='tree';}
   else if(road[i])g=G.PATH;
   else if(nearP(x,y)){}
@@ -269,6 +274,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   for(const i of cm)BRG[i]=v>=0?2:3;}}
  // pintura dos pixels
  const mx=mapC.getContext('2d'),img=mx.createImageData(MW,MH),D=img.data,BLD=M.blend;
+ {const e=EARTHT[M.theme]||EARTH0;for(let k=0;k<5;k++)EARTH[k]=e[k];}
  const put=(X,Y,c)=>{const o=(Y*MW+X)*4;D[o]=c[0];D[o+1]=c[1];D[o+2]=c[2];D[o+3]=255;};
  // platôs fora das cavernas são morros de terra, vistos de cima e um pouco de frente: barranco de terra no lado sul (com a grama
  // pendendo na borda e sombra no chão de baixo), terra fina nas laterais, só a beirada no norte e cantos de fora arredondados.

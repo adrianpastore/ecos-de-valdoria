@@ -10,7 +10,7 @@ function switchMapNow(id,from){const prev=CUR;
  for(const a of[projs,fx,parts,texts,teles,pAoe,traps,mproj])a.length=0;
  CUR=id;genWorld(id);const M=MAPS[id],st=MSTATE[id];
  if(prev!==id){if(st){mons.push(...st.mons);chests.push(...st.chests);loots.push(...st.loots);delete MSTATE[id];}else populate();}
- NPC.x=M.town?(TC.x+3.5)*TILE:-9999;NPC.y=M.town?(TC.y-1)*TILE:-9999;MENTOR.x=M.town?(TC.x-3.5)*TILE:-9999;MENTOR.y=M.town?(TC.y-1)*TILE:-9999;
+ const[HX,HY]=M.praca||[TC.x,TC.y];NPC.x=M.town?(HX+3.5)*TILE:-9999;NPC.y=M.town?(HY-1)*TILE:-9999;MENTOR.x=M.town?(TC.x-3.5)*TILE:-9999;MENTOR.y=M.town?(TC.y-1)*TILE:-9999;
  if(M.mentorAt!==undefined){MENTOR.x=M.mentorAt?(M.mentorAt[0]+.5)*TILE:-9999;MENTOR.y=M.mentorAt?(M.mentorAt[1]+.5)*TILE:-9999;} // Elara dentro de uma casa (15)
  if(!P)return;
  // chegada: uns 3 tiles do portal, na direção do centro; saindo de uma casa para a rua, na frente da porta (a Torre de Arcádia fica no próprio centro)

@@ -35,7 +35,7 @@ function buildWalls(M,road){const[x0,y0,x1,y1]=M.walls,on=(x,y)=>(x===x0||x===x1
  for(const y of[y0,y1])for(let x=x0+1;x<x1;x++){if(!gate(x,y))continue;let e=x;while(e<x1-1&&gate(e+1,y))e++;const nm=`arcoH_${sty}_${e-x+1}`;
   if(!SPR[nm])reg(nm,genArchH(e-x+1,sty));objRows[y].push({tx:x,ty:y,spr:nm,px:(x+e+1)/2*TILE,py:(y+1)*TILE});x=e;}
  for(const x of[x0,x1])for(let y=y0+1;y<y1;y++){if(!gate(x,y))continue;let e=y;while(e<y1-1&&gate(x,e+1))e++;const nm=`arcoV_${sty}_${e-y+1}`;
-  if(!SPR[nm])reg(nm,genArchV(e-y+1,mad));objRows[e].push({tx:x,ty:e,spr:nm,px:(x+.5)*TILE,py:(e+1)*TILE});y=e;}}
+  if(!SPR[nm])reg(nm,genArchV(e-y+1,mad,sty));objRows[e].push({tx:x,ty:e,spr:nm,px:(x+.5)*TILE,py:(e+1)*TILE});y=e;}}
 // arco de frente: n tiles de vão; os pilares (6 px) ficam por cima da beirada das torres. Pedra: ameias, aduelas e pedra de fecho com o
 // brasão dourado de Valdor (sty 'pedra') ou a runa azul e a estrela prateada de Arcádia ('arcana', 21). Madeira: pórtico de toras com
 // uma placa de pinheiro pendurada
@@ -48,7 +48,7 @@ function genArchH(n,sty){const mad=sty==='madeira';const w=n*16+8,h=46,c=cnv(w,h
   f(TRE,cx-5,17,1,4);f(TRE,cx+4,17,1,4);f(K,cx-7,20,14,10);f('#c8a060',cx-6,21,12,8);f('#a8844a',cx-6,28,12,1);
   f('#2f6a4a',cx-1,22,2,1);f('#2f6a4a',cx-2,23,4,2);f('#2f6a4a',cx-3,25,6,2);f('#6a4222',cx-1,27,2,1);
   return c;}
- const PED='#8d8778',PEDC='#b8b2a4',PEDT='#a09a8a',REJ='#6d685c',PEDE='#5d584c';
+ const[PED,PEDC,PEDT,REJ,PEDE]=sty==='arenito'?['#c8a870','#ecd4a0','#d8bc84','#9a7a4e','#7a5e3a']:['#8d8778','#b8b2a4','#a09a8a','#6d685c','#5d584c']; // arenito: Sahrem (25)
  for(let mx=1;mx<w-5;mx+=8){f(K,mx,0,6,5);f(PEDC,mx+1,1,4,4);}
  f(K,0,4,w,42);f(PED,1,5,w-2,40);f(PEDT,1,5,w-2,4);for(const y of[13,18,26,32,38])f(REJ,1,y,w-2,1);
  for(let i=3,r=0;i<w-2;i+=6,r++){f(REJ,i,9,1,4);f(REJ,i+3,13,1,5);}
@@ -58,17 +58,18 @@ function genArchH(n,sty){const mad=sty==='madeira';const w=n*16+8,h=46,c=cnv(w,h
  f(K,5,yT(6),1,h);f(K,w-6,yT(w-7),1,h);for(const px of[1,w-5])f(PEDE,px,44,4,1);
  f(K,cx-3,13,6,yT(cx)-12);f(PEDC,cx-2,14,4,yT(cx)-14);
  if(sty==='arcana'){f('#6ad8ff',cx-1,15,2,4);f('#d8f8ff',cx-1,16,1,1);f('#e8f0ff',cx-1,10,2,1);f('#c8d4ec',cx-4,10,1,1);f('#c8d4ec',cx+3,10,1,1);}
+ else if(sty==='arenito'){f('#e8c048',cx-2,15,4,4);f('#fff0a0',cx-1,15,1,2);f('#b8902a',cx,18,2,1);} // a moeda de Fenna
  else{f('#e8b43c',cx-1,16,2,3);f('#c8323a',cx-1,19,2,1);}
  return c;}
 // passarela por cima de um portão do muro do lado: a mesma largura do muro (como muroV/paliV), um pouco elevada, com a face de
 // frente embaixo e a sombra dela na estrada dos dois lados (mostra que a estrada passa por baixo)
-function genArchV(n,mad){const w=16,h=n*16+10,c=cnv(w,h),x=c.getContext('2d'),f=(col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);};
- const[A,B,C,D,E]=mad?['#a8743c','#8a5a30','#5a3820','#4a3018','#8a5a30']:['#b8b2a4','#a09a8a','#6d685c','#5d584c','#8d8778'];
+function genArchV(n,mad,sty){const w=16,h=n*16+10,c=cnv(w,h),x=c.getContext('2d'),f=(col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);};
+ const[A,B,C,D,E]=mad?['#a8743c','#8a5a30','#5a3820','#4a3018','#8a5a30']:sty==='arenito'?['#ecd4a0','#d8bc84','#9a7a4e','#7a5e3a','#c8a870']:['#b8b2a4','#a09a8a','#6d685c','#5d584c','#8d8778'];
  x.fillStyle='rgba(0,0,0,.3)';x.fillRect(0,12,3,h-14);x.fillRect(13,12,3,h-14);
  f(K,3,0,10,h);f(A,4,1,8,h-12);f(B,4,1,2,h-12);for(let y=6;y<h-11;y+=5)f(C,4,y,8,1);
  f(E,4,h-11,8,9);f(C,4,h-7,8,1);f(D,4,h-3,8,1);f(K,3,h-12,10,1);
  return c;}
-// estilos de muralha: pedra (Valdor) e madeira (paliçada de vilas florestais, como Pinheiral)
+// estilos de muralha: pedra (Valdor) e madeira (paliçada de vilas florestais, como Pinheiral); o 25 acrescenta arenito (Sahrem)
 const WALLSTY={pedra:{h:'muroH',v:'muroV',t:'torre'},madeira:{h:'paliH',v:'paliV',t:'torreM'}};
 {const box=(w,h,fn)=>{const c=cnv(w,h),x=c.getContext('2d');fn((col,a,b,ww,hh)=>{x.fillStyle=col;x.fillRect(a,b,ww,hh);});return c;};
  const TR='#8a5a30',TRC='#a8743c',TRE='#5a3820';

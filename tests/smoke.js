@@ -91,6 +91,14 @@
   t('app: manifesto e ícones no index; service worker só em https (o teste completo é o tests\\testar-app.ps1)',()=>{
    if(!document.querySelector('link[rel="manifest"][href="manifest.json"]'))throw 'sem o link do manifesto';if(!document.querySelector('link[rel="apple-touch-icon"]'))throw 'sem ícone do iPhone';
    if(location.protocol==='file:'&&APP_OK)throw 'o service worker tentaria rodar em file://';const b=document.querySelectorAll('[data-inst]');if(!b.length||[...b].some(x=>!x.classList.contains('hidden')))throw 'botão de instalar deveria começar escondido';});
+  t('Sahrem: dunas a oeste, leste e sul, com morros e monstros do deserto; missões da região',()=>{const des=['lagarto','abutre','cacto','chacal','escorpiao','serpente','escaravelho','saqueador'];
+   for(const id of['orla','dunasO','dunasL','dunasS']){for(const[tp]of MAPS[id].mons)if(!des.includes(tp))throw id+' ainda tem '+tp;if(id!=='orla'&&!MAPS.sahrem.portals[id])throw 'Sahrem sem saída para '+id;}
+   switchMapNow('sahrem',null);const[a0,b0,a1,b1]=MAPS.sahrem.lago,[px,py]=MAPS.sahrem.piramide;let fur=0;
+   for(let y=b0;y<=b1;y++)for(let x=a0;x<=a1;x++){if(x>a0+1&&x<a1-1&&y>b0+1&&y<b1-1)continue;if(ground[y*W+x]!==G.WATER)fur++;}
+   if(fur!==6)throw 'o lago da pirâmide devia ter só a passagem da frente (3×2), achei '+fur+' tiles sem água';if(!REACH[(py+1)*W+px])throw 'a porta da pirâmide não se alcança a pé';
+   if(!MAPS.sahrem.walls||MAPS.sahrem.wallStyle!=='arenito')throw 'Sahrem sem muralha de arenito';
+   switchMapNow('dunasS',null);let alto=0;for(let i=0;i<W*H;i++)if(ground[i]===G.HIGH)alto++;if(alto<100)throw 'dunas sem morros ('+alto+' tiles altos)';
+   const ms=MISS.filter(q=>q.city==='sahrem');if(ms.length<8)throw 'só '+ms.length+' missões em Sahrem';for(const q of ms)if(!des.includes(q.mat))throw q.id+' pede material de fora';info(ms.length+' missões em Sahrem');});
   t('Arcádia: fosso redondo, 4 pontes, a Torre no centro; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
    let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
    for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}
