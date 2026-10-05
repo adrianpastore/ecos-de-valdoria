@@ -14,7 +14,9 @@ function switchMapNow(id,from){const prev=CUR;
  if(M.mentorAt!==undefined){MENTOR.x=M.mentorAt?(M.mentorAt[0]+.5)*TILE:-9999;MENTOR.y=M.mentorAt?(M.mentorAt[1]+.5)*TILE:-9999;} // Elara dentro de uma casa (15)
  if(!P)return;
  // chegada: uns 3 tiles do portal, na direção do centro; saindo de uma casa para a rua, na frente da porta (a Torre de Arcádia fica no próprio centro)
- if(from){const e=M.portals[from]||homeOf(M),L=hyp(TC.x-e[0],TC.y-e[1])||1,rua=e[2]==='porta'&&!M.interior;
+ // '@centro': teleporte do menu de testes (23) para a praça da cidade
+ if(from==='@centro'){const[HX,HY]=M.praca||[TC.x,TC.y],sp=freeNear(HX,HY+4);P.x=sp.x;P.y=sp.y;}
+ else if(from){const e=M.portals[from]||homeOf(M),L=hyp(TC.x-e[0],TC.y-e[1])||1,rua=e[2]==='porta'&&!M.interior;
   const sp=rua?freeNear(Math.round(e[0]),Math.round(e[1])+2):freeNear(Math.round(e[0]+(TC.x-e[0])/L*3),Math.round(e[1]+(TC.y-e[1])/L*3),ground[e[1]*W+e[0]]===G.HIGH);P.x=sp.x;P.y=sp.y;}
  Object.assign(P,{portalCD:1,target:null,auto:false,dest:null,pend:null,volley:null,queued:null});
  P.zone=zoneMap[Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE)];

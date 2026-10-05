@@ -252,3 +252,10 @@ body.toque #hotbar .hs .ski{border-radius:50%}
 #devm input[type=number]{width:70px}
 #devm small{color:var(--muted)}
 #devm .dvb{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#devm .dvcmd{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:2px solid var(--edge)}
+#devm #dvCmd{flex:1 1 180px;font:inherit;padding:4px 8px;border:2px solid var(--edge);border-radius:6px;background:var(--panel2);color:var(--text)}
+#devmundo{z-index:62;width:min(1100px,96vw);max-height:92vh;overflow:auto}
+#devmundo .dvnota{margin:0 0 8px;color:var(--muted);font-size:14px}
+#devmundo .mdcv{display:block;width:100%;height:auto;cursor:pointer;border-radius:6px}
+#devmundo .mdlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#devmundo .mdlist .btn{padding:3px 8px;font-size:13px}

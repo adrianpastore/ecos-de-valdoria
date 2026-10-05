@@ -104,6 +104,10 @@
    for(const id of['tumba1','tumba2','tumba3']){const M=MAPS[id];if(!M.dark||M.mask!==tumbaMask)throw id+' não é tumba escura';for(const[tp]of M.mons)if(!tum.includes(tp))throw id+' tem '+tp;
     switchMapNow(id,null);const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;if(!c.urna&&!c.colunaT)throw id+' sem urnas nem colunas';}
    if(MAPS.tumba3.lv[1]!==40)throw 'o fundo devia ir até o nível 40';});
+  t('Teleporte do menu de testes (?dev): apelidos achados e chegada na praça das cidades',()=>{for(const a in TPA)if(!MAPS[TPA[a]])throw a+' leva a um mapa que não existe';
+   for(const[q,id]of[['sahrem','sahrem'],['sahrem_dungeon01','tumba1'],['sahrem_field04','dunasS'],['pinheiral_field07','encosta7'],['@x',null],['Pântano','pantano'],['torreArcadia','torreArcadia']])if(tpFind(q)!==id)throw q+' achou '+tpFind(q);
+   for(const c in TPREG){switchMapNow(c,'@centro');const j=Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE);if(solid[j]||!REACH[j])throw 'em '+c+' o herói chega em lugar bloqueado';}
+   switchMapNow('valdor',null);info(Object.keys(TPA).length+' apelidos');});
   t('Arcádia: fosso redondo, 4 pontes, a Torre no centro; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
    let agua=0;for(let i=0;i<W*H;i++)if(ground[i]===G.WATER)agua++;if(agua<150)throw 'fosso pequeno: '+agua+' tiles';
    for(const[x,y,n]of[[TC.x,TC.y-17,'norte'],[TC.x,TC.y+17,'sul'],[TC.x-17,TC.y,'oeste'],[TC.x+17,TC.y,'leste']]){const i=at(x,y);if(solid[i]||ground[i]!==G.PATH)throw 'sem ponte ao '+n;if(!REACH[i])throw 'ponte ao '+n+' não se alcança a pé';}
