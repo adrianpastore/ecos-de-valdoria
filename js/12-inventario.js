@@ -30,37 +30,41 @@ for(const[k,n,c,w]of[['slime','Musgo de Geleia','#5fcf5a'],['esquilo','Pelo de E
  const d=MDEF[k];LOOTM[k]={n,c,w:w||1,v:d.boss?150:clamp(Math.round(d.xp/3),2,15)};}
 const shadeHex=(h,f)=>'#'+hexRGB(h).map(v=>clamp(Math.round(f>0?v+(255-v)*f:v*(1+f)),0,255).toString(16).padStart(2,'0')).join('');
 const MATROWS=["...kkkk...","..kCCCCk..",".kCcCCCCk.","kCcCCCCCCk","kCCCCCCCdk","kCCCCCCddk",".kCCCCddk.","..kkkkkk.."];
-// Desenho próprio de cada material: C = cor do material, c = brilho, d = sombra; e, f, g = cores extras daquele desenho
+// Desenho próprio de cada material (06/10/2026, redesenhados a pedido do dono): C = cor do material, c = brilho, d = sombra, w = branco; e, f, g = cores extras
+// daquele desenho. O contorno escuro é posto sozinho em volta (olM), então o desenho vai sem 'k' por fora (até 14 de largura); 'k' dentro vale como risco escuro.
+function olM(rows){const w=Math.max(...rows.map(r=>r.length))+2,h=rows.length+2,G=Array.from({length:h},(_,y)=>Array.from({length:w},(_,x)=>(rows[y-1]||'')[x-1]||'.'));
+ const O=G.map(r=>r.slice());for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(G[y][x]==='.')for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const c=G[y+dy]&&G[y+dy][x+dx];if(c&&c!=='.'&&c!=='k'){O[y][x]='k';break;}}return O.map(r=>r.join(''));}
+function defMat(k){const c=LOOTM[k].c,s=MATSHP[k]||[MATROWS];def('mat_'+k,MATSHP[k]?olM(s[0]):s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35),w:'#ffffff'},s[1]));}
 const MATSHP={
- slime:[["....kk....","...kcCk...","..kcCCCk..",".kcCCCCdk.","kCCCCCCCdk","kCCdCCCCdk",".kdCCdCdk.","..kkkdkkk.",".....k...."]],
- esquilo:[["..k...k....",".kCk.kCk...",".kCCkCCk.k.","..kCCCCkkCk",".kCCcCCCCk.","kCcCCCCdCk.","kCCCCCddk..",".kdCCddk...","..kkkkk...."]],
- lobo:[[".kkkk.....","kcCCCk....","kCCCCCk...",".kCCCCk...","..kCCCdk..","...kCCdk..","...kCCdk..","....kCdk..","....kdk...",".....k...."]],
- aranha:[[".kkkkkkkk...","keeeeeeeek..",".kcCcCcCk...",".kCcCcCdk...",".kcCcCdCkk..",".kCcCdCdkCk.","keeeeeeeekCk","kfffffffk.kk",".kkkkkkk...."],{e:'#b07a48',f:'#6a4424'}],
- esqueleto:[[".kk......kk.","kcCk....kCCk","kCCCkkkkCCdk",".kCcCCCCCdk.","kCCdkkkkdCdk","kCdk....kddk",".kk......kk."]],
- orc:[["......kk..",".....kcCk.","....kcCCk.","...kCCCdk.","..kCCCdk..",".kCCCdk...","kdCCdk....","kdddk.....",".kkk......"]],
- golem:[["...kkkk...",".kkcCCCkk.","kcCCCCCCdk","kCCdeedCdk","kCCeffeCdk","kCCdeedCdk","kCCCCCCddk",".kkdCCddk.","...kkkk..."],{e:'#6fd8ff',f:'#e0fbff'}],
- mimico:[["..kkkkkk..",".keeeeeek.",".kCCCCCCk.",".kcCCCCdk.","..kCCCdk..","..kcCCdk..","...kCdk...","...kCdk...","....kk...."],{e:'#c83a4a'}],
- esporinho:[["..kkkkkk..",".kcCeCCCk.","kcCCCCeCCk","kCeCCCCCdk","kddddddddk",".kkkffkkk.","...kffk...","...kffk...","...kkkk..."],{e:'#fff0d0',f:'#f0e0c0'}],
- esporov:[["....e.....","..e...e...","....kk....","...kcCk...","..kcCCCk..",".kCCCeCCk.","kCCCCCCddk","kkkkkkkkkk"],{e:'#e0a0ff'}],
- verme:[[".kkkk.......","kddddkkkk...","kdkkdcCkckk.","kdkkdCCkCCkk","kdkkdCCkCCdk","kddddCdkCdk.",".kkkkkkkkk.."]],
- salgueiro:[[".......kk.","......kCCk","..kk..kCck",".kCCk.kek.",".kcCCkek..","..kkekek..","....kek...","...kek....","..kek.....","..kk......"],{e:'#8a5a2c'}],
- salgueiroA:[["....kk....","...kcCk...","...kcCk...","..kcCCCk..",".kcCCCCdk.",".kCcCCCdk.",".kCCCCddk.","..kddddk..","...kkkk..."]],
- guaxinim:[[".......kk.","......kcCk",".....kCeek","....keeCCk","...kCCeek.","..keeCCk..",".kCCeek...","kCeeCk....","kkkkk....."],{e:'#e8e2d0'}],
- jiboia:[["..kkkkkkkk",".kCeCCeCCk","kCeCeeCeCk","keCCeCCedk","kCCeCCeCdk","kkkkkkkkk."],{e:'#2e5a1e'}],
- pegrande:[[".k.k.k.k..","kCkCkCkCk.","kCCCCCCCk.",".kcCCCCdk.","..keeeek..",".kCCCCCdk.","kCcCCCCCdk","kCkCkCkdk.",".k.k.k.k.."],{e:'#d8c070'}],
- lanterna:[["....k.....","...kek....","...kek.k..","..keCekek.",".keCfCeek.",".kCfffCek.",".kCfffCdk.","..kCCCdk..","...kkkk..."],{e:'#ff6a2a',f:'#fff4c0'}],
- duende:[["......kk..",".....kcdk.","....kcCdk.","...kcCdk..","..kcCCdk..",".kcCdCdk..","kcCCCdk...","kCdCdk....","kkkkk....."]],
- totem:[["......kkk.",".....keCck","....kCCcek","...kCCcCk.","..kCCcCdk.","..kCcCdk..",".kCcCdk...",".kcddk....","kck.......","kk........"],{e:'#f0d060'}],
- raposa:[["......kkk.",".....kCCck","....kCCCCk","...keCCCk.","..keeeCk..",".keeeeek..","keeeeefk..","keeeffk...",".kkkkk...."],{e:'#e0803a',f:'#a8502a'}],
- morcego:[["kk........","kCkk......","kCCCkk....","kCcCCCkk..","kCCcCCCCkk","kCCCcCCCdk","kCkCCkCCdk","kk.kk.kCdk",".......kk."]],
- esqArq:[["....kk....","...kcCk...","...kcCk...","..kcCCdk..","..kcCCdk..",".kcCCCCdk.",".kkkCCkkk.","...keek...","...keek...","....kk...."],{e:'#8a5a2c'}],
- zumbi:[["...k...k...","..kfk.kfk..","..kek.kek.k","..keekkek.kfk",".kCeeCeeCkek","kcCCeCCeCCek","kCCCCCCCCdk.","kCCeCCCCddk.",".kkkkkkkkk.."],{e:'#8ad8f0',f:'#f0fcff'}],
- wyrm:[[".kkkkkkkk.","keeeeeeeek","kecCCCCdek","kecCCCCdek",".kecCCdek.",".kecCCdek.","..kecdek..","...keek...","....kk...."],{e:'#f0c040'}],
- mestreMasc:[[".kkkkkkkk.","kcCCCCCCdk","kCkkCCkkdk","kCkkCkkkdk","kCCCCkCCdk","kCCCkCCCdk",".kCCkCCdk.","..kCCCdk..","...kkkk..."]],
- totemAnciao:[["..kkkkkk..",".kffffffk.","kffeeeeffk","kffeffeffk",".kffeeffk.",".kCCCCCdk.",".kCgCgCdk.",".kCgCCgdk.",".kCCCCCdk.","..kkkkkk.."],{e:'#a07a50',f:'#d8b88a',g:'#7fe07a'}],
- raposaAnc:[["....e.....","...kkkk...","..kcfCCk..",".kcffCCCk.",".kcfCCCdk.",".kCCCCddk.","..kCCddk..","...kkkk...",".....e...."],{e:'#fff8d0',f:'#ffffff'}],
- senhorOssos:[["k...kk...k","kk.kcCk.kk","kCkCCCCkCk","kcCCCCCCdk","kCCeCCeCdk","kCCCCCCCdk","kkkkkkkkkk"],{e:'#8a3ad0'}]};
-for(const k in LOOTM){const c=LOOTM[k].c,s=MATSHP[k]||[MATROWS];def('mat_'+k,s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)},s[1]));}
+ slime:[["....wcc.......","...wcCCC......","..cCCCCCC.....",".cCCCeCCCd....",".CCCCCCCCCd...","cCCeCCCCeCCd..","cCCCCCCCCCdd..",".dCCCCCCCCdd..","..ddddddddd..."],{e:'#2f8a3a'}],
+ esquilo:[["....ccCCC....","..ccCCCCCCC..",".cCCCCwCCCCd.",".cCCCd..dCCd.","..dd....cCCd.",".......cCCCd.","......cCCCd..",".....cCCCd...","....cCCCd....","...cCCCd.....","..eCCdd......",".eed........."],{e:'#f0e0c0'}],
+ lobo:[["..ffff.....","..eeeee....","..cwCCe....","...cCCC....","...cCCCd...","....cCCd...","....cCCd...",".....cCd...",".....cCd...","......Cd...","......d...."],{e:'#c8a088',f:'#9a6a58'}],
+ aranha:[["..eeeeeeee..","..ffffffff..","...cCwCCd...","...CcCCCd...","...cCCwCd...","...CcCCCd...","...cCCCCd...","..eeeeeeee..","..ffffffff..","........CC..",".........Cd."],{e:'#b07a48',f:'#6a4424'}],
+ esqueleto:[[".cc.......","cwCc......","cCCCd.....",".dCCCc....","...cCCc...","....cCCc...",".....cCCd..","......cCCCd",".......cCCd",".......dCd."]],
+ orc:[["........cc","........cC",".......cCC","......cCCd",".....cCCCd","....cCCCd.","...cCCCd..","..wCCCd...",".eeCCd....","eeeed.....",".ee......."],{e:'#5a7a3a'}],
+ golem:[["....dddd.....","..dCCCCCCd...",".dCcCCdCCCd..","dCcCCefeCCCd.","dCCCefwfeCCd.","dCCdeffeCdCd.","dCCCCeeCCCCd.",".dCCdCCCCCd..","..dCCCCCCd...","....dddd....."],{e:'#3aa8e8',f:'#9ff0ff'}],
+ mimico:[["eeeeeeeeee","eCCCCCCCCe",".cwCCCCCd.",".cCCCCCCd.","..cCCCCd..","..cCCCCd..","...cCCd...","...cCCd...","....Cd....","....d....."],{e:'#c83a4a'}],
+ esporinho:[["....eeeeee....","..eeCCCCCCee..",".eCCwCCCCwCCe.","eCCwwCCCCCCCCe","eCCCCCCwCCCCCe","edddddddddddde","....ffffff....","....fgffff....","....ffffgf....","....ffffff....","...dddddddd..."],{e:'#b8582a',f:'#f0e0c0',g:'#d8c8a8'}],
+ esporov:[["....w...e...","..e....w....","......e.....","....ffff....","...fgggff...","..fCCCCCCf..",".fCcCCCCCdf.",".fCCCwCCCdf.",".fCCCCCCddf.","..fddddddf..","...ffffff..."],{e:'#e0a0ff',f:'#c8a878',g:'#8a6a48'}],
+ verme:[["...ccccccc....","..cCkCkCkCd...",".cCCkCkCkCCd..","cCCCkCkCkCCCd.","cCCCkCkCkCCCd.","dCCCkCkCkCCCd.",".dkkkkkkkkkd.."]],
+ salgueiro:[["........ee....",".......eGGe...","......eGgG....","...ee..eGf....","..eGGe.fe.....","..eGgGef......","...e.ff.......","....ff........","...ff.........","..ff..........",".ff..........."],{e:'#2f6a2a',G:'#7ab04a',g:'#b8e080',f:'#8a5a2c'}],
+ salgueiroA:[[".....cc.....","....cwCC....","....cCCC....","...cwCCCd...","..cCCCCCCd..","..cCCeeCCd..",".cCCeffeCCd.",".cCCCeeCCCd.",".cCCCCCCCdd.","..dCCCCCdd..","...dddddd..."],{e:'#8a5a20',f:'#4a2a10'}],
+ guaxinim:[["..........ee..",".........eCCe.","........eCCCe.",".......eeeee..","......eCCCe...",".....eeeee....","....eCCCe.....","...eeeee......","..eCCCe.......",".dddd.........","dd............"],{e:'#e8e2d0'}],
+ jiboia:[["...dddddd...","..dCCCCCCd..",".dCcewCeCCd.",".dCeeCCeeCd.",".dCCCeCCCCd.",".dCeCCCeCCd.",".dCeeCeeCCd.","..dCCCCCCd..","...dCCCCd...","....dCCd....",".....dd....."],{e:'#2e5a1e'}],
+ pegrande:[[".c.c.C.C.c....","cCcCCCCCCCc...","cCCCCdCCdCCd..",".CdCCCCdCCd...","..eeeeeeee....","..eggeeggee...",".cCCCdCCCCd...","cCCdCCCCdCCd..","CCdCdCCdCdCd..",".d.d.d.d.d...."],{e:'#c8a040',g:'#f0d870'}],
+ lanterna:[["......e.......",".....eFe......","....eFFe..e...","...eFfFeeFe...","..eFffffFe....","..eFfwwfFe....","..eFfwwfFe....","...eFffFe.....","....eFFe......",".....ee......."],{e:'#c84a1a',F:'#ff9a2a',f:'#ffe070'}],
+ duende:[["......cCC.....",".....cCCCd....","....cCCCCd....","...cCdCCCd....","..cCCCCdCd....",".cCCdCCCCd.ee.","cCCCCCdCCdew..","cCdCCCCCCde...",".ddCCdCCdd....","..d.dd.dd....."],{e:'#8a8a98',w:'#d8d8e8'}],
+ totem:[["...........f.","..........fwf",".........cCf.","........cCCd.","...e...cCCCd.","...e..cCCCd..","....ecCCCd...","....cCCCd....","...cCCCd.....","..eCCdd......","..gge........","..gg........."],{e:'#8a1a1a',f:'#f0d060',g:'#3a9ad8'}],
+ raposa:[["...........ww.","..........wCCw",".........eeCCw","........eeeeC.",".......eeeeee.","......eeeeeef.","....eeeeeeef..","..eeeeeeeff...",".eeeeefff.....","eeefff........",".ff..........."],{e:'#e0803a',f:'#a8502a'}],
+ morcego:[["e.............","eCe...........","eCCe.....e....","eCcCee..eCe...","eCcCCCeeCCe...","eCCcCCCCCCe...","eCCCcCCCCCde..","eCdCCdCCdCde..","eCdeCdeCdeCde.","ed.ed.ed..ed.."],{e:'#2a1e34'}],
+ esqArq:[[".....w.....","....cCd....","...cCCCd...","..cCCCCCd..","..cCCCCCd..",".cCCCCCCCd.","...dCCCd...","....fff....","....ege....","....fff....","....ege....","....fff...."],{e:'#8a5a2c',f:'#c89060',g:'#e8e2cc'}],
+ zumbi:[["....e....e....","...efe..efe...","..efwfe.efe...","..effe.efwfe..","..dCeeddeffe..",".dCcCeCCdeeCd.","dCcCCCCCCCCCd.","dCCCdCCCCdCCd.",".dCCCCdCCCCd..","..dddddddddd.."],{e:'#3a8ab0',f:'#8ad8f0'}],
+ wyrm:[["...ggggggg....","..gCCCCCCCg...",".gCcwCCCCCdg..",".gCcCCCCCCdg..",".gCcCCCCCCdg..","..gCcCCCCdg...","..gCcCCCCdg...","...gCcCCdg....","....gCCdg.....",".....gdg......","......g......."],{e:'#f0c040',g:'#e8b43c'}],
+ mestreMasc:[[".cCCCCCCCCd..","cCwCCCCCCCCd.","cCCCCCCCCkCd.","cCkkkCCkkkkd.","cCekkCCkkekd.","cCCCCdkCCCCd.","cCCCCdkCCCCd.",".cCCkCCCCdd..",".cCCCkkkCdd..","..dCCCkCCd...","...ddddkd...."],{e:'#f0d040'}],
+ totemAnciao:[["...ffffffff...","..ffeeeeeeff..","..fedfffdeef..","..fefgggfeef..","..feffgffeef..","..fedfffdeef..","..ffeeeeeeff..","..fCCCCCCCCf..","..fCgCCCCgCf..","..fCCgCCgCCf..","..fCCCggCCCf..","...ffffffff..."],{e:'#a07a50',f:'#5a3a24',g:'#7fe07a'}],
+ raposaAnc:[["......e.......","..e..eee..e...","....ffffff....","...fwwCCCCf...","..fwCCCCCCdf..","e.fCCCCCCCdf.e","..fCCCCCCddf..","...fCCCCddf...","....ffffff....","..e..eee..e...","......e......."],{e:'#fff0a0',f:'#e0a840'}],
+ senhorOssos:[["g...g...g...g","Cc.cCc.cCc.cC","CCcCCCcCCCcCC","cCCCCCCCCCCCd","CCeCCCfCCCeCd","CCCCCCCCCCCCd","dddddddddddd."],{e:'#8a3ad0',f:'#d070ff',g:'#e8e2cc'}]};
+for(const k in LOOTM)defMat(k);
 const matIc={},matIcon=k=>matIc[k]||(matIc[k]=toURL(SPR['mat_'+k].n,4));
 function dropMat(m){if(!LOOTM[m.type])return;const n=m.boss?3:m.elite?2:R()<.4*luckMul()?1:0;if(n)dropLoot(m.x,m.y,{kind:'mat',mat:m.type,n});}
 

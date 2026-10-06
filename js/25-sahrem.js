@@ -158,15 +158,15 @@ for(const[k,n,c]of[['lagarto','Crista de Lagarto','#e0602a'],['abutre','Pena de 
  ['escorpiao','Ferrão de Escorpião','#c8402a'],['serpente','Pele de Serpente','#d8b060'],['escaravelho','Élitro Esmeralda','#3a9a7a'],['saqueador','Lenço de Saqueador','#a83a3a']])
  LOOTM[k]={n,c,w:1,v:clamp(Math.round(MDEF[k].xp/3),2,15)};
 Object.assign(MATSHP,{
- lagarto:[["k.k.k.k...","kCkCkCk...","kCcCcCCk..",".kCCCCCdk.","..kdddddk.","...kkkkk.."]],
- abutre:[["....k....","...kCk...","..kcCdk..","..kcCdk..",".kcCCCdk.",".kcCeCdk.",".kcCeCdk.","..kCedk..","...kek...","...kek...","....k...."],{e:'#e8dcc0'}],
- cacto:[["...e..e...","..kkkkkk..",".kcCCCCdk.","ekCCeCCCke",".kCCCCeCk.","ekCeCCCdke",".kCCCCCdk.","..kddddk..","...kkkk..."],{e:'#f0e8c0'}],
- chacal:[["k.........","kk........","kCk.......","kcCk......","kceCk.....","kceeCk....","kcCeeCk...","kCCCCCdk..","kkkkkkkk.."],{e:'#f0c8a0'}],
- escorpiao:[["...kkk....","..kCCCk...",".kCck.k...",".kCk......",".kCck.....","..kCCk.kk.","...kCCkek.","....kCCek.",".....kkk.."],{e:'#e8c048'}],
- serpente:[["..kkkkkk..",".kCeCCeCk.","kCekkkkeCk","keCk..kCek","kCek..keCk","keCkkkkCek",".kCeCCeCk.","..kkkkkk.."],{e:'#8a5a2a'}],
- escaravelho:[["..kkkkk...",".kcCCCCk..","kcCcCCCdk.","kCcCCCCdk.","kCCCCCddk.","kCCCCCddk.",".kCCCddk..","..kCddk...","...kkk...."]],
- saqueador:[["kkkkkkkkkk","kcCCeCCCdk",".kCeCeCdk.",".kCCeCCdk.","..kCCCdk..","..kCeCdk..","...kCdk...","....kk...."],{e:'#e8c048'}]});
-for(const k of['lagarto','abutre','cacto','chacal','escorpiao','serpente','escaravelho','saqueador']){const c=LOOTM[k].c,s=MATSHP[k];def('mat_'+k,s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)},s[1]));}
+ lagarto:[["e...e...e.....","ee..ee..ee....","eCe.eCe.eCe...","eCCeeCCeeCCe..","cCCCCCCCCCCCd.",".cCCcCCCcCCCd.","..ddddddddddd."],{e:'#f0b040'}],
+ abutre:[["......cC......",".....cCCd.....",".....cCCd.....","....cCeCCd....","....cCeCCd....","...cCCeCCCd...","...cCCeCCCd...","...cCCeCCdd...","....cCeCdd....","....eeeee.....",".....ff.......","....ff........","...ff........."],{e:'#2a2018',f:'#e8dcc0'}],
+ cacto:[["....w.....w...","....e.....e...","....ee...ee...","...cCCCCCCCd..","w..cCCeCCCCd..",".ee.cCCCCeCd.w","...cCeCCCCCdee","...cCCCCCCCd..",".w.cCCCCeCCd..","..ecCCeCCCCd..","...cCCCCCCdd..","....ddddddd..."],{e:'#f0e8c0',w:'#ffffff'}],
+ chacal:[["e...........","Ce..........","CCe.........","cCCe........","cfCCe.......","cffCCe......","cfffCCe.....","cffffCCd....","cCffCCCd....","cCCCCCCdd...",".ddddddd...."],{e:'#5a3a20',f:'#f0c8a0'}],
+ escorpiao:[["......dCCd....",".....dCCCCd...","....dCcd.dCd..","....dCd...ff..","....dCcd..fwf.",".....dCCd.ff..","......dCCd....",".......dCCd...","....dd..dCCd..","...dCCddCCCd..","....dCCCCCd...",".....ddddd...."],{e:'#5a1a10',f:'#e8c048'}],
+ serpente:[["...eCCCCe.....","..eCeCCeCe....",".eCe.ee.eCe...","eCe......eCe..","eCe......eCe..","eCCe....eCCe..",".eCCe..eCCe...","..eCCeeCCe....","...eCCCCe.....","....eCCe......",".....ee......."],{e:'#8a5a2a'}],
+ escaravelho:[["...ddddddd....","..dCCwcCCCd...",".dCcwCCCCCCd..",".dCcCCCCCCCd..","dCcCCCCCCCCCd.","dCCCCCeCCCCCd.","dCCCCCeCCCCdd.","dCCCCCeCCCddd.",".dCCCCeCCCdd..","..dCCCeCCdd...","...ddddddd...."],{e:'#1e5a4a'}],
+ saqueador:[["CCCCCCCCCCCCd","cCeCCCeCCCeCd",".cCCCeCCCeCd.","..cCeCCCeCd..","...cCCeCCd...","....cCCCd....",".....cCd.....","......d......","....dd.dd....","...dd...dd..."],{e:'#e8c048'}]});
+for(const k of['lagarto','abutre','cacto','chacal','escorpiao','serpente','escaravelho','saqueador'])defMat(k);
 
 // ================== MAPAS ==================
 // Orla do Deserto: logo abaixo da Encosta 05; a grama vai virando areia da metade para baixo (blend, no 01). A estrada é o caminho das caravanas
@@ -244,11 +244,11 @@ Object.assign(MDEF,{
 for(const[k,n,c]of[['besouroT','Asa de Escaravelho','#3a5a8a'],['mumia','Atadura Antiga','#e8dcc0'],['sentinela','Lâmina de Bronze','#c8862a'],['sacerdote','Amuleto Profano','#8a3ab0']])
  LOOTM[k]={n,c,w:1,v:clamp(Math.round(MDEF[k].xp/3),2,15)};
 Object.assign(MATSHP,{
- besouroT:[["kk......kk","kCk....kCk",".kCk..kCk.",".kcCkkCdk.","..kCeeCk..","..kCeeCk..",".kcCkkCdk.",".kCk..kCk.","kk......kk"],{e:'#1e2a3a'}],
- mumia:[["..kkkkkk..",".kCCdCCCk.","kCdCCCdCCk","kCCCdCCCdk","kdCCCdCCCk",".kCCCCdCk.","..kCdCCk..","...kCCk...","....kk...."]],
- sentinela:[["........kk",".......kck","......kcCk",".....kcCk.","....kcCk..","...kcCk...","kk.kCdk...","keekdk....",".kkk......"],{e:'#5a3a20'}],
- sacerdote:[["...kkkk...","..kCCCCk..","..kCk.kCk.","..kCk.kCk.","...kCCCk..","....kek...","...kefek..","..kefffek.","...keeek..","....kkk..."],{e:'#e8c048',f:'#c060ff'}]});
-for(const k of['besouroT','mumia','sentinela','sacerdote']){const c=LOOTM[k].c,s=MATSHP[k];def('mat_'+k,s[0],Object.assign({C:c,c:shadeHex(c,.45),d:shadeHex(c,-.35)},s[1]));}
+ besouroT:[["...........fd","..........fCd",".........fCd.","......ffffd..","....ffCCCCd..","..ffCCeCCCCd.",".fCCeCCeCCCd.","fCCeCCCCeCd..","fCeCCCeCCd...","fCCCeCCCd....",".fdddddd....."],{e:'#8ab0e0',f:'#1e2a3a'}],
+ mumia:[["....ccCCd.....","..cCCdCCCdd...",".cCdCCCdCCCd..",".CCCdCCCCdCd..","cCdCCCdCCCCd..","cCCCdCCCdCCd..",".dCCCdCCCCd...","..ddCCCdCdeee.","....dddd..eee.","............ee"],{e:'#c8b890'}],
+ sentinela:[[".....ccCC.....","...cCCCCCd....","..cCd...dCd...",".cCd.....Cd...",".cd......cd...",".........cd...","........cCd...","......ccCd....","....eeeed.....","...eee........","..ee..........",".ee..........."],{e:'#5a3a20'}],
+ sacerdote:[["..e.......e..","...e.....e...","....e...e....",".....eee.....","....eCCCe....","...eCffwCe...","...eCfgfCe...","...eCffgCe...","....eCCCe....",".....eee.....","......e......"],{e:'#e8c048',C:'#c89020',f:'#8a3ab0',g:'#e080ff'}]});
+for(const k of['besouroT','mumia','sentinela','sacerdote'])defMat(k);
 // salões retangulares (7 a 13 de largura, 5 a 9 de altura) ligados por corredores de 3 tiles em L (árvore mínima + 2 atalhos), e um
 // salãozinho em volta de cada escada ou porta
 function tumbaMask(M,rng){const C=new Uint8Array(W*H),n=a=>Math.floor(rng()*a);

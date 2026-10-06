@@ -85,7 +85,7 @@
    switchMapNow('valdor',null);info(`arcos: ${av}+${ap}+${aa}, cachoeiras nas Encostas 02 e 05: ${c}`);});
   t('menu de testes: escondido e save de verdade sem ?dev',()=>{if(DEV||$('devBtn')||$('devm'))throw 'o menu de testes apareceu sem ?dev';if(SAVEKEY!=='valdoria_save_v1')throw 'a chave do save mudou: '+SAVEKEY;});
   // inventário em abas, peso e materiais
-  t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>16))throw k+' mais largo que 16';}
+  t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>14))throw k+' mais largo que 14 (o contorno soma 2)';if(SPR['mat_'+k].n.width>16||SPR['mat_'+k].n.height>16)throw k+' passou de 16×16';}
    const vis=new Set(Object.keys(LOOTM).map(k=>MATSHP[k][0].join('/')));if(vis.size!==Object.keys(LOOTM).length)throw 'dois materiais com o mesmo desenho';info(Object.keys(LOOTM).length+' materiais');});
   t('Estrada do Sul: sem árvore ao lado da passagem do rio (clear)',()=>{genWorld('estrada');const ok=!(objRows[10]||[]).some(o=>o.tx===21)&&!solid[10*W+21];genWorld(CUR);if(!ok)throw 'ainda há algo no tile 21,10';});
   t('toque: modo toque, botões em arco e joystick anda',()=>{enter({cls:'arqueira',name:'Toque'});switchMapNow('valdor',null);cura();
