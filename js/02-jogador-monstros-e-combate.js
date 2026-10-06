@@ -46,7 +46,7 @@ function genItem(ilvl,bonus=0,slot=null,min=0,force=null){
  for(const k in st)st[k]=Math.max(1,Math.round(st[k]));
  return{id:uid(),slot,name,rar:r,ilvl,stats:st,cls,value:Math.round((4+ilvl*3)*(1+r*r*.8))};}
 const power=it=>{if(!it)return 0;const s=it.stats;return(s.atk||0)*3+(s.def||0)*2+(s.hp||0)*.3+(s.mp||0)*.2+(s.crit||0)*4+(s.spd||0)*3;};
-const iconOf=it=>it.slot==='arma'?weapIcon(it):iconURL(it.slot,it.rar);
+const iconOf=it=>it.slot==='arma'?weapIcon(it):ARM[it.slot]?armIcon(it):iconURL(it.slot,it.rar);
 
 // ================== ESTADO ==================
 let P=null,time=0,bossT=0,lairChestT=0,shakeT=0,shakeA=0,fullMsgT=0,saveT=0,spawnT=0,chestT=0;

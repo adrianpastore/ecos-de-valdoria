@@ -57,6 +57,14 @@
    b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
    killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
    info(serv.length+' servos, a '+dist.toFixed(0)+' tiles da escada');});
+  t('armaduras: cada elmo, peitoral e bota tem desenho próprio no corpo e na bolsa (e as lendárias)',()=>{
+   for(const cls of Object.keys(CL))for(const slot of['elmo','peito','botas']){const vistos=new Set(),ics=new Set();
+    for(let k=0;k<6;k++){const t=Math.min(k,3),rar=k<4?1:4,it={cls,ilvl:t*6+1,rar,slot,name:k<4?slot:LEG[slot][k-4]};
+     if(armKind(it)!==k)throw slot+' '+k+': caiu no desenho '+armKind(it);const a=armArt(it);if(!a||a.r.some(r=>r.length!==16))throw cls+' '+slot+' '+k+': desenho faltando ou com largura errada';
+     const eq={};eq[slot]=it;const g=composeHero(cls,eq).getContext('2d').getImageData(0,0,HGW,HGH).data.join(','),ic=armIcon(it);
+     if(vistos.has(g))throw cls+' '+slot+' '+k+': igual a outra no corpo';if(ics.has(ic))throw cls+' '+slot+' '+k+': ícone repetido';vistos.add(g);ics.add(ic);}}
+   const ref={cls:'mago',ilvl:19,rar:4,slot:'peito',name:LEG.peito[1]+' +2',base:LEG.peito[1]};if(armKind(ref)!==5)throw 'lendária refinada perdeu o desenho';
+   for(const s of['elmo','peito','botas','anel'])if(!iconOf(genItem(8,0,s)).startsWith('data:image'))throw 'ícone de '+s;});
   t('armas: cada arma tem desenho próprio na mão e na bolsa (4 de cada classe e as 2 lendárias)',()=>{for(const cls of Object.keys(CL)){const vistos=new Set(),ics=new Set();
    if(WART[cls].length!==6)throw cls+': '+WART[cls].length+' desenhos';
    for(let k=0;k<6;k++){const t=Math.min(k,3),rar=k<4?1:4,name=k<4?CL[cls].weapons[t]:LEG.arma[cls][k-4],it={cls,ilvl:t*6+1,rar,slot:'arma',name};
