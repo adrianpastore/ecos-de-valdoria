@@ -13,7 +13,7 @@ if (-not $nav) { Write-Output 'Nenhum Edge ou Chrome encontrado.'; exit 2 }
 # "mask" = versão com margem maior: o Android recorta o ícone em círculo ou gota, e só os 80% do meio são garantidos.
 $desenho = @'
 <script>{const out=[];try{
- const hero=previewLook('guerreiro');
+ const hero=cropC(previewLook('guerreiro'),HOX,HOY,16,16);
  const icon=(sz,mask)=>{const c=cnv(sz,sz),x=c.getContext('2d');x.imageSmoothingEnabled=false;
   x.fillStyle='#1d140e';x.fillRect(0,0,sz,sz);
   const g=x.createRadialGradient(sz/2,sz*.45,0,sz/2,sz*.45,sz*.52);g.addColorStop(0,'rgba(240,190,70,.6)');g.addColorStop(.6,'rgba(200,130,40,.18)');g.addColorStop(1,'rgba(200,130,40,0)');x.fillStyle=g;x.fillRect(0,0,sz,sz);

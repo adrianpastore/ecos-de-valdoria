@@ -111,7 +111,7 @@ function renderBag(){const g=$('invGrid');g.innerHTML='';
   g.append(b);}
  document.querySelectorAll('[data-eq]').forEach(b=>{const s=b.dataset.eq,it=P.equip[s];b.style.borderColor=it?RARC[it.rar]:'';b.classList.toggle('sel',!!(it&&sel&&sel.key===it.id));
   b.innerHTML=it?`<img src="${iconOf(it)}" alt="">`:`<span class="ph">${SLOTN[s]}</span>`;b.onclick=()=>{if(it){sel={key:it.id,eq:true};renderBag();}};});
- $('dollImg').src=toURL(SPR[heroSpr()].n,6);$('invCount').textContent=E.length?`${E.length} ${E.length>1?'tipos':'tipo'} de item`:'Nada nesta aba';$('sortBtn').style.display=bagTab==='equip'?'':'none';weightBar();
+ $('dollImg').src=toURL(cropC(SPR[heroSpr()].n,HOX,0,19,HGH),6);$('invCount').textContent=E.length?`${E.length} ${E.length>1?'tipos':'tipo'} de item`:'Nada nesta aba';$('sortBtn').style.display=bagTab==='equip'?'':'none';weightBar();
  const st=P.st;$('statsBox').innerHTML=`<span>Nível de Base</span><b>${P.lvl}</b><span>Nível de Classe</span><b>${P.jlvl} / ${jobCap()}</b><span>Vida</span><b>${st.hp}</b><span>Mana</span><b>${st.mp}</b><span>Ataque</span><b>${st.atk}</b><span>Defesa</span><b>${st.def}</b><span>Crítico</span><b>${st.crit}%</b><span>Velocidade</span><b>+${st.spd}%</b><span>Ouro</span><b>${P.gold}</b>`;
  const d=$('detail');if(sel&&!sel.eq&&sel.key.includes(':'))return stackDetail(d,sel.key);
  const it=sel&&(sel.eq?Object.values(P.equip).find(x=>x&&x.id===sel.key):P.inv.find(x=>x.id===sel.key));
@@ -165,7 +165,7 @@ addEventListener('pointerup',()=>dragging=false);cv.addEventListener('contextmen
 let chosen='guerreiro';
 function buildStart(){const box=$('classes');box.innerHTML='';
  for(const k in CL){const c=CL[k],d=document.createElement('button');d.className='ccard frame'+(k===chosen?' on':'');
-  d.innerHTML=`<img src="${toURL(previewLook(k),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
+  d.innerHTML=`<img src="${toURL(cropC(previewLook(k),HOX,1,19,19),6)}" alt=""><h3>${c.nome}</h3><p>${c.desc}</p><div class="cs">❤️ ${c.hp} • 💧 ${c.mp} • ⚔️ ${c.atk} • 🛡️ ${c.def}</div>`;
   d.onclick=()=>{chosen=k;buildStart();};box.append(d);}
  const s=loadSave(),cb=$('contBox');if(s&&CL[s.cls]){cb.classList.remove('hidden');cb.innerHTML=`<p><b>${s.name}</b>, ${CL[s.cls].nome} de nível ${s.lvl}, espera por você.</p><button class="btn gold" id="contBtn">Continuar aventura</button><p style="margin:8px 0 0;font-size:13px;color:var(--muted)">Criar um novo herói abaixo substitui este progresso.</p>`;$('contBtn').onclick=()=>enter(s);}}
 function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,attr:s.attr||newAttr(ATTR_INI),gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},tons:s.tons||{},tonAt:s.tonAt||{},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}

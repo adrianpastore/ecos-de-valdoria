@@ -57,6 +57,14 @@
    b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
    killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
    info(serv.length+' servos, a '+dist.toFixed(0)+' tiles da escada');});
+  t('armas: cada arma tem desenho próprio na mão e na bolsa (4 de cada classe e as 2 lendárias)',()=>{for(const cls of Object.keys(CL)){const vistos=new Set(),ics=new Set();
+   if(WART[cls].length!==6)throw cls+': '+WART[cls].length+' desenhos';
+   for(let k=0;k<6;k++){const t=Math.min(k,3),rar=k<4?1:4,name=k<4?CL[cls].weapons[t]:LEG.arma[cls][k-4],it={cls,ilvl:t*6+1,rar,slot:'arma',name};
+    if(weapKind(it)!==k)throw name+' caiu no desenho '+weapKind(it);const a=WART[cls][k];if(a.r.length>16||a.r.some(r=>r.length>16))throw name+' maior que 16';if(!a.r.some(r=>r.includes('+')))throw name+' sem empunhadura';
+    const c=composeHero(cls,{arma:it});if(c.width!==HGW||c.height!==HGH)throw 'herói '+c.width+'×'+c.height;const g=c.getContext('2d').getImageData(0,0,HGW,HGH).data.join(',');
+    if(vistos.has(g))throw name+' igual a outra arma';vistos.add(g);const ic=weapIcon(it);if(ics.has(ic))throw name+': ícone repetido';ics.add(ic);}
+   const ref={cls,ilvl:19,rar:4,slot:'arma',name:LEG.arma[cls][1]+' +3',base:LEG.arma[cls][1]};if(weapKind(ref)!==5)throw 'lendária refinada perdeu o desenho';}
+   const it=genItem(8,0,'arma');if(!iconOf(it).startsWith('data:image'))throw 'ícone da bolsa';});
   t('habilidades: ícones desenhados na barra e na árvore',()=>{for(const id in SKICON){if(!SK[id])throw id+' não é habilidade';const D=SKICON[id];if(D.s.length>12||D.s.some(r=>r.length>12))throw id+' maior que 12×12';
     if(!/^data:image\/png/.test(skIconURL(id)))throw id+' sem imagem';}
    enter({cls:'mago',name:'Icones'});P.ranks.fogo=1;P.bar[0]='fogo';buildHotbar();if(!document.querySelector('#hotbar .hs[data-k="1"] img.ski'))throw 'a barra não mostra o ícone da Bola de Fogo';
