@@ -57,6 +57,16 @@
    b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
    killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
    info(serv.length+' servos, a '+dist.toFixed(0)+' tiles da escada');});
+  t('Rei Sethkar: ergue servos da tumba, puxa com as ataduras, tempestade de areia, maldição na metade da vida',()=>{switchMapNow('tumba3',null);const b=mons.find(ehChefe);if(!b||b.type!=='reiSethkar')throw 'o chefe não apareceu';
+   const j=Math.floor(b.y/TILE)*W+Math.floor(b.x/TILE);if(solid[j]||!REACH[j])throw 'nasceu em lugar bloqueado';
+   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();update(.05);const serv=mons.filter(c=>c.owner===b);if(serv.length<1)throw 'não ergueu servos';
+   b.ai.areia=0;const t0=teles.length;cura();update(.05);if(teles.length<t0+6)throw 'sem a fileira da tempestade de areia';teles.length=0;
+   let x0=0;for(let k=0;k<30&&!x0;k++){const p={x:P.x+60,y:P.y};if(!blocked(p.x,p.y,4)){P.x=p.x;x0=1;}else P.x-=8;}
+   const d0=hyp(P.x-b.x,P.y-b.y);sethkarPull(b);for(let i=0;i<16;i++){cura();update(.05);}if(hyp(P.x-b.x,P.y-b.y)>=d0-4)throw 'as ataduras não puxaram ('+d0.toFixed(0)+' px)';if(!teles.some(t=>t.m===b&&t.r>=50))throw 'sem o círculo depois do puxão';
+   b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não invocou Kharzen na metade da vida';b.ai.shot=0;mproj.length=0;cura();update(.05);if(!mproj.some(p=>p.curse))throw 'sem os orbes da maldição';
+   killMonster(b);if(mons.some(c=>c.owner===b&&!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.reiSethkar||!SPR.mat_reiSethkar)throw 'sem material';
+   if(MISS.filter(q=>q.city==='sahrem'&&/^tumba/.test(q.map)).length<3)throw 'sem missões da tumba';
+   info(serv.length+' servos, puxou de '+d0.toFixed(0)+' px');});
   t('armaduras: cada elmo, peitoral e bota tem desenho próprio no corpo e na bolsa (e as lendárias)',()=>{
    for(const cls of Object.keys(CL))for(const slot of['elmo','peito','botas']){const vistos=new Set(),ics=new Set();
     for(let k=0;k<6;k++){const t=Math.min(k,3),rar=k<4?1:4,it={cls,ilvl:t*6+1,rar,slot,name:k<4?slot:LEG[slot][k-4]};
@@ -107,7 +117,7 @@
   t('app: manifesto e ícones no index; service worker só em https (o teste completo é o tests\\testar-app.ps1)',()=>{
    if(!document.querySelector('link[rel="manifest"][href="manifest.json"]'))throw 'sem o link do manifesto';if(!document.querySelector('link[rel="apple-touch-icon"]'))throw 'sem ícone do iPhone';
    if(location.protocol==='file:'&&APP_OK)throw 'o service worker tentaria rodar em file://';const b=document.querySelectorAll('[data-inst]');if(!b.length||[...b].some(x=>!x.classList.contains('hidden')))throw 'botão de instalar deveria começar escondido';});
-  t('Sahrem: dunas a oeste, leste e sul, com morros e monstros do deserto; missões da região',()=>{const des=['lagarto','abutre','cacto','chacal','escorpiao','serpente','escaravelho','saqueador'];
+  t('Sahrem: dunas a oeste, leste e sul, com morros e monstros do deserto; missões da região',()=>{const des=['lagarto','abutre','cacto','chacal','escorpiao','serpente','escaravelho','saqueador','mumia','sentinela','sacerdote'];
    for(const id of['orla','dunasO','dunasL','dunasS']){for(const[tp]of MAPS[id].mons)if(!des.includes(tp))throw id+' ainda tem '+tp;if(id!=='orla'&&!MAPS.sahrem.portals[id])throw 'Sahrem sem saída para '+id;}
    switchMapNow('sahrem',null);const[a0,b0,a1,b1]=MAPS.sahrem.lago,[px,py]=MAPS.sahrem.piramide;let fur=0;
    for(let y=b0;y<=b1;y++)for(let x=a0;x<=a1;x++){if(x>a0+1&&x<a1-1&&y>b0+1&&y<b1-1)continue;if(ground[y*W+x]!==G.WATER)fur++;}

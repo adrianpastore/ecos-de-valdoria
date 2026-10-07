@@ -60,6 +60,8 @@ function drawDark(sx,sy,tt){if(!MAPS[CUR].dark)return;
  for(const to in MAPS[CUR].portals){const p=portalPt(to);hole(sx(p.x),sy(p.y),34*S,.8);}
  for(const p of projs)hole(sx(p.x),sy(p.y),14*S,.6);
  for(const p of mproj)hole(sx(p.x),sy(p.y),10*S,.5);
+ // a atadura do Rei Sethkar (27) clareia o caminho todo, do rei até a ponta
+ for(const[m,q]of[...mproj.filter(p=>p.pull).map(p=>[p.m,p]),...(FAIXA&&mons.includes(FAIXA)?[[FAIXA,{x:P.x,y:P.y-8}]]:[])])for(let k=1;k<6;k++){const f=k/6;hole(sx(m.x+(q.x-m.x)*f),sy(m.y-mh(m)/2+(q.y-m.y+mh(m)/2)*f),12*S,.45);}
  for(const m of mons)if(m.boss)hole(sx(m.x),sy(m.y-14),44*S,.55); // o chefe brilha no escuro
  for(const f of fx)if(f.k==='boom')hole(sx(f.x),sy(f.y),(f.r||20)*1.5*S,.7);
  // brilho alaranjado da tocha: pintado na própria camada (por cima do escuro, como antes), em meia resolução

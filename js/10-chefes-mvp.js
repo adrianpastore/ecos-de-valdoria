@@ -31,7 +31,7 @@ function bossSpot(){const M=MAPS[CUR];if(M.lair)return{x:(LAIR.x+.5)*TILE,y:(LAI
  for(const i of best){const dd=hyp(i%W-cx,((i/W)|0)-cy);if(dd<bd){bd=dd;bi=i;}}return{x:(bi%W+.5)*TILE,y:(((bi/W)|0)+.5)*TILE};}
 function spawnBoss(announce){const M=MAPS[CUR],p=bossSpot(),b=makeMon(M.boss,p.x,p.y,M.bossLv||22,{zone:M.lair?4:M.theme});
  b.ai={swap:4,throw:2,quake:3,bolt:2,call:9,shot:1,nova:5,blink:8,rain:3};mons.push(b);
- if(announce){banner(`${b.name} apareceu!`,M.lair?'Algo ruge no covil.':M.cave?'Ossos estalam no fundo da caverna.':'Procure no alto das encostas.');log(`${b.name} apareceu em ${M.n}!`,'#ff6a4a');}}
+ if(announce){banner(`${b.name} apareceu!`,M.lair?'Algo ruge no covil.':M.boss==='reiSethkar'?'Areia escorre das paredes da câmara do rei.':M.cave?'Ossos estalam no fundo da caverna.':'Procure no alto das encostas.');log(`${b.name} apareceu em ${M.n}!`,'#ff6a4a');}}
 function bossDead(m){const M=MAPS[CUR];BOSSAT[CUR]=time+(M.lair?180:240);dropLoot(m.x,m.y,{kind:'item',item:genItem(m.lvl+2,4,null,3)});
  for(const c of mons)if(c.d.clone||c.owner===m){c.dead=true;burst(c.x,c.y-10,'#c8c8c8',12,40);}
  banner('MVP!',`${P.name} derrotou ${m.name}`);log(`MVP! Você derrotou ${m.name}.`,'#ff9a1f');shake(4);
@@ -63,6 +63,7 @@ function bossAI(m,dt,dP){const a=m.ai,d=m.d;for(const k in a)if(typeof a[k]==='n
   // e não recua para fora da própria área (lá ela voltaria para casa recuperando a vida)
   if(dP<70&&hyp(m.x-m.sx,m.y-m.sy)<170){stepSmart(m,(m.x-P.x)/dP*spd*.6*dt,(m.y-P.y)/dP*spd*.6*dt,6,m.side);m.moving=true;}else if(dP>130){stepSmart(m,(P.x-m.x)/dP*spd*dt,(P.y-m.y)/dP*spd*dt,6,m.side);m.moving=true;}else m.moving=false;
   m.face=P.x>m.x?1:-1;return true;}
+ if(d.ai==='sethkar')return sethkarAI(m,dt,dP,a); // Rei Sethkar: golpes no 27
  if(d.ai==='ossos'){const serv=mons.filter(c=>c.owner===m&&!c.dead);
   if(!a.rage&&m.hp<m.maxHp*.5){a.rage=1;a.call=0;banner('O Senhor dos Ossos se enfurece!','Os servos voltam a se erguer.');}
   if(a.call<=0&&dP<200){a.call=a.rage?12:16;raiseBones(m,Math.min(a.rage?3:2,3-serv.length));}

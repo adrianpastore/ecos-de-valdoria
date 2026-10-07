@@ -52,6 +52,10 @@ function tickPay(dt){
  if(P.pdot&&!P.dead){P.pdot.t-=dt;P.pdot.acc+=dt;if(P.pdot.acc>=1){P.pdot.acc-=1;P.hp-=P.pdot.dps;addText(P.x+rf(-4,4),P.y-22,'-'+P.pdot.dps,'#7dff5a');burst(P.x,P.y-8,'#7dff5a',4,20);
    if(P.hp<=0){P.hp=0;P.pdot=null;die(null);return;}}if(P.pdot&&P.pdot.t<=0)P.pdot=null;}
  for(let i=mproj.length-1;i>=0;i--){const p=mproj[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(R()<.5)parts.push({x:p.x,y:p.y,vx:0,vy:0,g:0,life:.25,max:.25,color:p.c,s:1});
-  if(!P.dead&&hyp(p.x-P.x,p.y-(P.y-8))<8){mproj.splice(i,1);hurtPlayer(p.m.atk*weakOf(p.m),p.m,p.mult||1.2);burst(p.x,p.y,p.c,8,40);continue;}
+  if(!P.dead&&hyp(p.x-P.x,p.y-(P.y-8))<8){mproj.splice(i,1);hurtPlayer(p.m.atk*weakOf(p.m),p.m,p.mult||1.2);
+   if(p.pull)sethkarPull(p.m);if(p.curse&&!P.dead){P.pdot={t:4,acc:0,dps:Math.max(1,Math.round(p.m.atk*.25))};addText(P.x,P.y-32,'Amaldiçoado!','#c060ff');} // golpes do Rei Sethkar (27)
+  burst(p.x,p.y,p.c,8,40);continue;}
   if(p.life<=0||blocked(p.x,p.y+8,1))mproj.splice(i,1);}}
-function drawMProj(){for(const p of mproj){if(p.arrow){const sp=hyp(p.vx,p.vy);ctx.strokeStyle=p.c;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-p.vx/sp*7,p.y-p.vy/sp*7);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(p.x-.5,p.y-.5,1,1);continue;}ctx.globalAlpha=.45;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,4,0,6.29);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,6.29);ctx.fill();}}
+// a atadura do Rei Sethkar (27): faixa clara com pontas escuras
+function faixaLine(x0,y0,x1,y1){ctx.strokeStyle='#1b1320';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();ctx.strokeStyle='#d8ccb0';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#a89a78';ctx.fillRect(x1-2,y1-2,4,4);}
+function drawMProj(){if(FAIXA&&!FAIXA.dead&&mons.includes(FAIXA))faixaLine(FAIXA.x,FAIXA.y-mh(FAIXA)/2,P.x,P.y-8);for(const p of mproj){if(p.pull){faixaLine(p.m.x,p.m.y-mh(p.m)/2,p.x,p.y);continue;}if(p.arrow){const sp=hyp(p.vx,p.vy);ctx.strokeStyle=p.c;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(p.x-p.vx/sp*7,p.y-p.vy/sp*7);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.fillStyle='#fff';ctx.fillRect(p.x-.5,p.y-.5,1,1);continue;}ctx.globalAlpha=.45;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,4,0,6.29);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,6.29);ctx.fill();}}
