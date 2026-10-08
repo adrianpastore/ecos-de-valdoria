@@ -130,7 +130,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){const m=cidP().merc;shopEl.querySelector('h2').textContent=m[0];shopEl.querySelector('.flav').textContent=`"${m[2]}"`;toggle(shopEl,true);} // quem atende é o mercador da cidade (24)
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('pedido'),$('attr')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('pedido'),$('diario'),$('attr')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
@@ -143,7 +143,7 @@ const keys={};
 function attackKey(){if(!P||P.dead)return;let t=P.target&&!P.target.dead?P.target:nearestMon(180);if(t){P.target=t;P.auto=true;P.dest=null;}}
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||!P)return;const k=e.key.toLowerCase();
  if([' ','tab','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys[k]=true;if(e.repeat&&!'123456'.includes(k))return;
- if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='p')toggleAttr();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
+ if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='p')toggleAttr();else if(k==='j')toggleDiario();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
  else if(k==='e'&&!P.dead)interact(nearestInteract());else if(k==='i'||k==='c')toggle(bagEl);else if(k==='escape'){closeAll();P.target=null;P.auto=false;}
  else if(k==='tab'){const list=mons.filter(m=>!m.dead&&hyp(m.x-P.x,m.y-P.y)<200).sort((a,b)=>hyp(a.x-P.x,a.y-P.y)-hyp(b.x-P.x,b.y-P.y));if(list.length){const i=list.indexOf(P.target);P.target=list[(i+1)%list.length];}}});
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});

@@ -130,7 +130,7 @@ function missAction(a,id){const q=MISS.find(x=>x.id===id),M=P.miss;
  if(a==='aceitar'){if(missState(q)!=='livre')return;if(M.on.length>=MISS_MAX){log(`Você já tem ${MISS_MAX} missões aceitas. Entregue ou desista de uma.`,'#ff9a7a');return;}M.on.push(id);log(`Missão aceita: ${q.t}.`,'#ffe3a0');}
  else if(a==='desistir'){M.on=M.on.filter(x=>x!==id);log(`Você desistiu de: ${q.t}.`,'#cccccc');}
  else if(a==='entregar'){if((P.mats[q.mat]||0)<q.n)return;P.mats[q.mat]-=q.n;if(!P.mats[q.mat])delete P.mats[q.mat];
-  const r=missRew(q);P.gold+=r.g;M.on=M.on.filter(x=>x!==id);M.cd[id]=Date.now()+MISS_CD;
+  const r=missRew(q);P.gold+=r.g;M.on=M.on.filter(x=>x!==id);M.cd[id]=Date.now()+MISS_CD;M.done=M.done||{};M.done[id]=(M.done[id]||0)+1; // M.done: contagem para o diário (29)
   banner('Missão cumprida!',q.t);log(`Missão cumprida: ${q.t}! +${r.g}g`,'#ffd24a');addText(P.x,P.y-30,'+'+r.xp+' XP','#d6a8ff');gainXp(r.xp);}
  renderBoard();save();}
 // ao pegar um material de uma missão aceita, mostra o progresso

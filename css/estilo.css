@@ -260,3 +260,7 @@ body.toque #hotbar .hs .ski{border-radius:50%}
 #devmundo .mdcv{display:block;width:100%;height:auto;cursor:pointer;border-radius:6px}
 #devmundo .mdlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 #devmundo .mdlist .btn{padding:3px 8px;font-size:13px}
+/* diário de missões (29) */
+#diario{width:min(560px,95vw)} #diario .mr{margin-top:4px;font-size:14px}
+.dbar{height:5px;background:var(--panel);border:1px solid var(--edge2);border-radius:3px;margin:2px 0 4px;overflow:hidden} .dbar i{display:block;height:100%;background:linear-gradient(90deg,#b8862c,#e8c066)}
+.dsub{font-family:Cinzel,serif;color:var(--gold);font-size:15px;margin:12px 0 4px} .dnov{margin:0;padding-left:20px;font-size:14px} .dnov li{margin:3px 0}

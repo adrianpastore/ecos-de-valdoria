@@ -30,7 +30,7 @@ let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
  const f=ptsFree(),fa=attrFree();$('treeBadge').textContent=f>0?f:'';$('attrBadge').textContent=fa>0?fa:'';
- if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}}
+ if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}diaBadge();} // selo do diário (29)
 
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;

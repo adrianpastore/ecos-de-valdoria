@@ -321,6 +321,13 @@
    P.mats.florD=2;sellAllMats();if(P.mats.florD!==2)throw 'vendeu item de pedido';
    saveReal();const s=loadSave();if(s.v!==6||s.ped.jamila!==2)throw 'pedido não foi salvo';delete s.ped;enter(s);if(!P.ped||pedState(q)!=='livre')throw 'save antigo sem ped não abre';
    info(q.n+': +'+q.rew.g+'g; '+q2.n+': '+P.inv.at(-1).name);});
+  t('diário de missões: abre no J, mostra o que está aberto e o que foi feito',()=>{switchMapNow('sahrem',null);cura();P.miss={on:[],cd:{}};P.ped={};P.mats={};
+   const m=MISS.find(x=>x.city==='sahrem'),r=PEDS[1];missAction('aceitar',m.id);P.ped[r.id]=1;
+   dispatchEvent(new KeyboardEvent('keydown',{key:'j'}));if($('diario').classList.contains('hidden'))throw 'J não abriu o diário';
+   const tx=()=>$('diarioBody').textContent;if(!tx().includes(m.t)||!tx().includes(r.t))throw 'faltou missão ou pedido em andamento';if(!tx().includes(PEDS[0].n))throw 'faltou quem precisa de ajuda';
+   diaBadge();const n0=+$('diaBadge').textContent||0;P.mats[m.mat]=m.n;diaBadge();if(+$('diaBadge').textContent!==n0+1)throw 'selo não contou a missão pronta';
+   missAction('entregar',m.id);P.ped[r.id]=2;diaTab='feitas';renderDiario();if(!tx().includes(m.t)||!tx().includes(r.t)||!tx().includes('1 vez'))throw 'faltou o que foi concluído';
+   diaTab='abertas';P.miss=JSON.parse(JSON.stringify({on:[],cd:{}}));renderDiario();closeAll();info('diário: '+diaAbertas().length+' abertas, '+diaFeitas().length+' concluídas');});
   t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 
