@@ -146,6 +146,12 @@
    switchMapNow('planalto',null);const runas=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='runa').length,0);if(runas<10)throw 'só '+runas+' pedras rúnicas';
    switchMapNow('valdor',null);const torres=objRows.reduce((s,r)=>s+r.filter(o=>o.spr==='torre'&&o.ty<TC.y-8).length,0);if(torres<4)throw 'portão norte de Valdor sem torres ('+torres+')';
    info(agua+' tiles de fosso, 4 pontes, '+runas+' pedras rúnicas');});
+  t('campos novos: Vale dos Lenhadores entre a Estrada do Sul e Pinheiral, Bosque dos Sussurros entre o Planalto e Arcádia',()=>{const L=mundoPos().pos;
+   for(const[a,m,b]of[['estrada','lenhadores','pinheiral'],['planalto','bosque','arcadia']]){if(!MAPS[a].portals[m]||!MAPS[b].portals[m]||MAPS[a].portals[b]||MAPS[b].portals[a])throw m+' não está entre '+a+' e '+b;
+    if(!(L[a][1]<L[m][1]&&L[m][1]<L[b][1])&&!(L[a][1]>L[m][1]&&L[m][1]>L[b][1]))throw m+' fora de ordem no mapa do mundo';}
+   let cam=0;for(const id of['lenhadores','bosque']){switchMapNow(id,null);for(const[x,y,s]of MAPS[id].deco){if((objRows[y]||[]).filter(o=>o.tx===x).length!==1)throw s+' em cima de outro objeto em '+id+' ('+x+','+y+')';if(!(objRows[y]||[]).some(o=>o.tx===x&&o.spr===s))throw 'sem '+s+' em '+id;}
+    if(id==='bosque')for(let i=0;i<W*H;i++)if(ground[i]===G.PATH)cam++;}
+   if(cam>60)throw 'o Bosque não devia ter estrada ('+cam+' tiles de caminho)';info('campos novos ligados; '+cam+' tiles de caminho no Bosque (só as pontas)');});
   t('Torre dos Magos: no centro de Arcádia, porta ao sul, salão redondo com a Selene; ao sair, na frente da porta',()=>{switchMapNow('arcadia',null);
    const o=objRows.flat().find(o=>o.spr==='torreMagos');if(!o||o.label!=='Torre dos Magos')throw 'a Torre não tem o nome ao passar o mouse';
    if(SPR.torreMagos.n.height!==TORRE_H||SPR.torreMagos.n.width!==80)throw 'desenho da Torre com tamanho errado';

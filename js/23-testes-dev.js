@@ -37,8 +37,8 @@ if(DEV){
  $('dvCls').onchange=devSpecs;$('dvSpec').onchange=devJob;$('dvGo').onclick=devApply;$('dvAll').onclick=devLearnAll;devSpecs();}
 // ================== TELEPORTE (só com ?dev) ==================
 // Apelidos curtos por região: cidade, campos (_field01…) e andares de masmorra (_dungeon01…). O id do mapa e o nome também valem.
-const TPREG={valdor:{f:['estrada','floresta','pantano','ruinas','covil']},pinheiral:{f:[1,2,3,4,5,6,7].map(n=>'encosta'+n),d:['caverna1','caverna2','caverna3']},
- arcadia:{f:['planalto'],torre:'torreArcadia'},sahrem:{f:['orla','dunasO','dunasL','dunasS'],d:['tumba1','tumba2','tumba3']}};
+const TPREG={valdor:{f:['estrada','floresta','pantano','ruinas','covil','lenhadores']},pinheiral:{f:[1,2,3,4,5,6,7].map(n=>'encosta'+n),d:['caverna1','caverna2','caverna3']},
+ arcadia:{f:['planalto','bosque'],torre:'torreArcadia'},sahrem:{f:['orla','dunasO','dunasL','dunasS'],d:['tumba1','tumba2','tumba3']}};
 const TPA={};
 for(const c in TPREG){const r=TPREG[c],d2=n=>String(n+1).padStart(2,'0');TPA[c]=c;(r.f||[]).forEach((m,i)=>TPA[c+'_field'+d2(i)]=m);(r.d||[]).forEach((m,i)=>TPA[c+'_dungeon'+d2(i)]=m);if(r.torre)TPA[c+'_torre']=r.torre;}
 const tpNorm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();

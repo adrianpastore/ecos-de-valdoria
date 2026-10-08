@@ -76,6 +76,7 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 | `js/31-pedidos-cidades.js` | **Pedidos dos moradores de Valdor, Pinheiral e Arcádia** (08/10/2026; o sistema é o do `28`, que ganhou `addPeds(lista)` para pôr cada pessoa na cidade dela): 3 por cidade, do mais fácil ao mais difícil. Valdor: Padeira Rosa (Cogumelos Dourados na Floresta, nv 3), Boticário Otto (Lírios do Pântano + Seda de Aranha, nv 11) e Sargento Aldo (a Insígnia da Guarda nas Ruínas + Dentes de Orc, nv 18). Pinheiral: Lenhador Osvaldo (Galhos Vivos, nv 10), Curandeira Ilka (Erva-da-Lua na Encosta 04, nv 14) e Mineiro Joca (a Picareta Velha na Caverna, 1º andar + Asas de Morcego, nv 22). Arcádia: Aprendiz Tobias (Fragmentos de Runa no Planalto, nv 6), Bibliotecária Odete (Cascas de Verme, nv 8) e Astrônomo Benedito (Estilhaços de Estrela no Covil do Wyrm, nv 22). Cidade nova: 3 pedidos aqui ou num arquivo dela (o teste de fumaça exige pelo menos 3 por cidade) |
 | `js/32-consumiveis.js` | **Consumíveis dos monstros** (08/10/2026, ideia do dono): `CONS[tipoDoMonstro]` = um consumível próprio por monstro (nome diferente do material), com desenho (`con_id`, contorno pelo `olM`) e efeito (`e`: teleporte, cura, mana, bônus com tempo somados no `recalc` por `consStats`, furtividade, antídoto, escudo, ouro); mais o **Pergaminho de Retorno** (`retorno`, só de baú, volta à `P.lastTown`). Cai com 5% (elite 20%, Mímico 50%, servos de chefe não) em `dropCons`; baús com 10/15/20/25% (`CONCH`, `chestCons`). Aba Consumíveis (`consEntries`, `consDetail`, `useCons`), peso `WCON` 2, selos no `#tonics` (`consHUD`), tempo em `consTick` (chamado pelo `tonicTick`). Teleporte e retorno não funcionam perto de chefe. Monstro novo precisa de consumível (o teste de fumaça confere) |
 | `js/33-copia-do-save.js` | **Cópia do herói** (exportar e importar o save, item 2.3 do roteiro, 08/10/2026): janela `#copia` (`openCopia`), aberta pela ajuda ("Seu herói") e pela tela inicial ("💾 Cópia" ao lado de Continuar, ou "Trazer meu herói" sem herói; ligado no `buildStart` do `99`). Código `EV1.` + save em base64 + soma de conferência (`saveCode`, `readCode`: recusa código pela metade, alterado, de outro jogo ou de versão mais nova que `SAVEV`; aceita também o JSON puro). Copiar, baixar `.txt`, colar ou escolher arquivo; pergunta antes de trocar o herói do aparelho (`cpTry`) e entra no jogo com o novo (`importSave`). **Ao subir a versão do save, mude também `SAVEV`** |
+| `js/34-campos.js` | **Campos novos entre as cidades** (passo 3 do plano de 08/10/2026): **Vale dos Lenhadores** (`lenhadores`, nível 4 a 8, entre a Estrada do Sul e Pinheiral; estrada das carroças de toras, floresta virando pinhal com `blend`, montes de lenha) e **Bosque dos Sussurros** (`bosque`, nível 8 a 12, entre o Planalto das Runas e Arcádia; sem estrada, morros, lagos e pedras rúnicas postas à mão em tiles livres). Monstros já existentes. `trocaPortal` faz os vizinhos apontarem para os campos novos sem mudar a posição dos portais (portões e a trilha da Kaya ficam iguais). Teleporte: `valdor_field06` e `arcadia_field02` |
 | `js/99-interface-e-inicio.js` | Render do canvas, minimapa, HUD, hotbar, bolsa, controles, tela inicial, loop `frame` — **sempre o último** |
 
 ### Armadilhas da estrutura
@@ -115,13 +116,17 @@ Os scripts são carregados **em ordem** por `<script src>` no `index.html` e com
 
 Mapa atual (norte para cima, conforme os `exits` no código):
 ```
-               [Arcádia]        [Covil do Wyrm]
+               [Arcádia]
+                   │
+       [Bosque dos Sussurros]   [Covil do Wyrm]
                    │                   │
           [Planalto das Runas]         │
                    │                   │
 [Floresta] ─ [Valdor] ─ [Pântano] ─ [Ruínas]
                 │
         [Estrada do Sul]
+                │
+      [Vale dos Lenhadores]
                 │
 [Caverna] ─ [Aldeia de Pinheiral] ─ [Encostas 01 a 07]
 ```
@@ -223,7 +228,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação (o jogo nunc
 ## Onde paramos (08/10/2026)
 
 **Plano aprovado pelo dono em 08/10/2026, nesta ordem:** (1) missões de coleta em Sahrem; (2) um **diário de missões** (tela que lista o que está aberto e o que já foi feito, de todas as cidades); (3) um **mapa do mundo** dentro do jogo, com as regiões e onde o herói está.
-- **Plano novo do dono (08/10/2026, depois do envio), nesta ordem:** (1) pedidos dos moradores em Valdor, Pinheiral e Arcádia (**aprovado**: `js/31-pedidos-cidades.js`); (2) exportar e importar save (**aprovado**: `js/33-copia-do-save.js`); (3) campos novos entre as cidades; (4) regiões novas (Porto e Montanhas); (5) a masmorra sob a Torre.
+- **Plano novo do dono (08/10/2026, depois do envio), nesta ordem:** (1) pedidos dos moradores em Valdor, Pinheiral e Arcádia (**aprovado**: `js/31-pedidos-cidades.js`); (2) exportar e importar save (**aprovado**: `js/33-copia-do-save.js`); (3) campos novos entre as cidades (**feito, esperando o ok do dono**: `js/34-campos.js`); (4) regiões novas (Porto e Montanhas); (5) a masmorra sob a Torre.
 - **Baús com menos itens** (08/10/2026, pedido do dono, para os pedidos dos moradores valerem mais): `CHT` (`02`) ganhou `p`, a chance de cada item sair. Média de itens por baú: Madeira 1,5 → 0,35; Prata 2 → 0,65; Ouro 2,5 → 1,1; Lendário 3,5 → 1,5. Ouro, poção e raridades não mudaram; o Mímico também não.
 - **Enviado ao GitHub (site) em 08/10/2026**, a pedido do dono. Próximos passos sugeridos ao dono, esperando a escolha dele: exportar e importar save (2.3); os campos novos entre as cidades (passo A); a masmorra sob a Torre; as regiões novas, Porto e Montanhas (passo B); pedidos dos moradores nas outras cidades.
 - **Etapa 3 aprovada pelo dono (plano completo):** o mapa do mundo (`js/30-mapa-mundo.js`, tecla M). Lugares ainda não visitados aparecem com névoa; as miniaturas ficam no aparelho, então num aparelho novo o mapa começa enevoado.
