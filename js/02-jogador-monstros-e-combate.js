@@ -73,7 +73,7 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},tons:{},tonAt:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},ped:{},tons:{},tonAt:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 // XP da barra do nível l. Equilíbrio de 29/09/2026: ~2× os monstros por nível no nível 5 e ~4× no 40 (antes: 50·l^1,6)
@@ -203,5 +203,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:5,mats:P.mats,miss:P.miss,tons:P.tons,tonAt:P.tonAt,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:6,mats:P.mats,miss:P.miss,ped:P.ped,tons:P.tons,tonAt:P.tonAt,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

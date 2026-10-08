@@ -150,6 +150,7 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 .ib.heavy{box-shadow:0 0 0 3px #ffb040} .ib.over{box-shadow:0 0 0 3px #ff4a3a}
 /* mural de missões da Guilda */
 #board{width:min(600px,95vw)}
+#pedido{width:min(560px,95vw)} #pedido .mr{align-items:center;margin-top:4px} #pedido .pic{width:24px;height:24px;image-rendering:pixelated;vertical-align:middle}
 .mcard{background:var(--panel2);border:1px solid var(--edge2);border-radius:6px;padding:8px 10px;margin-bottom:8px}
 .mcard .mt{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .mcard .mt b{font-family:Cinzel,serif;color:var(--gold)} .mcard small,.muted{color:var(--muted)}

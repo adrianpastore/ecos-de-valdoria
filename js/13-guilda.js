@@ -135,7 +135,7 @@ function missAction(a,id){const q=MISS.find(x=>x.id===id),M=P.miss;
  renderBoard();save();}
 // ao pegar um material de uma missão aceita, mostra o progresso
 function missNote(mat){for(const id of P.miss.on){const q=MISS.find(x=>x.id===id);if(!q||q.mat!==mat)continue;const n=P.mats[mat]||0;
- if(n<=q.n)log(`${q.t}: ${n}/${q.n}${n>=q.n?' • volte ao mural da Guilda!':''}`,'#ffe3a0');}}
+ if(n<=q.n)log(`${q.t}: ${n}/${q.n}${n>=q.n?' • volte ao mural da Guilda!':''}`,'#ffe3a0');}pedNote(mat);} // pedidos dos moradores (28)
 
 // ================== NOME DA CASA AO PASSAR O MOUSE ==================
 // Só com mouse (no toque não existe "passar por cima"). Casas com função têm label; as comuns não mostram nada.

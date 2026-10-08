@@ -95,7 +95,7 @@
    switchMapNow('valdor',null);info(`arcos: ${av}+${ap}+${aa}, cachoeiras nas Encostas 02 e 05: ${c}`);});
   t('menu de testes: escondido e save de verdade sem ?dev',()=>{if(DEV||$('devBtn')||$('devm'))throw 'o menu de testes apareceu sem ?dev';if(SAVEKEY!=='valdoria_save_v1')throw 'a chave do save mudou: '+SAVEKEY;});
   // inventário em abas, peso e materiais
-  t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k])throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>14))throw k+' mais largo que 14 (o contorno soma 2)';if(SPR['mat_'+k].n.width>16||SPR['mat_'+k].n.height>16)throw k+' passou de 16×16';}
+  t('inventário: todo monstro com material tem sprite',()=>{for(const k in LOOTM){if(!MDEF[k]&&!LOOTM[k].q)throw k+' sem monstro';if(!SPR['mat_'+k])throw k+' sem sprite';if(!MATSHP[k])throw k+' sem desenho próprio';if(MATSHP[k][0].some(r=>r.length>14))throw k+' mais largo que 14 (o contorno soma 2)';if(SPR['mat_'+k].n.width>16||SPR['mat_'+k].n.height>16)throw k+' passou de 16×16';}
    const vis=new Set(Object.keys(LOOTM).map(k=>MATSHP[k][0].join('/')));if(vis.size!==Object.keys(LOOTM).length)throw 'dois materiais com o mesmo desenho';info(Object.keys(LOOTM).length+' materiais');});
   t('Estrada do Sul: sem árvore ao lado da passagem do rio (clear)',()=>{genWorld('estrada');const ok=!(objRows[10]||[]).some(o=>o.tx===21)&&!solid[10*W+21];genWorld(CUR);if(!ok)throw 'ainda há algo no tile 21,10';});
   t('toque: modo toque, botões em arco e joystick anda',()=>{enter({cls:'arqueira',name:'Toque'});switchMapNow('valdor',null);cura();
@@ -197,7 +197,7 @@
   t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
-   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==5||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5||!loadSave().tons)throw 'save novo sem v:5, mats, miss, jlvl ou tons';});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==6||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5||!loadSave().tons)throw 'save novo sem v:6, mats, miss, jlvl ou tons';});
   t('atributos: herói novo começa com 5 em tudo e sem pontos',()=>{enter({cls:'guerreiro',name:'Atrib'});if(ATTR.some(([k])=>P.attr[k]!==5)||attrFree()!==0)throw JSON.stringify(P.attr)+' livres '+attrFree();});
   t('atributos: níveis dão pontos e a Força vira ataque',()=>{for(let i=0;i<20&&P.lvl<10;i++)gainXp(xpNeed(P.lvl));if(attrFree()!==27)throw 'nível 10 com '+attrFree()+' pontos (esperado 27)';
    const a0=P.st.atk,h0=P.st.hp,c0=capOf();toggleAttr();attrAdd('forca',5);attrAdd('forca',5);attrAdd('vita',5);if(P.attr.forca!==5)throw 'aplicou antes de confirmar';attrConfirm();toggleAttr();
@@ -292,7 +292,7 @@
    if(P.tons[k]!==1||P.gold!==1000-TON_V)throw 'a compra não funcionou';if(weightNow()-w0!==WPOT)throw 'o tônico não pesa';
    bagTab='uso';if(!bagEntries().some(e=>e.key==='ton:'+k))throw 'o tônico não aparece na aba Consumíveis';bagTab='equip';
    const a0=P.st.atk;drinkTonic(k);const a1=P.st.atk;if(P.tons[k]||!(P.tonAt[k]>0))throw 'tomar não ativou o efeito';if(a1<=a0)throw 'o ataque não subiu com o tônico';
-   saveReal();const s=loadSave();if(s.v!==5||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
+   saveReal();const s=loadSave();if(s.v!==6||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
    tonicTick(TON_T+1);if(P.tonAt[k])throw 'o efeito não acabou';if(P.st.atk!==a0)throw 'o ataque não voltou ao normal';
    info(`${TONN[k]}: ataque ${a0} → ${a1} por ${TON_T/60} min`);});
   t('salão da Guilda: Freya, Darian e Lexus conversam em toda Guilda',()=>{
@@ -303,6 +303,24 @@
      interact(it);const l1=q.line;if(!q.p.f.includes(l1)||!(q.until>time))throw q.p.n+' não falou';interact(it);if(q.line===l1)throw q.p.n+' repetiu a mesma fala';}
     render(.05,0);}
    info(SALAO.map(p=>p.n+' ('+p.f.length+' falas)').join(', '));});
+  t('pedidos dos moradores: cada um alcançável, com "!" e janela',()=>{for(const q of PEDS){if(!MAPS[q.map].talk.some(t=>t[2]===q.id))throw q.id+' fora do mapa';
+    for(const[m,n]of q.itens){if(!LOOTM[m]||!SPR['mat_'+m])throw q.id+': item '+m+' sem desenho';if(!COLD[m]&&!MDEF[m])throw q.id+': '+m+' não nasce no chão nem cai de monstro';
+     if(COLD[m])for(const k in COLD[m].maps)if(!MAPS[k])throw m+': mapa '+k+' não existe';}}
+   P.ped={};switchMapNow('sahrem',null);for(const q of TALK.filter(t=>t.p.ped)){const[x,y]=q.p.at,j=(y+1)*W+x;if(solid[j]||!REACH[j]||ground[y*W+x]===G.PATH)throw q.p.n+': lugar ruim (na estrada ou sem passagem na frente)';
+    cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}
+   render(.05,0);info(PEDS.map(q=>q.n+' ('+q.t+')').join(', '));});
+  t('pedidos dos moradores: aceitar, colher no chão, entregar e salvar',()=>{const q=PEDS.find(p=>p.id==='jamila'),[m,n]=q.itens[0],mp=Object.keys(COLD[m].maps)[0];P.ped={};delete P.mats[m];
+   switchMapNow(mp,null);if(COL.length)throw 'item brilhando sem pedido aceito';switchMapNow('sahrem',null);openPedido(q);pedAction('aceitar');if(pedState(q)!=='aceita')throw 'não aceitou';
+   switchMapNow(mp,null);if(COL.length!==COLD[m].maps[mp])throw COL.length+' itens no chão';for(const c of COL)if(solid[Math.floor(c.y/TILE)*W+Math.floor(c.x/TILE)])throw 'item em lugar bloqueado';
+   cura();for(let k=0;k<n;k++){const c=COL[0];P.x=c.x;P.y=c.y;const it=nearestInteract();if(!it||it.kind!=='col')throw '[E] não pega o item';interact(it);}
+   if(P.mats[m]!==n)throw 'juntou '+P.mats[m];if(COL.length)throw 'sobrou item no chão depois de juntar tudo';render(.05,0);
+   switchMapNow('sahrem',null);if(pedState(q)!=='pronta')throw 'não ficou pronto';const g=P.gold,ph=P.pots.hp;openPedido(q);pedAction('entregar');
+   if(pedState(q)!=='feito'||P.mats[m])throw 'não entregou';if(P.gold!==g+q.rew.g||P.pots.hp!==ph+q.rew.pots.hp)throw 'recompensa errada';
+   const q2=PEDS.find(p=>p.rew.item),i0=P.inv.length;P.ped[q2.id]=1;for(const[a,b]of q2.itens)P.mats[a]=b;openPedido(q2);pedAction('entregar');if(P.inv.length!==i0+1||P.inv.at(-1).rar!==q2.rew.item[1])throw 'sem o equipamento';
+   const tk=TALK.find(t=>t.p===q);interact({kind:'talk',o:tk});if(!$('pedido').classList.contains('hidden')||!q.f.includes(tk.line))throw 'depois de entregue devia só conversar';
+   P.mats.florD=2;sellAllMats();if(P.mats.florD!==2)throw 'vendeu item de pedido';
+   saveReal();const s=loadSave();if(s.v!==6||s.ped.jamila!==2)throw 'pedido não foi salvo';delete s.ped;enter(s);if(!P.ped||pedState(q)!=='livre')throw 'save antigo sem ped não abre';
+   info(q.n+': +'+q.rew.g+'g; '+q2.n+': '+P.inv.at(-1).name);});
   t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 

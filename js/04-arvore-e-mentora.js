@@ -15,6 +15,7 @@ function drawExtra(e,tt){const o=e.o;
   ctx.globalAlpha=o.temp&&o.temp<3?.5+Math.sin(tt*20)*.3:1;if(o.alpha){ctx.fillStyle='rgba(255,200,80,.3)';ctx.beginPath();ctx.ellipse(o.x,o.y,12,5,0,0,6.29);ctx.fill();}drawS(o.spr||'esqueleto',o.x,o.y-(o.moving&&Math.floor(o.animT*8)%2?1:0),o.face,o.sc||.9,o.hitT>0);ctx.globalAlpha=1;
   ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(o.x-7,o.y-17,14,2);ctx.fillStyle='#5dff7a';ctx.fillRect(o.x-7,o.y-17,14*Math.max(0,o.hp/o.maxHp),2);}
  else if(e.t===7){shadow(o.x,o.y,6);drawS('mentora',o.x,o.y);}
+ else if(e.t===9)drawCol(o,tt);
  else if(e.t===8){drawS(o.state==='pure'?'pool1':'pool0',o.x,o.y);if(o.state!=='pure'&&R()<.25)parts.push({x:o.x+rf(-6,6),y:o.y-4,vx:0,vy:-18,g:0,life:.8,max:.8,color:'#b070ff',s:1});}}
 // w: 'elara', 'selene' ou 'kaya' (só a mestra que cuida do herói, mentorOf no 03, mostra o "!"); sem w, qualquer uma
 function mentorAlert(w){if(!P||!hasTree(P.cls)||(w&&mentorOf()!==w))return false;return(P.jlvl>=10&&!P.spec&&!P.quest)||(P.quest&&P.quest.done)||(P.spec&&P.promo<2&&P.jlvl>=25);}
@@ -23,8 +24,8 @@ function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab(cidP().bar[0],BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
  const bang=(x,y)=>{ctx.font='800 24px Cinzel,serif';lab('!',x,y+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';};
  if(mentorAlert('elara'))bang(MENTOR.x,MENTOR.y-31);for(const q of TALK)if(MENTN[q.p.id]&&mentorAlert(q.p.id))bang(q.x,q.y-37); // mestres de classe (Selene, Kaya)
- portalLabels(lab);drawTalk(sx,sy,lab);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
-function promptText(it){return it.kind==='smith'?`[E] Falar com ${cidP().smith[0].replace(/^(\S+) (.+)/,(m,c,n)=>n+' ('+c.toLowerCase()+')')}`:it.kind==='bar'?`[E] Falar com a taverneira ${cidP().bar[0]}`:it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
+ portalLabels(lab);drawTalk(sx,sy,lab);pedMarks(lab,tt);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
+function promptText(it){return it.kind==='smith'?`[E] Falar com ${cidP().smith[0].replace(/^(\S+) (.+)/,(m,c,n)=>n+' ('+c.toLowerCase()+')')}`:it.kind==='bar'?`[E] Falar com a taverneira ${cidP().bar[0]}`:it.kind==='col'?`[E] ${COLD[it.o.mat].v} ${LOOTM[it.o.mat].n}`:it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]||it.o.p.ped&&pedState(it.o.p)!=='feito'?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;

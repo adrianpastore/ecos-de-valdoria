@@ -274,6 +274,7 @@ function purify(n){if(n.state!=='corr')return;n.state='guard';const tx=Math.floo
 function nascTick(){for(const n of nascs)if(n.state==='guard'&&n.guards.every(g=>g.dead)){n.state='pure';burst(n.x,n.y-6,'#7dff9a',30,70);
   if(P.quest){P.quest.prog++;P.quest.nasc=nascs.map(k=>({x:k.x,y:k.y,state:k.state}));log(`Nascente purificada (${P.quest.prog}/3).`,'#9dff9a');questCheck();}}}
 function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)continue;const d=hyp(c.x-P.x,c.y-P.y);if(d<bd){bd=d;b={kind:'chest',o:c};}}
+ for(const c of COL){const d=hyp(c.x-P.x,c.y-P.y);if(d<bd){bd=d;b={kind:'col',o:c};}} // itens de pedido no chão (28)
  for(const n of nascs){if(n.state!=='corr')continue;const d=hyp(n.x-P.x,n.y-P.y);if(d<bd){bd=d;b={kind:'nasc',o:n};}}
  if(hyp(NPC.x-P.x,NPC.y-P.y)<bd){bd=hyp(NPC.x-P.x,NPC.y-P.y);b={kind:'npc',o:NPC};}
  if(hyp(MENTOR.x-P.x,MENTOR.y-P.y)<bd){bd=hyp(MENTOR.x-P.x,MENTOR.y-P.y);b={kind:'mentor',o:MENTOR};}
@@ -281,4 +282,4 @@ function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)con
  if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};
  if(hyp(SMITH.x-P.x,SMITH.y-P.y)<Math.max(bd,30))b={kind:'smith',o:SMITH};
  if(hyp(BAR.x-P.x,BAR.y-P.y)<Math.max(bd,30))b={kind:'bar',o:BAR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='talk'){if(it.o.p.id===MENT_CLS[P.cls])openMentor(it.o.p.id);else talkTo(it.o);}else openShop();}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='col')pickCol(it.o);else if(it.kind==='talk'){if(it.o.p.id===MENT_CLS[P.cls])openMentor(it.o.p.id);else if(it.o.p.ped)openPedido(it.o.p);else talkTo(it.o);}else openShop();}

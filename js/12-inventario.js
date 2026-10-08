@@ -90,8 +90,8 @@ function stackDetail(d,key){const[kind,id]=key.split(':'),near=hyp(NPC.x-P.x,NPC
    (t>0?`<div class="pos">Ativo: faltam ${mmss(t)}. Tomar outro renova o tempo.</div>`:'');
   acts=`<button class="btn sm gold" data-a="use">Tomar</button><button class="btn sm" data-a="drop1">Descartar 1</button>`;}
  else{const M=LOOTM[id],n=P.mats[id]||0;if(!n){sel=null;return renderBag();}
-  h=`<h3>${M.n}</h3><div class="meta">Item • ${n} na bolsa • peso ${M.w} cada</div><div>Deixado por: ${MDEF[id].n}. O mercador da praça paga ${M.v}g por unidade.</div>`;
-  acts=near?`<button class="btn sm gold" data-a="sell1">Vender 1 por ${M.v}g</button>`+(n>1?`<button class="btn sm" data-a="sellAll">Vender ${n} por ${M.v*n}g</button>`:'')
+  h=`<h3>${M.n}</h3><div class="meta">${M.q?'Item de pedido':'Item'} • ${n} na bolsa • peso ${M.w} cada</div><div>${M.q?M.d+' Não tem valor para o mercador.':`Deixado por: ${MDEF[id].n}. O mercador da praça paga ${M.v}g por unidade.`}</div>`;
+  acts=near&&!M.q?`<button class="btn sm gold" data-a="sell1">Vender 1 por ${M.v}g</button>`+(n>1?`<button class="btn sm" data-a="sellAll">Vender ${n} por ${M.v*n}g</button>`:'')
    :`<button class="btn sm" data-a="drop1">Descartar 1</button>`+(n>1?`<button class="btn sm" data-a="dropAll">Descartar todos</button>`:'');}
  d.innerHTML=h+`<div class="acts">${acts}</div>`;d.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>stackAction(b.dataset.a,kind,id));}
 function stackAction(a,kind,id){
@@ -100,6 +100,6 @@ function stackAction(a,kind,id){
  else{const M=LOOTM[id],n=P.mats[id]||0,q=a.endsWith('All')?n:1;P.mats[id]=n-q;
   if(a.startsWith('sell')){P.gold+=M.v*q;log(`Vendeu ${q}× ${M.n} por ${M.v*q}g.`,'#ffd24a');}if(!P.mats[id])delete P.mats[id];}
  renderBag();save();}
-function sellAllMats(){let g=0,n=0;for(const k in P.mats){g+=LOOTM[k].v*P.mats[k];n+=P.mats[k];}P.mats={};P.gold+=g;
+function sellAllMats(){let g=0,n=0;for(const k in P.mats){if(LOOTM[k].q)continue;g+=LOOTM[k].v*P.mats[k];n+=P.mats[k];delete P.mats[k];}P.gold+=g; // itens de pedido (28) ficam
  log(n?`Vendeu ${n} materiais por ${g}g.`:'Nenhum material para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();}
 $('sellMats').onclick=()=>P&&sellAllMats();
