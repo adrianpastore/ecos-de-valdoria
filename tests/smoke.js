@@ -311,6 +311,20 @@
     cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}}
    for(const c of ['valdor','pinheiral','arcadia','sahrem'])if(PEDS.filter(q=>q.map===c).length<3)throw c+' com menos de 3 pedidos';
    render(.05,0);info(PEDS.map(q=>q.n+' ('+q.t+')').join(', '));});
+  t('cópia do herói: exportar, importar, código pela metade e versão nova',()=>{
+   saveReal();const s0=loadSave(),c=saveCode(s0);if(!c.startsWith('EV1.'))throw 'código sem o prefixo';
+   const r=readCode(c);if(r.erro||JSON.stringify(r.s)!==JSON.stringify(s0))throw 'o código não volta igual: '+r.erro;
+   if(readCode('  '+c.slice(0,40)+'\n'+c.slice(40)+' ').erro)throw 'quebra de linha no meio estragou o código';
+   if(!readCode(c.slice(0,c.length-30)).erro)throw 'código pela metade foi aceito';
+   const b=c.split('.');if(!readCode(b[0]+'.'+b[1].replace(/A/,'B')+'.'+b[2]).erro)throw 'código alterado foi aceito';
+   if(readCode(JSON.stringify(s0)).erro)throw 'o save em texto puro não foi aceito';
+   if(!readCode(saveCode(Object.assign({},s0,{v:SAVEV+1}))).erro)throw 'save de versão mais nova foi aceito';
+   if(!readCode('olá').erro||!readCode(saveCode({a:1})).erro)throw 'texto qualquer foi aceito';
+   const s1=Object.assign({},s0,{name:'Ção Ünico',gold:4321});openCopia();if($('copia').classList.contains('hidden')||$('cpCode').value!==c)throw 'a janela não mostrou o código';
+   cpTry(saveCode(s1));if(!$('cpSim'))throw 'não perguntou antes de trocar';$('cpSim').onclick();
+   if(P.name!=='Ção Ünico'||P.gold!==4321||loadSave().name!=='Ção Ünico'||!$('copia').classList.contains('hidden'))throw 'o herói importado não entrou';
+   cpTry('EV1.xyz');if(!$('cpMsg').querySelector('.neg'))throw 'erro não aparece';closeAll();
+   localStorage.setItem(SAVEKEY,JSON.stringify(s0));enter(loadSave());info(`código de ${c.length} letras`);});
   t('consumíveis: um próprio para cada monstro, desenho, cai de monstro e de baú, efeitos e save',()=>{
    const tipos=Object.keys(MDEF).filter(k=>!MDEF[k].boss&&!MDEF[k].clone),nomes=new Set();
    for(const k of tipos){const C=CONS[k];if(!C)throw MDEF[k].n+' sem consumível';if(LOOTM[k]&&LOOTM[k].n===C.n)throw C.n+' tem o nome do material';}

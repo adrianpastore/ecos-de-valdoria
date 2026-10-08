@@ -85,11 +85,12 @@
   <li>Dois níveis: o de <b>Base</b> dá pontos de atributo (P) e o de <b>Classe</b> dá pontos de habilidade (T)</li>
  </ul>
  <p>Quanto mais longe da vila, mais fortes os monstros e melhores os baús. Os baús dourados no minimapa guardam saque. Cuidado: alguns baús mordem. No canto nordeste dorme o Wyrm Carmesim.</p>
- <p>Círculos vermelhos no chão avisam golpes fortes: saia de dentro deles. O progresso é salvo neste navegador.</p>
+ <p>Círculos vermelhos no chão avisam golpes fortes: saia de dentro deles. O progresso é salvo neste navegador; guarde uma cópia do herói (abaixo) para não perdê-lo.</p>
  <p class="toqueonly">No celular: arraste o polegar no canto esquerdo para andar e toque nos botões redondos à direita para atacar e usar habilidades. Tocar no chão ou num monstro também funciona.</p>
  <div class="ctlrow"><b>Controles</b><button class="btn sm" data-ctl="auto">Automático</button><button class="btn sm" data-ctl="toque">Toque</button><button class="btn sm" data-ctl="teclado">Teclado e mouse</button><button class="btn sm" id="fullBtn">Tela cheia</button></div>
  <p class="toqueonly">Para instalar o jogo como um app (ícone na tela inicial, tela cheia e funciona sem internet): no Android, toque em <b>Instalar</b> abaixo ou no menu ⋮ do navegador → <b>Instalar app</b>; no iPhone, toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.</p>
  <p><button class="btn sm gold hidden" data-inst>📲 Instalar o jogo</button></p>
+ <div class="ctlrow"><b>Seu herói</b><button class="btn sm gold" id="copiaBtn">💾 Guardar ou trazer uma cópia</button></div>
  <div class="ctlrow"><b>Qualidade</b><button class="btn sm" data-qual="auto">Automática</button><button class="btn sm" data-qual="alta">Alta</button><button class="btn sm" data-qual="leve">Leve (celular simples)</button></div>
 </div>
 <div id="girar" class="overlay"><div><b>↻</b>Gire o celular para jogar deitado</div></div>
@@ -101,6 +102,7 @@
 <div id="diario" class="panel frame hidden"><div class="phead"><h2>Diário de missões</h2><button class="x" data-close="diario" aria-label="Fechar">✕</button></div><div id="diarioTabs" class="tabs"></div><div id="diarioBody"></div></div>
 <div id="pedido" class="panel frame hidden"><div class="phead"><h2>Pedido</h2><button class="x" data-close="pedido" aria-label="Fechar">✕</button></div><div id="pedidoBody"></div></div>
 <div id="taverna" class="panel frame hidden"><div class="phead"><h2>Bar da Brígida</h2><button class="x" data-close="taverna" aria-label="Fechar">✕</button></div><div id="tavernaBody"></div></div>
+<div id="copia" class="panel frame hidden"><div class="phead"><h2>Cópia do herói</h2><button class="x" data-close="copia" aria-label="Fechar">✕</button></div><div id="copiaBody"></div></div>
 <div id="attr" class="panel frame hidden"><div class="phead"><h2>Atributos</h2><span id="attrPts" class="pts"></span><button class="x" data-close="attr" aria-label="Fechar">✕</button></div><div id="attrBody"></div></div>
 <div id="mentor" class="panel frame hidden"><div class="phead"><h2>Mestra Elara</h2><button class="x" data-close="mentor" aria-label="Fechar">✕</button></div><div id="mentorBody"></div></div>
 <div id="loading" class="hidden"><div class="ld"><small>Viajando para</small><b id="ldName"></b><span id="ldSub"></span><div class="ldbar"><i></i></div></div></div>
@@ -147,6 +149,7 @@
 <script src="js/30-mapa-mundo.js"></script>
 <script src="js/31-pedidos-cidades.js"></script>
 <script src="js/32-consumiveis.js"></script>
+<script src="js/33-copia-do-save.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
 <script>if(window.__errs){const s=document.createElement('script');s.src=/[?&]medir\b/.test(location.search)?'tests/medidor.js':/[?&]mapa\b/.test(location.search)?'tests/mapa-mundi.js':'tests/smoke.js';document.body.append(s);}</script>
 </body>

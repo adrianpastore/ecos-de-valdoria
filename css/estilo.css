@@ -272,3 +272,4 @@ body.toque #hotbar .hs .ski{border-radius:50%}
 @keyframes mpin{0%,100%{transform:scale(1)}50%{transform:scale(1.5);box-shadow:0 0 12px 3px #ff6a3a}}
 #mundoInfo{margin:6px 0 0;font-size:14px;min-height:20px} #mundoInfo .mvc{color:#e85a3a;font-weight:700}
 body.toque #mundoRol{overflow:auto;max-height:calc(100vh - 128px);text-align:left;border-radius:4px} body.toque #mundoCv{max-width:none;max-height:none} body.toque #mundo .flav{font-size:13px;margin:0 0 3px} body.toque #mundoInfo{font-size:12px;margin-top:3px}
+#copia{width:min(600px,95vw);z-index:45} #copia h3{margin:10px 0 4px} #copia textarea{width:100%;box-sizing:border-box;font:12px/1.3 monospace;resize:vertical;background:var(--slot);color:var(--text);border:1px solid var(--slotedge);border-radius:6px;padding:6px;word-break:break-all} #copia .acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px} #copia label.btn{cursor:pointer}
