@@ -22,7 +22,8 @@ const MDEF={slime:{n:'Geleia',hp:30,atk:5,def:1,spd:36,xp:10,r:6,aggro:55,cd:1.4
 const ZTYPES={1:[['slime',.55],['lobo',1]],2:[['aranha',.55],['esqueleto',1]],3:[['orc',.7],['golem',1]]};
 const ZTARGET={1:38,2:32,3:28},CTARGET={1:10,2:8,3:7};
 const CHN=['','Baú de Madeira','Baú de Prata','Baú de Ouro','Baú Lendário'];
-const CHT=[null,{b:.4,n:[1,2],g:[5,15]},{b:.9,n:[1,3],g:[15,40]},{b:1.6,n:[2,3],g:[40,90]},{b:3.5,n:[3,4],g:[150,300],min:2}];
+// p = chance de cada item sair (08/10/2026, pedido do dono: baús dão menos itens, para os pedidos dos moradores valerem mais)
+const CHT=[null,{b:.4,n:[1,1],p:.35,g:[5,15]},{b:.9,n:[1,1],p:.65,g:[15,40]},{b:1.6,n:[1,2],p:.75,g:[40,90]},{b:3.5,n:[1,2],p:1,g:[150,300],min:2}];
 const ZN=[{n:'Vila de Valdor',s:'Zona segura • mercador e cura'},{n:'Floresta Verdejante',s:'Nível 1 a 9'},{n:'Pântano Sombrio',s:'Nível 9 a 16'},{n:'Ruínas Esquecidas',s:'Nível 16 a 20'},{n:'Covil do Wyrm',s:'Chefe • nível 22'}];
 const RAR=[{n:'Comum',m:1,a:1,w:62},{n:'Incomum',m:1.15,a:2,w:25},{n:'Raro',m:1.32,a:3,w:9.5},{n:'Épico',m:1.55,a:4,w:3},{n:'Lendário',m:1.85,a:5,w:.6}];
 const SLOTN={arma:'Arma',elmo:'Elmo',peito:'Armadura',botas:'Botas',anel:'Anel'};
@@ -123,7 +124,7 @@ function openChest(c){if(c.open)return;
   banner('É um Mímico!','O baú tinha dentes.');shake(3);burst(c.x,c.y-8,'#ff3030',16,70);return;}
  c.open=true;c.openT=0;const T=CHT[c.tier];log(`Você abriu um ${CHN[c.tier]}!`,'#ffd24a');
  dropLoot(c.x,c.y-2,{kind:'gold',amt:Math.round(ri(T.g[0],T.g[1])*(1+c.lvl*.15))});
- const n=ri(T.n[0],T.n[1]);for(let i=0;i<n;i++)dropLoot(c.x,c.y-2,{kind:'item',item:genItem(c.lvl,T.b,null,T.min||0)});
+ const n=ri(T.n[0],T.n[1]);for(let i=0;i<n;i++)if(R()<T.p)dropLoot(c.x,c.y-2,{kind:'item',item:genItem(c.lvl,T.b,null,T.min||0)});
  if(R()<.5)dropLoot(c.x,c.y-2,{kind:'pot',pot:R()<.6?'hp':'mp'});
  for(let i=0;i<26;i++)parts.push({x:c.x+rf(-6,6),y:c.y-8,vx:rf(-30,30),vy:rf(-80,-20),g:60,life:rf(.5,1),max:1,color:pick(['#ffd24a','#fff3b0','#ffffff']),s:rf(1,2)});
  if(c.lair)lairChestT=time+240;save();}
