@@ -165,6 +165,7 @@ kbd{background:var(--panel2);border:1px solid var(--edge);border-radius:4px;padd
 #taverna{width:min(520px,95vw)} .shoprow.ton img{width:32px;height:32px;image-rendering:pixelated}
 #tonics{position:absolute;left:10px;top:92px;display:flex;gap:4px;flex-wrap:wrap;z-index:5;pointer-events:none}
 #tonics span{background:rgba(20,12,8,.72);color:#ffe3a0;border:1px solid #6b4a14;border-radius:6px;padding:1px 6px;font:700 12px "Pixelify Sans",monospace}
+#tonics img{width:14px;height:14px;image-rendering:pixelated;vertical-align:-3px;margin-right:3px}
 #tonics:not(:empty)~#quest{top:116px}
 @media (max-width:700px){#tonics{top:86px} #tonics:not(:empty)~#quest{top:110px}}
 /* janela de atributos (16) */

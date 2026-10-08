@@ -55,7 +55,7 @@ function drawDark(sx,sy,tt){if(!MAPS[CUR].dark)return;
  const d=darkC.getContext('2d');d.setTransform(.5,0,0,.5,0,0);d.globalCompositeOperation='source-over';d.clearRect(0,0,VW,VH);d.fillStyle='rgba(6,4,8,.93)';d.fillRect(0,0,VW,VH);
  d.globalCompositeOperation='destination-out';
  const hole=(x,y,r,a)=>{const g=d.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(0,0,0,${a})`);g.addColorStop(.55,`rgba(0,0,0,${a*.85})`);g.addColorStop(1,'rgba(0,0,0,0)');d.fillStyle=g;d.fillRect(x-r,y-r,r*2,r*2);};
- const fl=1+Math.sin(tt*7)*.025+Math.sin(tt*13)*.015,tr=92*S*fl;
+ const fl=1+Math.sin(tt*7)*.025+Math.sin(tt*13)*.015,tr=92*S*fl*(consOn('luz')?1.7:1);
  if(P)hole(sx(P.x),sy(P.y-8),tr,1);
  for(const to in MAPS[CUR].portals){const p=portalPt(to);hole(sx(p.x),sy(p.y),34*S,.8);}
  for(const p of projs)hole(sx(p.x),sy(p.y),14*S,.6);

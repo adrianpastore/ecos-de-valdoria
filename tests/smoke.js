@@ -198,7 +198,7 @@
   t('inventário: as 3 abas aparecem na bolsa',()=>{P.mats={esquilo:5,lobo:1};P.inv.push(genItem(5,0,'elmo'));for(const tb of['uso','equip','etc']){bagTab=tb;sel=null;renderBag();const E=bagEntries();if(!E.length)throw 'aba '+tb+' vazia';sel={key:E[0].key,eq:false};renderBag();}
    if($('invGrid').querySelector('.qt').textContent!=='5')throw 'pilha sem quantidade';bagTab='equip';sel=null;});
   t('inventário: save antigo, sem materiais, carrega',()=>{enter({v:1,name:'Antigo',cls:'mago',lvl:5,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'});
-   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==6||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5||!loadSave().tons)throw 'save novo sem v:6, mats, miss, jlvl ou tons';});
+   if(!P.mats||Object.keys(P.mats).length)throw 'mats não iniciou vazio';if(!(weightNow()>0))throw 'peso inválido';saveReal();if(loadSave().v!==7||!loadSave().mats||!loadSave().miss||loadSave().jlvl!==5||!loadSave().tons)throw 'save novo sem v:7, mats, miss, jlvl ou tons';});
   t('atributos: herói novo começa com 5 em tudo e sem pontos',()=>{enter({cls:'guerreiro',name:'Atrib'});if(ATTR.some(([k])=>P.attr[k]!==5)||attrFree()!==0)throw JSON.stringify(P.attr)+' livres '+attrFree();});
   t('atributos: níveis dão pontos e a Força vira ataque',()=>{for(let i=0;i<20&&P.lvl<10;i++)gainXp(xpNeed(P.lvl));if(attrFree()!==27)throw 'nível 10 com '+attrFree()+' pontos (esperado 27)';
    const a0=P.st.atk,h0=P.st.hp,c0=capOf();toggleAttr();attrAdd('forca',5);attrAdd('forca',5);attrAdd('vita',5);if(P.attr.forca!==5)throw 'aplicou antes de confirmar';attrConfirm();toggleAttr();
@@ -293,7 +293,7 @@
    if(P.tons[k]!==1||P.gold!==1000-TON_V)throw 'a compra não funcionou';if(weightNow()-w0!==WPOT)throw 'o tônico não pesa';
    bagTab='uso';if(!bagEntries().some(e=>e.key==='ton:'+k))throw 'o tônico não aparece na aba Consumíveis';bagTab='equip';
    const a0=P.st.atk;drinkTonic(k);const a1=P.st.atk;if(P.tons[k]||!(P.tonAt[k]>0))throw 'tomar não ativou o efeito';if(a1<=a0)throw 'o ataque não subiu com o tônico';
-   saveReal();const s=loadSave();if(s.v!==6||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
+   saveReal();const s=loadSave();if(s.v!==7||!s.tonAt||!(s.tonAt[k]>0))throw 'o efeito não foi salvo';
    tonicTick(TON_T+1);if(P.tonAt[k])throw 'o efeito não acabou';if(P.st.atk!==a0)throw 'o ataque não voltou ao normal';
    info(`${TONN[k]}: ataque ${a0} → ${a1} por ${TON_T/60} min`);});
   t('salão da Guilda: Freya, Darian e Lexus conversam em toda Guilda',()=>{
@@ -311,6 +311,31 @@
     cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}}
    for(const c of ['valdor','pinheiral','arcadia','sahrem'])if(PEDS.filter(q=>q.map===c).length<3)throw c+' com menos de 3 pedidos';
    render(.05,0);info(PEDS.map(q=>q.n+' ('+q.t+')').join(', '));});
+  t('consumíveis: um próprio para cada monstro, desenho, cai de monstro e de baú, efeitos e save',()=>{
+   const tipos=Object.keys(MDEF).filter(k=>!MDEF[k].boss&&!MDEF[k].clone),nomes=new Set();
+   for(const k of tipos){const C=CONS[k];if(!C)throw MDEF[k].n+' sem consumível';if(LOOTM[k]&&LOOTM[k].n===C.n)throw C.n+' tem o nome do material';}
+   for(const id in CONS){const C=CONS[id];if(nomes.has(C.n))throw 'nome repetido: '+C.n;nomes.add(C.n);if(!SPR['con_'+id])throw C.n+' sem desenho';if(C.s.some(r=>r.length>14))throw C.n+' passa de 14 colunas';if(!consDesc(C.e).length)throw C.n+' sem texto';}
+   if(CONCH[1]!==.3||CONCH[2]!==.35||CONCH[3]!==.4||CONCH[4]!==.4)throw 'chance dos baús errada';
+   switchMapNow('floresta','valdor');cura();P.cons={};P.consAt={};recalc();
+   // cai do monstro
+   const m=mons.find(x=>CONS[x.type]);let n0=loots.length;for(let k=0;k<600&&loots.length===n0;k++)dropCons(m);if(!loots.slice(n0).some(l=>l.kind==='con'&&l.con===m.type))throw 'monstro não deixou o consumível';
+   // cai do baú
+   n0=loots.length;for(let k=0;k<200&&loots.length===n0;k++)chestCons({x:P.x,y:P.y,tier:1});if(!loots.slice(n0).some(l=>l.kind==='con'))throw 'baú não deixou consumível';
+   // pegar do chão, aparece na bolsa e pesa
+   const w0=weightNow();loots.length=0;dropLoot(P.x,P.y,{kind:'con',con:'esquilo'});for(const l of loots)l.z=0,l.vz=0;for(let k=0;k<20&&!P.cons.esquilo;k++)update(.05);
+   if(P.cons.esquilo!==1)throw 'não pegou do chão';if(weightNow()-w0!==WCON)throw 'não pesa';bagTab='uso';if(!bagEntries().some(e=>e.key==='con:esquilo'))throw 'não aparece na aba Consumíveis';bagTab='equip';
+   // bônus com tempo
+   const s0=P.st.spd;useCons('esquilo');if(P.st.spd!==s0+25||!(P.consAt.esquilo>0))throw 'a velocidade não subiu';
+   saveReal();const s=loadSave();if(s.v!==7||!(s.consAt.esquilo>0))throw 'o efeito não foi salvo';
+   consTick(200);if(P.consAt.esquilo||P.st.spd!==s0)throw 'o efeito não acabou';
+   // todos funcionam fora da cidade (menos o pergaminho, que leva para a cidade)
+   for(const id in CONS){if(id==='retorno')continue;P.cons[id]=1;cura();P.hp=P.st.hp*.5;P.mp=P.st.mp*.5;if(!useCons(id))throw CONS[id].n+' não funcionou';}
+   P.consAt={};P.shield=null;P.stealth=null;recalc();
+   // o olho não funciona na cidade
+   switchMapNow('valdor',null);P.cons.slime=1;if(useCons('slime')||P.cons.slime!==1)throw 'o Olho de Geleia funcionou na cidade';
+   consTick(.1);if(P.lastTown!=='valdor')throw 'não guardou a última cidade';
+   const sv=loadSave();delete sv.cons;delete sv.consAt;enter(sv);if(!P.cons||!P.consAt)throw 'save antigo sem consumíveis não abre';
+   info(`${Object.keys(CONS).length} consumíveis`);});
   t('pedidos dos moradores: aceitar, colher no chão, entregar e salvar',()=>{const q=PEDS.find(p=>p.id==='jamila'),[m,n]=q.itens[0],mp=Object.keys(COLD[m].maps)[0];P.ped={};delete P.mats[m];
    switchMapNow(mp,null);if(COL.length)throw 'item brilhando sem pedido aceito';switchMapNow('sahrem',null);openPedido(q);pedAction('aceitar');if(pedState(q)!=='aceita')throw 'não aceitou';
    switchMapNow(mp,null);if(COL.length!==COLD[m].maps[mp])throw COL.length+' itens no chão';for(const c of COL)if(solid[Math.floor(c.y/TILE)*W+Math.floor(c.x/TILE)])throw 'item em lugar bloqueado';
@@ -321,7 +346,7 @@
    const q2=PEDS.find(p=>p.rew.item),i0=P.inv.length;P.ped[q2.id]=1;for(const[a,b]of q2.itens)P.mats[a]=b;openPedido(q2);pedAction('entregar');if(P.inv.length!==i0+1||P.inv.at(-1).rar!==q2.rew.item[1])throw 'sem o equipamento';
    const tk=TALK.find(t=>t.p===q);interact({kind:'talk',o:tk});if(!$('pedido').classList.contains('hidden')||!q.f.includes(tk.line))throw 'depois de entregue devia só conversar';
    P.mats.florD=2;sellAllMats();if(P.mats.florD!==2)throw 'vendeu item de pedido';
-   saveReal();const s=loadSave();if(s.v!==6||s.ped.jamila!==2)throw 'pedido não foi salvo';delete s.ped;enter(s);if(!P.ped||pedState(q)!=='livre')throw 'save antigo sem ped não abre';
+   saveReal();const s=loadSave();if(s.v!==7||s.ped.jamila!==2)throw 'pedido não foi salvo';delete s.ped;enter(s);if(!P.ped||pedState(q)!=='livre')throw 'save antigo sem ped não abre';
    info(q.n+': +'+q.rew.g+'g; '+q2.n+': '+P.inv.at(-1).name);});
   t('diário de missões: abre no J, mostra o que está aberto e o que foi feito',()=>{switchMapNow('sahrem',null);cura();P.miss={on:[],cd:{}};P.ped={};P.mats={};
    const m=MISS.find(x=>x.city==='sahrem'),r=PEDS[1];missAction('aceitar',m.id);P.ped[r.id]=1;

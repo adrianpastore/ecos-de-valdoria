@@ -46,14 +46,14 @@ function monSpecial(m,dt,dP){const d=m.d;if(d.clone){m.life=(m.life??12)-dt;if(m
  if(d.fly&&dP>m.r+6){if(m.rootT>0)return true;const spd=m.spd*(m.slowT>0?.45:1);m.x+=(P.x-m.x)/dP*spd*dt;m.y+=(P.y-m.y)/dP*spd*dt;m.face=P.x>m.x?1:-1;m.moving=true;return true;}
  return false;}
 function onMonHit(m,d){if(!m||P.dead)return;
- if(m.d.poison&&R()<.5){P.pdot={t:4,acc:0,dps:Math.max(1,Math.round(d*.3))};addText(P.x,P.y-32,'Envenenado!','#7dff5a');}
+ if(m.d.poison&&R()<.5&&!consOn('anti')){P.pdot={t:4,acc:0,dps:Math.max(1,Math.round(d*.3))};addText(P.x,P.y-32,'Envenenado!','#7dff5a');}
  if(m.d.steal&&P.gold>0){const a=Math.min(P.gold,Math.ceil(P.gold*.03)+m.lvl);P.gold-=a;m.stolen=(m.stolen||0)+a;addText(P.x,P.y-32,'-'+a+'g roubado!','#ffd24a');}}
 function tickPay(dt){
  if(P.pdot&&!P.dead){P.pdot.t-=dt;P.pdot.acc+=dt;if(P.pdot.acc>=1){P.pdot.acc-=1;P.hp-=P.pdot.dps;addText(P.x+rf(-4,4),P.y-22,'-'+P.pdot.dps,'#7dff5a');burst(P.x,P.y-8,'#7dff5a',4,20);
    if(P.hp<=0){P.hp=0;P.pdot=null;die(null);return;}}if(P.pdot&&P.pdot.t<=0)P.pdot=null;}
  for(let i=mproj.length-1;i>=0;i--){const p=mproj[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(R()<.5)parts.push({x:p.x,y:p.y,vx:0,vy:0,g:0,life:.25,max:.25,color:p.c,s:1});
   if(!P.dead&&hyp(p.x-P.x,p.y-(P.y-8))<8){mproj.splice(i,1);hurtPlayer(p.m.atk*weakOf(p.m),p.m,p.mult||1.2);
-   if(p.pull)sethkarPull(p.m);if(p.curse&&!P.dead){P.pdot={t:4,acc:0,dps:Math.max(1,Math.round(p.m.atk*.25))};addText(P.x,P.y-32,'Amaldiçoado!','#c060ff');} // golpes do Rei Sethkar (27)
+   if(p.pull)sethkarPull(p.m);if(p.curse&&!P.dead&&!consOn('anti')){P.pdot={t:4,acc:0,dps:Math.max(1,Math.round(p.m.atk*.25))};addText(P.x,P.y-32,'Amaldiçoado!','#c060ff');} // golpes do Rei Sethkar (27)
   burst(p.x,p.y,p.c,8,40);continue;}
   if(p.life<=0||blocked(p.x,p.y+8,1))mproj.splice(i,1);}}
 // a atadura do Rei Sethkar (27): faixa clara com pontas escuras

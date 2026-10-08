@@ -74,7 +74,7 @@ function populate(){const M=MAPS[CUR],z=M.theme;if(!M.town&&!M.lair){for(let i=0
  if(M.boss&&time>=(BOSSAT[CUR]||0))spawnBoss(false);if(M.lair&&time>=lairChestT)chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
 
 // ================== JOGADOR ==================
-function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},ped:{},tons:{},tonAt:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
+function newPlayer(cls,name){return{name,cls,lvl:1,xp:0,jlvl:1,jxp:0,attr:newAttr(ATTR_INI),gold:20,inv:[],equip:{},pots:{hp:3,mp:2},mats:{},miss:{on:[],cd:{}},ped:{},tons:{},tonAt:{},cons:{},consAt:{},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE};}
 function initRuntime(){Object.assign(P,{face:1,moving:false,target:null,auto:false,atkT:0,potCd:0,form:null,hot:null,pulse:null,buff:null,dest:null,pend:null,queued:null,dead:false,hitT:0,combatT:-99,swingT:0,animT:0,zone:-1});initSkills();recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
 
 // XP da barra do nível l. Equilíbrio de 29/09/2026: ~2× os monstros por nível no nível 5 e ~4× no 40 (antes: 50·l^1,6)
@@ -96,7 +96,7 @@ function hurtPlayer(atk,m,mult=1){if(P.dead)return;let d=Math.max(1,Math.round(a
  if(m&&!m.dead&&!P.target){P.target=m;if(!P.dest)P.auto=true;}
  if(mult===1&&m&&!m.dead&&P.st.thorns)dealMonster(m,d*P.st.thorns,false,{src:'thorns'});
  if(P.hp<=0){P.hp=0;die(m);}}
-function die(m){P.dead=true;P.pdot=null;P.stealth=null;P.volley=null;P.shield=null;P.banner=null;if(P.quest&&!P.quest.done&&SPECS[P.quest.spec].trial.kind==='hits')P.quest.prog=0;P.form=null;P.pulse=null;P.tonAt={};allies.length=0;recalc();P.target=null;P.auto=false;P.dest=null;const lost=Math.floor(P.gold*.05);P.gold-=lost;
+function die(m){P.dead=true;P.pdot=null;P.stealth=null;P.volley=null;P.shield=null;P.banner=null;if(P.quest&&!P.quest.done&&SPECS[P.quest.spec].trial.kind==='hits')P.quest.prog=0;P.form=null;P.pulse=null;P.tonAt={};P.consAt={};allies.length=0;recalc();P.target=null;P.auto=false;P.dest=null;const lost=Math.floor(P.gold*.05);P.gold-=lost;
  $('deathTxt').textContent=`${m?m.name+' (nível '+m.lvl+')':'Algo'} derrotou você. Você perdeu ${lost} de ouro.`;$('death').classList.remove('hidden');}
 function respawn(){P.dead=false;if(CUR!=='valdor')switchMapNow('valdor',null);P.x=(TC.x+.5)*TILE;P.y=(TC.y+2.5)*TILE;P.hp=P.st.hp;P.mp=P.st.mp;$('death').classList.add('hidden');save();}
 function nearestMon(range){let b=null,bd=range;for(const m of mons){if(m.dead)continue;const d=hyp(m.x-P.x,m.y-P.y);if(d<bd){bd=d;b=m;}}return b;}
@@ -104,7 +104,7 @@ function nearestMon(range){let b=null,bd=range;for(const m of mons){if(m.dead)co
 const xpOf=(d,lvl,el)=>Math.round(d.xp*1.5*(1+.35*(lvl-1))*(el?3:1)); // XP de um monstro (também usada pelo medidor)
 function killMonster(m,src){m.dead=true;if(m.d.clone){burst(m.x,m.y-12,'#c8c8c8',18,50);addText(m.x,m.y-26,'Falso!','#cccccc');if(P.target===m){P.target=null;P.auto=false;}return;}onKill(m,src);let xp=xpOf(m.d,m.lvl,m.elite);const diff=P.lvl-m.lvl;if(diff>5)xp=Math.max(1,Math.round(xp*Math.max(.1,1-(diff-5)*.2)));
  addText(m.x,m.y-mh(m)-12,'+'+xp+' XP','#d6a8ff');gainXp(xp);
- dropLoot(m.x,m.y,{kind:'gold',amt:Math.round(ri(2,5)*(1+m.lvl*.6)*(m.elite?3:1)*(m.boss?10:1))+(m.stolen||0)});dropMat(m);
+ dropLoot(m.x,m.y,{kind:'gold',amt:Math.round(ri(2,5)*(1+m.lvl*.6)*(m.elite?3:1)*(m.boss?10:1))+(m.stolen||0)});dropMat(m);dropCons(m);
  let n=0,b=0,min=0;if(m.boss){n=3;b=3;min=2;}else if(m.type==='mimico'){n=ri(2,3);b=m.lootBonus;}else if(m.elite){n=ri(1,2);b=1.2;}else if(R()<.2*luckMul())n=1;
  for(let i=0;i<n;i++)dropLoot(m.x,m.y,{kind:'item',item:genItem(m.lvl,b,null,min)});
  if(R()<(m.boss?1:.12))dropLoot(m.x,m.y,{kind:'pot',pot:R()<.6?'hp':'mp'});
@@ -125,7 +125,7 @@ function openChest(c){if(c.open)return;
  c.open=true;c.openT=0;const T=CHT[c.tier];log(`Você abriu um ${CHN[c.tier]}!`,'#ffd24a');
  dropLoot(c.x,c.y-2,{kind:'gold',amt:Math.round(ri(T.g[0],T.g[1])*(1+c.lvl*.15))});
  const n=ri(T.n[0],T.n[1]);for(let i=0;i<n;i++)if(R()<T.p)dropLoot(c.x,c.y-2,{kind:'item',item:genItem(c.lvl,T.b,null,T.min||0)});
- if(R()<.5)dropLoot(c.x,c.y-2,{kind:'pot',pot:R()<.6?'hp':'mp'});
+ if(R()<.5)dropLoot(c.x,c.y-2,{kind:'pot',pot:R()<.6?'hp':'mp'});chestCons(c);
  for(let i=0;i<26;i++)parts.push({x:c.x+rf(-6,6),y:c.y-8,vx:rf(-30,30),vy:rf(-80,-20),g:60,life:rf(.5,1),max:1,color:pick(['#ffd24a','#fff3b0','#ffffff']),s:rf(1,2)});
  if(c.lair)lairChestT=time+240;save();}
 
@@ -160,6 +160,7 @@ function update(dt){time+=dt;const st=P.st;
   if(d>=13)continue;
   if(l.kind==='gold'){P.gold+=l.amt;addText(P.x,P.y-20,'+'+l.amt+'g','#ffd24a');loots.splice(i,1);}
   else if(l.kind==='pot'){if(!canCarry(WPOT)){heavyMsg();continue;}P.pots[l.pot]++;log(`Você pegou uma poção de ${l.pot==='hp'?'vida':'mana'}.`,l.pot==='hp'?'#ff8080':'#80a8ff');loots.splice(i,1);updateHotbar();}
+  else if(l.kind==='con'){if(!canCarry(WCON)){heavyMsg();continue;}P.cons[l.con]=(P.cons[l.con]||0)+1;log(`Você pegou ${CONS[l.con].n}.`,'#9fe8a0');loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}
   else if(l.kind==='mat'){const M=LOOTM[l.mat];if(!canCarry(M.w*l.n)){heavyMsg();continue;}P.mats[l.mat]=(P.mats[l.mat]||0)+l.n;log(`Você pegou ${l.n>1?l.n+'× ':''}${M.n}.`,'#e0d0b0');missNote(l.mat);loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}
   else if(!canCarry(itemW(l.item)))heavyMsg();
   else{P.inv.push(l.item);logItem(l.item);loots.splice(i,1);if(!bagEl.classList.contains('hidden'))renderBag();}}
@@ -204,5 +205,5 @@ function update(dt){time+=dt;const st=P.st;
  if(MAPS[CUR].lair&&!chests.some(c=>c.lair)&&time>=lairChestT){chests.push({x:(LAIR.x+.5)*TILE,y:(LAIR.y+3.8)*TILE,tier:4,zone:4,open:false,openT:0,lvl:22,lair:true});}
  saveT-=dt;if(saveT<=0){saveT=15;save();}}
 function moveTo(x,y,spd,dt){const dx=x-P.x,dy=y-P.y,d=hyp(dx,dy);if(d<.5)return;const s=Math.min(d,spd*dt);stepSmart(P,dx/d*s,dy/d*s,4,Math.floor(time*.5)%2?1:-1);if(Math.abs(dx)>.5)P.face=dx>0?1:-1;P.moving=true;}
-function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:6,mats:P.mats,miss:P.miss,ped:P.ped,tons:P.tons,tonAt:P.tonAt,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
+function save(){if(!P)return;try{localStorage.setItem(SAVEKEY,JSON.stringify({v:7,mats:P.mats,miss:P.miss,ped:P.ped,tons:P.tons,tonAt:P.tonAt,cons:P.cons,consAt:P.consAt,lastTown:P.lastTown,name:P.name,cls:P.cls,lvl:P.lvl,xp:P.xp,jlvl:P.jlvl,jxp:P.jxp,attr:P.attr,gold:P.gold,inv:P.inv,equip:P.equip,pots:P.pots,x:P.x,y:P.y,map:CUR,ranks:P.ranks,bar:P.bar,spec:P.spec,promo:P.promo,quest:P.quest}));}catch(e){}}
 function loadSave(){try{const s=localStorage.getItem(SAVEKEY);return s?JSON.parse(s):null;}catch(e){return null;}}

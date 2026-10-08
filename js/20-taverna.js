@@ -14,9 +14,9 @@ function buyTonic(k){if(!canCarry(WPOT)){heavyMsg();return;}if(P.gold<TON_V){log
 function drinkTonic(k){if(!(P.tons[k]>0)||P.dead)return;P.tons[k]--;if(!P.tons[k])delete P.tons[k];
  const re=P.tonAt[k]>0;P.tonAt[k]=TON_T;recalc();log(`${TONN[k]}: +${TON_B} de ${attrN(k)[1]} por ${TON_T/60} minutos${re?' (tempo renovado)':''}.`,'#8fd0ff');
  burst(P.x,P.y-10,TON.find(t=>t[0]===k)[2],16,50);save();}
-function tonicTick(dt){let fim=false;for(const k in P.tonAt){P.tonAt[k]-=dt;if(P.tonAt[k]<=0){delete P.tonAt[k];fim=true;log(`O efeito do ${TONN[k]} acabou.`,'#cccccc');}}if(fim)recalc();}
+function tonicTick(dt){consTick(dt);let fim=false;for(const k in P.tonAt){P.tonAt[k]-=dt;if(P.tonAt[k]<=0){delete P.tonAt[k];fim=true;log(`O efeito do ${TONN[k]} acabou.`,'#cccccc');}}if(fim)recalc();}
 // selos dos tônicos ativos, embaixo do retrato (#tonics)
-function tonicHUD(){const h=Object.keys(P.tonAt).map(k=>`<span title="${TONN[k]}: +${TON_B} de ${attrN(k)[1]}">${attrN(k)[2]} ${mmss(P.tonAt[k])}</span>`).join(''),el=$('tonics');if(el.innerHTML!==h)el.innerHTML=h;}
+function tonicHUD(){const h=Object.keys(P.tonAt).map(k=>`<span title="${TONN[k]}: +${TON_B} de ${attrN(k)[1]}">${attrN(k)[2]} ${mmss(P.tonAt[k])}</span>`).join('')+consHUD(),el=$('tonics');if(el.innerHTML!==h)el.innerHTML=h;}
 
 // ================== SPRITES ==================
 def('brigida',["......kkkk......",".....kHHHHk.....","....kHHHHHHk....","....kHseesHk....","....kHssssHk....",".....kssssk.....","...kkBBwwBBkk...","..ksBBwwwwBBsk..",

@@ -152,7 +152,7 @@ function recalc(){const c=CL[P.cls],L=P.lvl-1;const st=Object.assign(attrStats(c
  if(P.spec){const b=SPECS[P.spec].bonus,mul=P.promo>=2?2:1;for(const k in b)pct[k]+=b[k]*mul;}
  if(P.form){pct.hpPct+=.5;pct.defPct+=.4;}
  st.hp*=1+pct.hpPct;st.mp*=1+pct.mpPct;st.def*=1+pct.defPct;st.atk*=1+pct.atkPct;
- if(P.buff){st.atk*=1+P.buff.atk;st.def*=1+P.buff.def;st.spd+=P.buff.spd||0;}st.block=Math.min(st.block,.35);
+ if(P.buff){st.atk*=1+P.buff.atk;st.def*=1+P.buff.def;st.spd+=P.buff.spd||0;}consStats(st);st.block=Math.min(st.block,.35);
  st.spd=Math.min(st.spd,40);st.crit=clamp(st.crit,0,60);st.cdr=clamp(st.cdr,0,.4);st.mpCut=Math.min(st.mpCut,.4);st.dodge=clamp(st.dodge,0,.3);st.aspd=clamp(st.aspd,0,.6);
  for(const k of['hp','mp','atk','def'])st[k]=Math.round(st[k]);st.crit=Math.round(st.crit);
  P.st=st;if(P.hp!=null){P.hp=Math.min(P.hp,st.hp);P.mp=Math.min(P.mp,st.mp);}}
