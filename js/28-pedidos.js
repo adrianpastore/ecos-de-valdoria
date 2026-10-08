@@ -32,7 +32,10 @@ def('yasmin',["......kkkk......",".....kVVVVk.....","....kVVVVVVk....","....kVse
  {V:'#7a3a8a',s:'#b87a4a',e:K,C:'#3aa0a8',D:'#e07a2a',g:'#e8c048',b:'#5a3a20'});
 // Cada pedido é a própria pessoa (entra na GENTE do 20, que o setTalk procura). at = tile onde ela fica; itens = [[material, quantos]];
 // rew = {g: ouro, pots: poções, item: [parte, raridade]}, mais a XP de um nível inteiro no nível sugerido (lv), como as missões da Guilda.
-const PEDS=[
+const PEDS=[];
+// põe cada pessoa na cidade dela (também usada pelo 31, pelos moradores das outras cidades)
+function addPeds(L){for(const q of L){q.ped=1;PEDS.push(q);GENTE.push(q);const M=MAPS[q.map];M.talk=(M.talk||[]).concat([[q.at[0],q.at[1],q.id]]);(M.deco=M.deco||[]).push([q.at[0],q.at[1],q.id]);}}
+addPeds([
  {id:'jamila',city:'sahrem',map:'sahrem',at:[21,24],n:'Vó Jamila',c:'#9ad87a',lv:23,t:'Flores para o chá',itens:[['florD',6]],rew:{g:400,pots:{hp:5}},
   pede:'Ai, meus joelhos... Faço chá de Flor do Deserto para metade de Sahrem, mas já não ando até as Dunas do Oeste. Elas brilham na areia depois do meio-dia. Me traz 6?',
   ok:'Que cheiro bom! Tome estas poções, fui eu que fiz. E volte para um chá quando quiser, viu?',
@@ -48,16 +51,14 @@ const PEDS=[
  {id:'omar',city:'sahrem',map:'sahrem',at:[35,41],n:'Escriba Omar',c:'#a8c8ff',lv:31,t:'O que a pirâmide conta',itens:[['tabuleta',5]],rew:{g:900,item:['arma',2]},
   pede:'Desde que a porta abriu, sonho em ler as paredes da pirâmide. Nos dois primeiros andares há tabuletas gravadas espalhadas pelo chão. Eu não passo da primeira múmia... Traz 5 para mim?',
   ok:'Incrível... Aqui diz que o Rei Sethkar jurou a Kharzen que nunca morreria, e Kharzen cumpriu: ele não morre. Fique com esta arma, guardei para quem me trouxesse a verdade.',
-  f:['As tabuletas falam de Kharzen, a coroa de ferro. Não é um nome para dizer alto.','Sethkar não está vivo. Também não está morto. As tabuletas chamam isso de "o castigo do juramento".','Estou copiando tudo para a biblioteca de Arcádia. Os estudiosos de lá vão ficar loucos.','Uma das tabuletas fala de um "silêncio" mais antigo que os reis. Ainda não entendi.']}];
-GENTE.push(...PEDS.map(p=>Object.assign(p,{ped:1})));
-for(const q of PEDS){const M=MAPS[q.map];M.talk=(M.talk||[]).concat([[q.at[0],q.at[1],q.id]]);M.deco.push([q.at[0],q.at[1],q.id]);}
+  f:['As tabuletas falam de Kharzen, a coroa de ferro. Não é um nome para dizer alto.','Sethkar não está vivo. Também não está morto. As tabuletas chamam isso de "o castigo do juramento".','Estou copiando tudo para a biblioteca de Arcádia. Os estudiosos de lá vão ficar loucos.','Uma das tabuletas fala de um "silêncio" mais antigo que os reis. Ainda não entendi.']}]);
 
 // ================== ESTADO, JANELA E ENTREGA ==================
 function pedState(q){const s=(P&&P.ped||{})[q.id];return s===2?'feito':s===1?(q.itens.every(([m,n])=>(P.mats[m]||0)>=n)?'pronta':'aceita'):'livre';}
 const pedRew=q=>({...q.rew,xp:xpNeed(q.lv)}),SLOTA={arma:['uma arma',1],elmo:['um elmo'],peito:['uma armadura',1],botas:['botas',1,1],anel:['um anel']};
 // "uma armadura rara", "botas raras", "um anel épico"
 const rarAdj=(r,[,f,pl])=>r<2?['comum','incomum'][r]+(pl?'s':''):['rar','épic','lendári'][r-2]+(f?'a':'o')+(pl?'s':'');
-function pedRewTxt(q){const r=pedRew(q);return[`💰 ${r.g}g`,r.pots&&r.pots.hp?`🧪 ${r.pots.hp} poções de vida`:'',r.item?`🎁 ${SLOTA[r.item[0]][0]} ${rarAdj(r.item[1],SLOTA[r.item[0]])}`:'',`✨ ${r.xp} XP`].filter(Boolean).join(' • ');}
+function pedRewTxt(q){const r=pedRew(q);return[`💰 ${r.g}g`,r.pots&&r.pots.hp?`🧪 ${r.pots.hp} poções de vida`:'',r.pots&&r.pots.mp?`🔷 ${r.pots.mp} poções de mana`:'',r.item?`🎁 ${SLOTA[r.item[0]][0]} ${rarAdj(r.item[1],SLOTA[r.item[0]])}`:'',`✨ ${r.xp} XP`].filter(Boolean).join(' • ');}
 let PED_Q=null;
 function openPedido(q){if(pedState(q)==='feito'){talkTo(TALK.find(t=>t.p===q));return;}closeAll();PED_Q=q;renderPedido();$('pedido').classList.remove('hidden');}
 function renderPedido(){const q=PED_Q,st=pedState(q),B=$('pedidoBody');$('pedido').querySelector('h2').textContent=q.n;
@@ -66,7 +67,7 @@ function renderPedido(){const q=PED_Q,st=pedState(q),B=$('pedidoBody');$('pedido
    return`<div class="mr"><span><img src="${matIcon(m)}" alt="" class="pic"> <b>${n}× ${LOOTM[m].n}</b> <small class="muted">(${onde})</small></span><span>${st==='livre'?'':Math.min(have,n)+'/'+n}</span></div>`;}).join('')+
   `<div class="mr"><span>Recompensa</span><span>${pedRewTxt(q)}</span></div><div class="acts">`+
   (st==='livre'?`<button class="btn sm gold" data-p="aceitar">Aceitar</button><button class="btn sm" data-p="fechar">Agora não</button>`
-  :st==='pronta'?`<button class="btn sm gold" data-p="entregar">Entregar</button>`:`<span class="muted">${COLD[q.itens[0][0]]?'Procure o brilho no chão e no minimapa.':'Os monstros deixam cair o que ela pediu.'}</span><button class="btn sm" data-p="fechar">Fechar</button>`)+`</div></div>`;
+  :st==='pronta'?`<button class="btn sm gold" data-p="entregar">Entregar</button>`:`<span class="muted">${q.itens.some(([m])=>COLD[m])?'Procure o brilho no chão e no minimapa'+(q.itens.some(([m])=>!COLD[m])?', e cace os monstros que deixam cair o resto.':'.'):'Os monstros deixam cair o que foi pedido.'}</span><button class="btn sm" data-p="fechar">Fechar</button>`)+`</div></div>`;
  B.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>pedAction(b.dataset.p));}
 function pedAction(a){const q=PED_Q;if(!q)return;
  if(a==='fechar'){$('pedido').classList.add('hidden');return;}
@@ -79,7 +80,7 @@ function pedAction(a){const q=PED_Q;if(!q)return;
  renderPedido();colSpawn(MAPS[CUR]);save();}
 // progresso ao juntar algo de um pedido aceito (chamada pelo missNote do 13 e ao colher)
 function pedNote(mat){for(const q of PEDS){if(P.ped[q.id]!==1)continue;const it=q.itens.find(([m])=>m===mat);if(!it)continue;const n=P.mats[mat]||0;
- if(n<=it[1])log(`${q.t}: ${LOOTM[mat].n} ${n}/${it[1]}`,'#ffe3a0');if(n===it[1]&&pedState(q)==='pronta')log(`Tudo pronto! Volte a ${MAPS[q.map].n.replace(/^Cidade de /,'')} e fale com ${q.n}.`,'#ffd24a');}}
+ if(n<=it[1])log(`${q.t}: ${LOOTM[mat].n} ${n}/${it[1]}`,'#ffe3a0');if(n===it[1]&&pedState(q)==='pronta')log(`Tudo pronto! Volte a ${cidN(q.map)} e fale com ${q.n}.`,'#ffd24a');}}
 
 // ================== ITENS QUE BRILHAM NO CHÃO ==================
 // Nascem ao entrar no mapa (colSpawn, chamada pelo 08), só para pedidos aceitos que ainda precisam deles; pegou o que faltava, os outros somem.

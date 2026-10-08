@@ -307,8 +307,9 @@
   t('pedidos dos moradores: cada um alcançável, com "!" e janela',()=>{for(const q of PEDS){if(!MAPS[q.map].talk.some(t=>t[2]===q.id))throw q.id+' fora do mapa';
     for(const[m,n]of q.itens){if(!LOOTM[m]||!SPR['mat_'+m])throw q.id+': item '+m+' sem desenho';if(!COLD[m]&&!MDEF[m])throw q.id+': '+m+' não nasce no chão nem cai de monstro';
      if(COLD[m])for(const k in COLD[m].maps)if(!MAPS[k])throw m+': mapa '+k+' não existe';}}
-   P.ped={};switchMapNow('sahrem',null);for(const q of TALK.filter(t=>t.p.ped)){const[x,y]=q.p.at,j=(y+1)*W+x;if(solid[j]||!REACH[j]||ground[y*W+x]===G.PATH)throw q.p.n+': lugar ruim (na estrada ou sem passagem na frente)';
-    cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}
+   P.ped={};for(const cid of new Set(PEDS.map(q=>q.map))){switchMapNow(cid,null);for(const q of TALK.filter(t=>t.p.ped)){if(!SPR[q.p.id])throw q.p.n+' sem desenho';const[x,y]=q.p.at,j=(y+1)*W+x;if(solid[j]||!REACH[j]||ground[y*W+x]===G.PATH)throw q.p.n+': lugar ruim (na estrada ou sem passagem na frente)';
+    cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}}
+   for(const c of ['valdor','pinheiral','arcadia','sahrem'])if(PEDS.filter(q=>q.map===c).length<3)throw c+' com menos de 3 pedidos';
    render(.05,0);info(PEDS.map(q=>q.n+' ('+q.t+')').join(', '));});
   t('pedidos dos moradores: aceitar, colher no chão, entregar e salvar',()=>{const q=PEDS.find(p=>p.id==='jamila'),[m,n]=q.itens[0],mp=Object.keys(COLD[m].maps)[0];P.ped={};delete P.mats[m];
    switchMapNow(mp,null);if(COL.length)throw 'item brilhando sem pedido aceito';switchMapNow('sahrem',null);openPedido(q);pedAction('aceitar');if(pedState(q)!=='aceita')throw 'não aceitou';
