@@ -151,7 +151,9 @@
     if(!(L[a][1]<L[m][1]&&L[m][1]<L[b][1])&&!(L[a][1]>L[m][1]&&L[m][1]>L[b][1]))throw m+' fora de ordem no mapa do mundo';}
    let cam=0;for(const id of['lenhadores','bosque']){switchMapNow(id,null);for(const[x,y,s]of MAPS[id].deco){if((objRows[y]||[]).filter(o=>o.tx===x).length!==1)throw s+' em cima de outro objeto em '+id+' ('+x+','+y+')';if(!(objRows[y]||[]).some(o=>o.tx===x&&o.spr===s))throw 'sem '+s+' em '+id;}
     if(id==='bosque')for(let i=0;i<W*H;i++)if(ground[i]===G.PATH)cam++;}
-   if(cam>60)throw 'o Bosque não devia ter estrada ('+cam+' tiles de caminho)';info('campos novos ligados; '+cam+' tiles de caminho no Bosque (só as pontas)');});
+   if(cam>60)throw 'o Bosque não devia ter estrada ('+cam+' tiles de caminho)';
+   switchMapNow('bosque',null);if(!(passagem.rota||[]).length)throw 'o Bosque ficou sem passagem entre os portais';
+   for(const i of passagem.rota){const x=i%W,y=(i/W)|0;if(y<3||y>H-4)continue;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const j=(y+dy)*W+x+dx;if(solid[j]&&ground[j]!==G.WATER&&ground[j]!==G.CLIFF&&!MAPS.bosque.deco.some(d=>d[1]*W+d[0]===j))throw 'árvore no meio da passagem do Bosque em '+(x+dx)+','+(y+dy);}}info('campos novos ligados; '+cam+' tiles de caminho no Bosque (só as pontas)');});
   t('Torre dos Magos: no centro de Arcádia, porta ao sul, salão redondo com a Selene; ao sair, na frente da porta',()=>{switchMapNow('arcadia',null);
    const o=objRows.flat().find(o=>o.spr==='torreMagos');if(!o||o.label!=='Torre dos Magos')throw 'a Torre não tem o nome ao passar o mouse';
    if(SPR.torreMagos.n.height!==TORRE_H||SPR.torreMagos.n.width!==80)throw 'desenho da Torre com tamanho errado';
