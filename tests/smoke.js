@@ -315,12 +315,12 @@
    const tipos=Object.keys(MDEF).filter(k=>!MDEF[k].boss&&!MDEF[k].clone),nomes=new Set();
    for(const k of tipos){const C=CONS[k];if(!C)throw MDEF[k].n+' sem consumível';if(LOOTM[k]&&LOOTM[k].n===C.n)throw C.n+' tem o nome do material';}
    for(const id in CONS){const C=CONS[id];if(nomes.has(C.n))throw 'nome repetido: '+C.n;nomes.add(C.n);if(!SPR['con_'+id])throw C.n+' sem desenho';if(C.s.some(r=>r.length>14))throw C.n+' passa de 14 colunas';if(!consDesc(C.e).length)throw C.n+' sem texto';}
-   if(CONCH[1]!==.3||CONCH[2]!==.35||CONCH[3]!==.4||CONCH[4]!==.4)throw 'chance dos baús errada';
+   if(CONCH[1]!==.1||CONCH[2]!==.15||CONCH[3]!==.2||CONCH[4]!==.25)throw 'chance dos baús errada';
    switchMapNow('floresta','valdor');cura();P.cons={};P.consAt={};recalc();
    // cai do monstro
    const m=mons.find(x=>CONS[x.type]);let n0=loots.length;for(let k=0;k<600&&loots.length===n0;k++)dropCons(m);if(!loots.slice(n0).some(l=>l.kind==='con'&&l.con===m.type))throw 'monstro não deixou o consumível';
    // cai do baú
-   n0=loots.length;for(let k=0;k<200&&loots.length===n0;k++)chestCons({x:P.x,y:P.y,tier:1});if(!loots.slice(n0).some(l=>l.kind==='con'))throw 'baú não deixou consumível';
+   n0=loots.length;for(let k=0;k<600&&loots.length===n0;k++)chestCons({x:P.x,y:P.y,tier:1});if(!loots.slice(n0).some(l=>l.kind==='con'))throw 'baú não deixou consumível';
    // pegar do chão, aparece na bolsa e pesa
    const w0=weightNow();loots.length=0;dropLoot(P.x,P.y,{kind:'con',con:'esquilo'});for(const l of loots)l.z=0,l.vz=0;for(let k=0;k<20&&!P.cons.esquilo;k++)update(.05);
    if(P.cons.esquilo!==1)throw 'não pegou do chão';if(weightNow()-w0!==WCON)throw 'não pesa';bagTab='uso';if(!bagEntries().some(e=>e.key==='con:esquilo'))throw 'não aparece na aba Consumíveis';bagTab='equip';

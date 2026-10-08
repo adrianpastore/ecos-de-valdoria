@@ -1,14 +1,14 @@
 // Ecos de Valdoria — Consumíveis dos monstros (08/10/2026, ideia do dono)
 'use strict';
 // Cada monstro tem um consumível próprio, diferente do material dele (LOOTM, 12). Cai com 5% de chance (elite 20%, Mímico 50%;
-// servos de chefe não deixam), e os baús trazem um com 30% (Madeira), 35% (Prata) e 40% (Ouro e Lendário): um dos monstros
+// servos de chefe não deixam), e os baús trazem um com 10% (Madeira), 15% (Prata), 20% (Ouro) e 25% (Lendário): um dos monstros
 // do mapa ou, às vezes, o Pergaminho de Retorno, que só sai de baú. Ficam na aba Consumíveis da bolsa e são usados por lá.
 // CONS[id] = {n, c (cor), s (desenho sem o contorno de fora, posto pelo olM do 12), p (cores extras), e (efeito)}; o id é o do monstro.
 // Efeito: tp (teleporte no mapa), home (volta à última cidade), heal/mana (fração na hora), regen/mregen (fração por segundo, por t s),
 // furt (segundos sem ser visto), anti (segundos sem veneno), shield (fração da vida, por t s), gold (moedas) e, com t (segundos),
 // os bônus de status somados no recalc (03, consStats): spd (velocidade %), atk/def/hp (fração), crit, dodge, aspd, leech, thorns, luck, luz.
 // Save (v 7): P.cons = {id: quantidade}, P.consAt = {id: segundos que faltam} e P.lastTown (última cidade, para o pergaminho).
-const WCON=2,CONCH=[0,.3,.35,.4,.4];
+const WCON=2,CONCH=[0,.1,.15,.2,.25];
 const CONS={
  slime:{n:'Olho de Geleia',c:'#5fcf5a',p:{e:'#3a8ab0'},e:{tp:1},s:["...cCCCd...","..cCCCCCd..",".cCwwwwCCd.",".CwweewwCd.","cCwekkewCCd","cCwekkewCCd",".CwweewwCd.",".cCwwwwCCd.","..dCCCCCd..","...ddddd..."]},
  esquilo:{n:'Noz Saltitante',c:'#a8743c',p:{e:'#6a4424',f:'#8a5a30'},e:{spd:25,t:120},s:["....ee....","..eeffee..",".effffffe.",".eeeeeeee.",".cCCCCCCd.",".cCCCCCCd.",".cCwCCCCd.","..cCCCCd..","...cCCd...","....dd...."]},
