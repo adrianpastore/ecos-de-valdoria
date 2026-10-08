@@ -58,15 +58,8 @@ function devCmd(s){const m=String(s).trim().match(/^@?(teleport|tp)\b\s*(.*)$/i)
  return devTp(id);}
 // mapa-múndi: os mapas de fora lado a lado, na posição que os portais indicam (usado aqui e pelo tests/mapa-mundi.js, com ?mapa)
 function mundiImg(CW,CH,PAD,TOP,titulo){const SC=CW/MW;
- const fora=id=>MAPS[id]&&!MAPS[id].interior;
- // Valdor no meio; um portal na borda leste põe o vizinho à direita, e assim por diante
- const pos={valdor:[0,0]},usado={'0,0':'valdor'},fila=['valdor'];
- const dirDe=p=>{const dx=(p[0]-W/2)/(W/2),dy=(p[1]-H/2)/(H/2);return Math.abs(dx)>=Math.abs(dy)?[Math.sign(dx),0]:[0,Math.sign(dy)];};
- const livre=(x,y)=>{if(!usado[x+','+y])return[x,y];for(let r=1;r<6;r++)for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const k=(x+dx)+','+(y+dy);if(!usado[k])return[x+dx,y+dy];}return[x+9,y];};
- while(fila.length){const id=fila.shift(),M=MAPS[id];for(const to in M.portals){const p=M.portals[to];if(!fora(to)||pos[to]||p[2]==='porta')continue;
-  const[dx,dy]=dirDe(p),[x,y]=livre(pos[id][0]+dx,pos[id][1]+dy);pos[to]=[x,y];usado[x+','+y]=to;fila.push(to);}}
- const ids=Object.keys(pos),xs=ids.map(i=>pos[i][0]),ys=ids.map(i=>pos[i][1]),x0=Math.min(...xs),y0=Math.min(...ys);
- const cols=Math.max(...xs)-x0+1,rows=Math.max(...ys)-y0+1;
+ // posição de cada mapa: mundoPos (30), a mesma do mapa do mundo do jogo
+ const{pos,ids,x0,y0,cols,rows}=mundoPos();
  const out=cnv(PAD*2+cols*CW,TOP+PAD+rows*CH),o=out.getContext('2d');
  o.fillStyle='#0f1a2a';o.fillRect(0,0,out.width,out.height);
  if(titulo){o.fillStyle='#e8c479';o.font='bold 30px Cinzel, serif';o.fillText('Mapa-múndi de Valdoria',PAD,46);

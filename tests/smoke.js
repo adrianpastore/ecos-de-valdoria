@@ -14,6 +14,7 @@
 
  // Protege o save verdadeiro: o jogo salva sozinho em vários momentos
  const saveOriginal=localStorage.getItem(SAVEKEY),saveReal=save;save=()=>{};
+ const mundoOriginal=localStorage.getItem(MUNDO_K),mundoTh={...MUNDO_TH}; // miniaturas do mapa do mundo (30), guardadas no aparelho
 
  try{
   t('mapa inicial: a Mestra Elara não está na praça de Valdor',()=>{if(MENTOR.x>0)throw 'Elara ainda na praça';});
@@ -328,11 +329,19 @@
    diaBadge();const n0=+$('diaBadge').textContent||0;P.mats[m.mat]=m.n;diaBadge();if(+$('diaBadge').textContent!==n0+1)throw 'selo não contou a missão pronta';
    missAction('entregar',m.id);P.ped[r.id]=2;diaTab='feitas';renderDiario();if(!tx().includes(m.t)||!tx().includes(r.t)||!tx().includes('1 vez'))throw 'faltou o que foi concluído';
    diaTab='abertas';P.miss=JSON.parse(JSON.stringify({on:[],cd:{}}));renderDiario();closeAll();info('diário: '+diaAbertas().length+' abertas, '+diaFeitas().length+' concluídas');});
+  t('mapa do mundo: abre no M, todo mapa de fora tem um quadro e o herói aparece no lugar certo',()=>{const L=mundoPos(),cel={};
+   for(const id in MAPS){const M=MAPS[id];if(M.interior||!(M.town||M.lv))continue;if(id.startsWith('tumba'))continue;if(!L.pos[id])throw id+' fora do mapa do mundo';const k=L.pos[id]+'';if(cel[k])throw id+' no mesmo quadro de '+cel[k];cel[k]=id;}
+   switchMapNow('tumba2',null);if(mundoOnde()[0]!=='sahrem')throw 'na tumba, o herói devia aparecer em Sahrem';
+   const gi=Object.keys(MAPS).find(k=>MAPS[k].interior&&MAPS[k].city==='pinheiral');if(gi){switchMapNow(gi,null);if(mundoOnde()[0]!=='pinheiral')throw 'num interior de Pinheiral, o herói devia aparecer em Pinheiral';}
+   switchMapNow('orla',null);delete MUNDO_TH.orla;dispatchEvent(new KeyboardEvent('keydown',{key:'m'}));if($('mundo').classList.contains('hidden'))throw 'M não abriu o mapa do mundo';
+   if(!MUNDO_TH.orla)throw 'não guardou a miniatura do lugar atual';if(!$('mundoInfo').textContent.includes('você está aqui'))throw 'faltou "você está aqui"';
+   const pin=$('mundoPin').style;if(!pin.left||!pin.top)throw 'sem a marca do herói';closeAll();info('mapa do mundo: '+L.ids.length+' quadros, '+L.cols+'×'+L.rows);});
   t('guilda: no máximo '+MISS_MAX+' missões aceitas',()=>{P.miss={on:[],cd:{}};for(const q of MISS)missAction('aceitar',q.id);if(P.miss.on.length!==MISS_MAX)throw P.miss.on.length+' aceitas';P.miss={on:[],cd:{}};});
  }catch(e){bad('teste interrompido',e);}
 
  // Devolve o save original e volta para a tela inicial
  try{if(saveOriginal===null)localStorage.removeItem(SAVEKEY);else localStorage.setItem(SAVEKEY,saveOriginal);}catch(e){}
+ try{MUNDO_TH=mundoTh;if(mundoOriginal===null)localStorage.removeItem(MUNDO_K);else localStorage.setItem(MUNDO_K,mundoOriginal);}catch(e){}
  P=null;$('hud').classList.add('hidden');$('start').classList.remove('hidden');
 
  const errs=window.__errs||[];falhas+=errs.length;

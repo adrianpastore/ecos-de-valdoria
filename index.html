@@ -35,6 +35,7 @@
   <button class="frame ib" id="treeBtn" aria-label="Árvore de habilidades">🌟<small>T</small><b id="treeBadge" class="badge"></b></button>
   <button class="frame ib" id="attrBtn" aria-label="Atributos">📊<small>P</small><b id="attrBadge" class="badge"></b></button>
   <button class="frame ib" id="diaBtn" aria-label="Diário de missões">📜<small>J</small><b id="diaBadge" class="badge"></b></button>
+  <button class="frame ib" id="mundoBtn" aria-label="Mapa do mundo">🗺<small>M</small></button>
   <button class="frame ib" id="helpBtn" aria-label="Ajuda">❓</button></div>
  <div id="banner"><b id="bT"></b><span id="bS"></span></div>
  <div id="tip" class="frame hidden"></div>
@@ -80,7 +81,7 @@
   <li>Na <b>Guilda de Valdor</b>, o mural tem missões: traga materiais dos monstros e ganhe ouro e XP</li>
   <li>No bar da Guilda, a <b>taverneira</b> vende tônicos: +5 num atributo por 10 minutos</li>
   <li>A bolsa tem 3 abas e um limite de <b>peso</b>: acima de 50% você não regenera, acima de 90% não luta</li>
-  <li><kbd>T</kbd> árvore de habilidades • <kbd>P</kbd> atributos • <kbd>I</kbd> bolsa • <kbd>J</kbd> diário de missões • <kbd>Esc</kbd> fecha janelas</li>
+  <li><kbd>T</kbd> árvore de habilidades • <kbd>P</kbd> atributos • <kbd>I</kbd> bolsa • <kbd>J</kbd> diário de missões • <kbd>M</kbd> mapa do mundo • <kbd>Esc</kbd> fecha janelas</li>
   <li>Dois níveis: o de <b>Base</b> dá pontos de atributo (P) e o de <b>Classe</b> dá pontos de habilidade (T)</li>
  </ul>
  <p>Quanto mais longe da vila, mais fortes os monstros e melhores os baús. Os baús dourados no minimapa guardam saque. Cuidado: alguns baús mordem. No canto nordeste dorme o Wyrm Carmesim.</p>
@@ -96,6 +97,7 @@
 <div id="tree" class="panel frame hidden"><div class="phead"><h2>Árvore de habilidades</h2><span id="treePts" class="pts"></span><button class="x" data-close="tree" aria-label="Fechar">✕</button></div><div id="treeTabs" class="tabs"></div><div id="treeBody"></div><div id="treeDet" class="detail"></div></div>
 <div id="board" class="panel frame hidden"><div class="phead"><h2>Mural de Missões</h2><button class="x" data-close="board" aria-label="Fechar">✕</button></div><div id="boardBody"></div></div>
 <div id="smith" class="panel frame hidden"><div class="phead"><h2>Ferreiro Gorvan</h2><button class="x" data-close="smith" aria-label="Fechar">✕</button></div><div id="smithBody"></div></div>
+<div id="mundo" class="panel frame hidden"><div class="phead"><h2>Mapa do mundo</h2><button class="x" data-close="mundo" aria-label="Fechar">✕</button></div><p id="mundoAqui" class="flav"></p><div id="mundoRol"><div class="mwrap"><canvas id="mundoCv"></canvas><i id="mundoPin"></i></div></div><p id="mundoInfo"></p></div>
 <div id="diario" class="panel frame hidden"><div class="phead"><h2>Diário de missões</h2><button class="x" data-close="diario" aria-label="Fechar">✕</button></div><div id="diarioTabs" class="tabs"></div><div id="diarioBody"></div></div>
 <div id="pedido" class="panel frame hidden"><div class="phead"><h2>Pedido</h2><button class="x" data-close="pedido" aria-label="Fechar">✕</button></div><div id="pedidoBody"></div></div>
 <div id="taverna" class="panel frame hidden"><div class="phead"><h2>Bar da Brígida</h2><button class="x" data-close="taverna" aria-label="Fechar">✕</button></div><div id="tavernaBody"></div></div>
@@ -142,6 +144,7 @@
 <script src="js/27-rei-sethkar.js"></script>
 <script src="js/28-pedidos.js"></script>
 <script src="js/29-diario.js"></script>
+<script src="js/30-mapa-mundo.js"></script>
 <script src="js/99-interface-e-inicio.js"></script>
 <script>if(window.__errs){const s=document.createElement('script');s.src=/[?&]medir\b/.test(location.search)?'tests/medidor.js':/[?&]mapa\b/.test(location.search)?'tests/mapa-mundi.js':'tests/smoke.js';document.body.append(s);}</script>
 </body>

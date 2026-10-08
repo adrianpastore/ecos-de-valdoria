@@ -130,7 +130,7 @@ function itemAction(a,it){const i=P.inv.indexOf(it);
  recalc();renderBag();save();}
 function toggle(el,on){const show=on??el.classList.contains('hidden');el.classList.toggle('hidden',!show);if(el===bagEl&&show)renderBag();}
 function openShop(){const m=cidP().merc;shopEl.querySelector('h2').textContent=m[0];shopEl.querySelector('.flav').textContent=`"${m[2]}"`;toggle(shopEl,true);} // quem atende é o mercador da cidade (24)
-function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('pedido'),$('diario'),$('attr')].forEach(e=>e.classList.add('hidden'));}
+function closeAll(){[bagEl,shopEl,helpEl,$('tree'),$('mentor'),$('board'),$('smith'),$('taverna'),$('pedido'),$('diario'),$('mundo'),$('attr')].forEach(e=>e.classList.add('hidden'));}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>$(b.dataset.close).classList.add('hidden'));
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{const[t,n]=b.dataset.buy.split(','),cost=n==='5'?90:20;if(!canCarry(+n*WPOT)){heavyMsg();return;}if(P.gold<cost){log('Ouro insuficiente.','#ff6b6b');return;}P.gold-=cost;P.pots[t]+=+n;log(`Comprou ${n} poção(ões) de ${t==='hp'?'vida':'mana'}.`,'#ffd24a');updateHotbar();save();});
 document.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>{const mx=+b.dataset.sell;let g=0,n=0;P.inv=P.inv.filter(it=>{if(it.rar<=mx){g+=it.value;n++;return false;}return true;});P.gold+=g;log(n?`Vendeu ${n} itens por ${g}g.`:'Nada para vender.','#ffd24a');if(!bagEl.classList.contains('hidden'))renderBag();save();});
@@ -143,7 +143,7 @@ const keys={};
 function attackKey(){if(!P||P.dead)return;let t=P.target&&!P.target.dead?P.target:nearestMon(180);if(t){P.target=t;P.auto=true;P.dest=null;}}
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||!P)return;const k=e.key.toLowerCase();
  if([' ','tab','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys[k]=true;if(e.repeat&&!'123456'.includes(k))return;
- if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='p')toggleAttr();else if(k==='j')toggleDiario();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
+ if(k===' ')attackKey();else if(k.length===1&&'123456'.includes(k))useSkill(+k-1);else if(k==='t')toggleTree();else if(k==='p')toggleAttr();else if(k==='j')toggleDiario();else if(k==='m')toggleMundo();else if(k==='q')usePot('hp');else if(k==='r')usePot('mp');
  else if(k==='e'&&!P.dead)interact(nearestInteract());else if(k==='i'||k==='c')toggle(bagEl);else if(k==='escape'){closeAll();P.target=null;P.auto=false;}
  else if(k==='tab'){const list=mons.filter(m=>!m.dead&&hyp(m.x-P.x,m.y-P.y)<200).sort((a,b)=>hyp(a.x-P.x,a.y-P.y)-hyp(b.x-P.x,b.y-P.y));if(list.length){const i=list.indexOf(P.target);P.target=list[(i+1)%list.length];}}});
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
@@ -173,7 +173,7 @@ function buildStart(){const box=$('classes');box.innerHTML='';
 function enter(s){P=newPlayer(s.cls,s.name);if(s.lvl){Object.assign(P,{lvl:s.lvl,xp:s.xp,jlvl:s.jlvl??(s.spec?clamp(s.lvl-9,1,50):Math.min(10,s.lvl)),jxp:s.jxp||0,attr:s.attr||newAttr(ATTR_INI),gold:s.gold,inv:s.inv||[],equip:s.equip||{},pots:s.pots||{hp:3,mp:2},mats:s.mats||{},miss:s.miss||{on:[],cd:{}},tons:s.tons||{},tonAt:s.tonAt||{},ped:s.ped||{},ranks:s.ranks,bar:s.bar,spec:s.spec,promo:s.promo,quest:s.quest});if(s.map&&MAPS[s.map]){switchMapNow(s.map,null);const sp=blocked(s.x,s.y,4)||!REACH[Math.floor(s.y/TILE)*W+Math.floor(s.x/TILE)]?freeNear(Math.floor(s.x/TILE),Math.floor(s.y/TILE)):s;P.x=sp.x;P.y=sp.y;}else switchMapNow('valdor',null);}
  initRuntime();restoreNascs();allies.length=0;hinted10=false;if(!s.lvl){const w=genItem(1,0,'arma',0,0);P.equip.arma=w;P.equip.peito=genItem(1,0,'peito',0,0);recalc();P.hp=P.st.hp;P.mp=P.st.mp;}
  const pc=$('portrait').getContext('2d');pc.clearRect(0,0,16,16);lookKey='';heroSpr();$('pName').textContent=P.name;
- $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();save();
+ $('start').classList.add('hidden');$('hud').classList.remove('hidden');buildHotbar();mundoVisto();save();
  log(`Bem-vindo a Valdoria, ${P.name}! Pressione ❓ para ver os controles.`,'#ffe3a0');if(!s.lvl)log('Dica: baús dourados aparecem no minimapa.','#ffe3a0');
  if(attrFree()>0)log(`Você tem ${attrFree()} pontos de atributo para distribuir: pressione P.`,'#8fd0ff');}
 $('goBtn').onclick=()=>{const n=$('nameIn').value.trim()||pick(['Aldric','Lyra','Thorne','Mira','Kael','Seren']);enter({cls:chosen,name:n.slice(0,14)});};

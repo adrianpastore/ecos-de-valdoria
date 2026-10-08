@@ -25,7 +25,7 @@ function switchMapNow(id,from){const prev=CUR;
  cam.x=P.x-VW/S/2;cam.y=P.y-8-VH/S/2;$('zoneName').textContent=M.n;if(shopEl)shopEl.classList.add('hidden');$('mentor').classList.add('hidden');$('board').classList.add('hidden');
  BOARD.x=M.board?(M.board[0]+1)*TILE:-9999;BOARD.y=M.board?(M.board[1]+1)*TILE+8:-9999;
  SMITH.x=M.smith?(M.smith[0]+.5)*TILE:-9999;SMITH.y=M.smith?(M.smith[1]+1)*TILE+8:-9999;$('smith').classList.add('hidden');
- BAR.x=M.bar?(M.bar[0]+.5)*TILE:-9999;BAR.y=M.bar?(M.bar[1]+1)*TILE+8:-9999;$('taverna').classList.add('hidden');$('pedido').classList.add('hidden');setTalk(M);colSpawn(M);save();} // bar e gente do salão da Guilda (20)
+ BAR.x=M.bar?(M.bar[0]+.5)*TILE:-9999;BAR.y=M.bar?(M.bar[1]+1)*TILE+8:-9999;$('taverna').classList.add('hidden');$('pedido').classList.add('hidden');setTalk(M);colSpawn(M);mundoVisto();save();} // bar e gente do salão da Guilda (20)
 function portalTick(dt){if(loading)return;if((P.portalCD||0)>0){P.portalCD-=dt;return;}
  for(const to in MAPS[CUR].portals){const p=portalPt(to);if(hyp(P.x-p.x,P.y-p.y)<12){changeMap(to,CUR);return;}}}
 function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);

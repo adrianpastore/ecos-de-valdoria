@@ -264,3 +264,10 @@ body.toque #hotbar .hs .ski{border-radius:50%}
 #diario{width:min(560px,95vw)} #diario .mr{margin-top:4px;font-size:14px}
 .dbar{height:5px;background:var(--panel);border:1px solid var(--edge2);border-radius:3px;margin:2px 0 4px;overflow:hidden} .dbar i{display:block;height:100%;background:linear-gradient(90deg,#b8862c,#e8c066)}
 .dsub{font-family:Cinzel,serif;color:var(--gold);font-size:15px;margin:12px 0 4px} .dnov{margin:0;padding-left:20px;font-size:14px} .dnov li{margin:3px 0}
+/* mapa do mundo (30) */
+#mundo{width:min(1000px,96vw);text-align:center} #mundo .flav{margin:0 0 6px} #mapbox{cursor:pointer}
+.mwrap{position:relative;display:inline-block;line-height:0} #mundoCv{display:block;max-width:100%;max-height:calc(min(88vh,720px) - 130px);border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#mundoPin{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ff3a2a;border:2px solid #fff;box-shadow:0 0 6px #ff3a2a;pointer-events:none;animation:mpin 1.1s ease-in-out infinite}
+@keyframes mpin{0%,100%{transform:scale(1)}50%{transform:scale(1.5);box-shadow:0 0 12px 3px #ff6a3a}}
+#mundoInfo{margin:6px 0 0;font-size:14px;min-height:20px} #mundoInfo .mvc{color:#e85a3a;font-weight:700}
+body.toque #mundoRol{overflow:auto;max-height:calc(100vh - 128px);text-align:left;border-radius:4px} body.toque #mundoCv{max-width:none;max-height:none} body.toque #mundo .flav{font-size:13px;margin:0 0 3px} body.toque #mundoInfo{font-size:12px;margin-top:3px}
