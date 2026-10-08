@@ -221,7 +221,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação (o jogo nunc
 ## Onde paramos (08/10/2026)
 
 **Plano aprovado pelo dono em 08/10/2026, nesta ordem:** (1) missões de coleta em Sahrem; (2) um **diário de missões** (tela que lista o que está aberto e o que já foi feito, de todas as cidades); (3) um **mapa do mundo** dentro do jogo, com as regiões e onde o herói está.
-- **Plano novo do dono (08/10/2026, depois do envio), nesta ordem:** (1) pedidos dos moradores em Valdor, Pinheiral e Arcádia (**feito, esperando o ok**: `js/31-pedidos-cidades.js`); (2) exportar e importar save; (3) campos novos entre as cidades; (4) regiões novas (Porto e Montanhas); (5) a masmorra sob a Torre.
+- **Plano novo do dono (08/10/2026, depois do envio), nesta ordem:** (1) pedidos dos moradores em Valdor, Pinheiral e Arcádia (**aprovado**: `js/31-pedidos-cidades.js`); (2) exportar e importar save; (3) campos novos entre as cidades; (4) regiões novas (Porto e Montanhas); (5) a masmorra sob a Torre.
 - **Enviado ao GitHub (site) em 08/10/2026**, a pedido do dono. Próximos passos sugeridos ao dono, esperando a escolha dele: exportar e importar save (2.3); os campos novos entre as cidades (passo A); a masmorra sob a Torre; as regiões novas, Porto e Montanhas (passo B); pedidos dos moradores nas outras cidades.
 - **Etapa 3 aprovada pelo dono (plano completo):** o mapa do mundo (`js/30-mapa-mundo.js`, tecla M). Lugares ainda não visitados aparecem com névoa; as miniaturas ficam no aparelho, então num aparelho novo o mapa começa enevoado.
 - **Etapa 2 aprovada pelo dono:** o diário de missões (`js/29-diario.js`, tecla J). `P.miss` ganhou `done` (sem mudar a versão do save: falta em save antigo e abre vazio).
