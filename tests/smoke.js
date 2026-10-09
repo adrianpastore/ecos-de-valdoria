@@ -157,6 +157,11 @@
   t('clareiras: nenhum mapa de fora com chão grande preso entre as árvores',()=>{const ruim=[];for(const id in MAPS){const M=MAPS[id];if(M.interior||M.cave||M.town)continue;genWorld(id);
     let free=0,lock=0;for(let i=0;i<W*H;i++)if(!solid[i]){free++;if(!REACH[i])lock++;}if(lock/free>.08)ruim.push(id+' '+(100*lock/free|0)+'%');}genWorld(CUR);
    if(ruim.length)throw 'chão preso: '+ruim.join(', ');});
+  t('copa transparente: árvore na frente do herói fica meio transparente e volta ao normal quando ele sai',()=>{genWorld('floresta');
+    let o=null;for(let y=2;y<H-2&&!o;y++)for(const q of objRows[y])if(q.spr.startsWith('tree')){o=q;break;}if(!o)throw 'sem árvore';
+    const px=P.x,py=P.y,ms=mons.splice(0);try{P.x=o.px;P.y=o.py-18;for(let k=0;k<30;k++)copaFade(o);if(!(o.fa<.5))throw 'não ficou transparente ('+o.fa+')';
+     P.x=o.px+200;for(let k=0;k<30;k++)copaFade(o);if(!(o.fa>.95))throw 'não voltou ('+o.fa+')';P.x=o.px;P.y=o.py+8;o.fa=1;copaFade(o);if(o.fa<1)throw 'árvore atrás do herói ficou transparente';
+     if(copaFade({spr:'fountain',px:P.x,py:P.y+18})!==1)throw 'objeto que não é árvore mudou';}finally{P.x=px;P.y=py;mons.push(...ms);genWorld(CUR);}});
   t('Torre dos Magos: no centro de Arcádia, porta ao sul, salão redondo com a Selene; ao sair, na frente da porta',()=>{switchMapNow('arcadia',null);
    const o=objRows.flat().find(o=>o.spr==='torreMagos');if(!o||o.label!=='Torre dos Magos')throw 'a Torre não tem o nome ao passar o mouse';
    if(SPR.torreMagos.n.height!==TORRE_H||SPR.torreMagos.n.width!==80)throw 'desenho da Torre com tamanho errado';

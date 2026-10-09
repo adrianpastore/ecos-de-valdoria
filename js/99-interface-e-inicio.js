@@ -6,6 +6,12 @@ let DPR=1,VW=0,VH=0,S=3;const cam={x:TC.x*TILE,y:TC.y*TILE};let CX=0,CY=0;
 function resize(){DPR=Math.min(devicePixelRatio||1,QUAL.leve?1:2);VW=cv.clientWidth;VH=cv.clientHeight;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);S=Math.max(2,Math.min(4,Math.round(Math.min(VW/(TILE*20),VH/(TILE*13)))));}
 addEventListener('resize',resize);
 const TINT=[null,null,'rgba(40,70,40,.10)','rgba(120,90,40,.08)','rgba(120,20,10,.14)'];
+// Copa transparente (pedido do dono em 09/10/2026): árvore desenhada na frente do herói ou de um monstro, com a copa por cima
+// dele, fica meio transparente (aos poucos), para não esconder ninguém. Continua sólida: é só o desenho.
+function copaFade(o){if(o.spr.slice(0,4)!=='tree')return 1;const s=SPR[o.spr],w=s?s.n.width/2:12,h=s?s.n.height:30;
+ const atras=q=>q.y<o.py&&q.y>o.py-h+4&&Math.abs(q.x-o.px)<w+3;let alvo=P&&atras(P)?.42:1;
+ if(alvo===1)for(const m of mons)if(!m.dead&&atras(m)){alvo=.42;break;}
+ o.fa=o.fa===undefined?1:o.fa+(alvo-o.fa)*.2;return o.fa;}
 function drawS(name,x,y,face=1,sc=1,white=false,sy=1){const s=SPR[name];if(!s)return;const img=white?(face<0?s.wf:s.w):(face<0?s.f:s.n);const w=img.width*sc,h=img.height*sc*sy;ctx.drawImage(img,Math.round(x-w/2),Math.round(y-h),Math.round(w),Math.round(h));}
 function shadow(x,y,r){ctx.fillStyle='rgba(0,0,0,.28)';ctx.beginPath();ctx.ellipse(x,y,r,r*.4,0,0,6.29);ctx.fill();}
 function conColor(l){const d=l-(P?P.lvl:1);return d>=5?'#ff3b3b':d>=3?'#ff8a2a':d>=-2?'#ffd84a':d>=-5?'#5fd35a':'#a0a0a0';}
@@ -32,7 +38,7 @@ function render(dt,tt){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabl
  for(const l of loots)if(inView(l.x,l.y))L.push({y:l.y,t:3,o:l});L.push({y:NPC.y,t:4,o:NPC});L.push({y:MENTOR.y,t:7,o:MENTOR});for(const a of allies)if(inView(a.x,a.y))L.push({y:a.y,t:6,o:a});for(const n of nascs)if(inView(n.x,n.y))L.push({y:n.y-4,t:8,o:n});for(const c of COL)if(inView(c.x,c.y))L.push({y:c.y,t:9,o:c});if(P)L.push({y:P.y,t:5,o:P});
  L.sort((a,b)=>a.y-b.y);
  for(const e of L){const o=e.o;
-  if(e.t===0)drawS(o.spr,o.px,o.py);
+  if(e.t===0){const f=copaFade(o);if(f<.99){ctx.globalAlpha=f;drawS(o.spr,o.px,o.py);ctx.globalAlpha=1;}else drawS(o.spr,o.px,o.py);}
   else if(e.t===1){const m=o,bob=m.type==='slime'?1:1,sy=m.type==='slime'?1+Math.sin(m.animT*6)*.08:1;shadow(m.x,m.y,m.r*1.1);
    if(m.elite||m.boss||m.d.clone){ctx.fillStyle=`rgba(255,${m.boss||m.d.clone?80:200},40,${.25+Math.sin(tt*5)*.1})`;ctx.beginPath();ctx.ellipse(m.x,m.y,m.r*1.6,m.r*.7,0,0,6.29);ctx.fill();}
    const yy=m.y-(m.moving&&m.type!=='slime'&&Math.floor(m.animT*8)%2?1:0);drawS(m.disguise||m.type,m.x+(m.lunge>0?m.face*3:0),yy-(m.d.fly||m.d.hover?4+Math.sin(m.animT*3)*2:0),m.face,m.sc,m.hitT>0,sy*bob);
