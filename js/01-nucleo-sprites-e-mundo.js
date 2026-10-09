@@ -263,7 +263,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    for(let k=1;k<=3;k++){const Y=y-k;let ok=true;for(let X=x0;X<=x1;X++)if(ground[Y*W+X]!==G.HIGH||nearP(X,Y))ok=false;if(!ok)break;
     for(let X=x0;X<=x1;X++){const j=Y*W+X;ground[j]=G.WATER;solid[j]=1;const r=objRows[Y];for(let q=r.length-1;q>=0;q--)if(r[q].tx===X)r.splice(q,1);}}}}
  if(M.plateau)fixReach(M);
- computeReach(M);linkReach(M);
+ computeReach(M);linkReach(M);if(typeof abreBolsoes==="function")abreBolsoes(M); // clareiras presas ganham passagem (34)
  // pontes: trecho de estrada com água dos dois lados, atravessando a largura da estrada (até 4 tiles). Arcádia tem as pontes de pedra dela (21)
  if(!M.town&&!M.moat&&!CAV)for(let i=0;i<W*H;i++){if(ground[i]!==G.PATH)continue;const x=i%W,y=(i/W)|0;
   const wat=(dx,dy)=>{let X=x,Y=y;for(let k=0;k<5;k++){X+=dx;Y+=dy;if(X<0||Y<0||X>=W||Y>=H)return false;const g=ground[Y*W+X];if(g===G.WATER)return true;if(g!==G.PATH)return false;}return false;};

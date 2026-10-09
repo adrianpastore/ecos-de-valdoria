@@ -28,3 +28,24 @@ MAPS.bosque.deco=[[35,19],[66,52],[55,17],[44,8],[24,44],[8,7],[8,25],[17,15],[6
 const trocaPortal=(id,de,para)=>{const p=MAPS[id].portals,o={};for(const k in p)o[k===de?para:k]=p[k];MAPS[id].portals=o;};
 trocaPortal('estrada','pinheiral','lenhadores');trocaPortal('pinheiral','estrada','lenhadores');
 trocaPortal('planalto','arcadia','bosque');trocaPortal('arcadia','planalto','bosque');
+// Clareiras presas (pedido do dono em 09/10/2026: "partes do mapa estão trancadas pelas árvores"): o linkReach (01) só garante os
+// portais e o miolo do mapa, e sobravam clareiras grandes cercadas de árvores (na Floresta, 60% do chão livre ficava preso).
+// Cada bolsão de 12 tiles ou mais ganha uma passagem de 3 tiles até a parte alcançável, cortando só árvores e pedras (nunca água,
+// barranco ou objetos do mapa) pelo caminho mais curto. Bolsões pequenos ficam: são cantinhos naturais entre as árvores.
+// Chamado pelo genWorld do 01 depois do linkReach; vale para todo mapa de fora (não para vilas, cavernas e interiores).
+function abreBolsoes(M){if(M.town||M.cave||M.interior)return;const deco=new Set((M.deco||[]).map(([x,y])=>y*W+x)),N4=[[1,0],[-1,0],[0,1],[0,-1]];
+ const corta=i=>solid[i]&&ground[i]!==G.WATER&&ground[i]!==G.CLIFF&&!deco.has(i);
+ const tira=i=>{if(!corta(i))return;const x=i%W,y=(i/W)|0,r=objRows[y];for(let k=r.length-1;k>=0;k--)if(r[k].tx===x)r.splice(k,1);solid[i]=0;};
+ const nao=new Uint8Array(W*H);
+ for(let it=0;it<40;it++){const seen=nao.slice();let alvo=null;
+  for(let i=0;i<W*H&&!alvo;i++){if(solid[i]||REACH[i]||seen[i])continue;const b=[i];seen[i]=1;for(let h=0;h<b.length;h++){const x=b[h]%W,y=(b[h]/W)|0;
+    for(const[dx,dy]of N4){const X=x+dx,Y=y+dy,k=Y*W+X;if(X<0||Y<0||X>=W||Y>=H||seen[k]||solid[k]||REACH[k])continue;seen[k]=1;b.push(k);}}if(b.length>=12)alvo=b;}
+  if(!alvo)return;
+  // busca em largura a partir do bolsão: chão livre custa 0, árvore ou pedra custa 1 (deque 0-1)
+  const D=new Int32Array(W*H).fill(1e9),pr=new Int32Array(W*H).fill(-1),Q=[...alvo];for(const i of alvo)D[i]=0;let fim=-1;
+  for(let h=0;h<Q.length;h++){const i=Q[h];if(REACH[i]){fim=i;break;}const x=i%W,y=(i/W)|0;
+   for(const[dx,dy]of N4){const X=x+dx,Y=y+dy;if(X<1||Y<1||X>=W-1||Y>=H-1)continue;const j=Y*W+X;if(solid[j]&&!corta(j))continue;const nd=D[i]+(solid[j]?1:0);
+    if(nd<D[j]){D[j]=nd;pr[j]=i;solid[j]?Q.push(j):Q.splice(h+1,0,j);}}}
+  if(fim<0){for(const i of alvo)nao[i]=1;continue;} // não dá para ligar sem mexer em água ou barranco: deixa como está
+  for(let i=fim;i>=0;i=pr[i]){const x=i%W,y=(i/W)|0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(x+dx>0&&y+dy>0&&x+dx<W-1&&y+dy<H-1)tira((y+dy)*W+x+dx);}
+  computeReach(M);}}

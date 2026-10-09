@@ -154,6 +154,9 @@
    if(cam>60)throw 'o Bosque não devia ter estrada ('+cam+' tiles de caminho)';
    switchMapNow('bosque',null);if(!(passagem.rota||[]).length)throw 'o Bosque ficou sem passagem entre os portais';
    for(const i of passagem.rota){const x=i%W,y=(i/W)|0;if(y<3||y>H-4)continue;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const j=(y+dy)*W+x+dx;if(solid[j]&&ground[j]!==G.WATER&&ground[j]!==G.CLIFF&&!MAPS.bosque.deco.some(d=>d[1]*W+d[0]===j))throw 'árvore no meio da passagem do Bosque em '+(x+dx)+','+(y+dy);}}info('campos novos ligados; '+cam+' tiles de caminho no Bosque (só as pontas)');});
+  t('clareiras: nenhum mapa de fora com chão grande preso entre as árvores',()=>{const ruim=[];for(const id in MAPS){const M=MAPS[id];if(M.interior||M.cave||M.town)continue;genWorld(id);
+    let free=0,lock=0;for(let i=0;i<W*H;i++)if(!solid[i]){free++;if(!REACH[i])lock++;}if(lock/free>.08)ruim.push(id+' '+(100*lock/free|0)+'%');}genWorld(CUR);
+   if(ruim.length)throw 'chão preso: '+ruim.join(', ');});
   t('Torre dos Magos: no centro de Arcádia, porta ao sul, salão redondo com a Selene; ao sair, na frente da porta',()=>{switchMapNow('arcadia',null);
    const o=objRows.flat().find(o=>o.spr==='torreMagos');if(!o||o.label!=='Torre dos Magos')throw 'a Torre não tem o nome ao passar o mouse';
    if(SPR.torreMagos.n.height!==TORRE_H||SPR.torreMagos.n.width!==80)throw 'desenho da Torre com tamanho errado';
