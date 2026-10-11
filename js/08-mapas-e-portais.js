@@ -27,8 +27,8 @@ function switchMapNow(id,from){const prev=CUR;
  SMITH.x=M.smith?(M.smith[0]+.5)*TILE:-9999;SMITH.y=M.smith?(M.smith[1]+1)*TILE+8:-9999;$('smith').classList.add('hidden');
  BAR.x=M.bar?(M.bar[0]+.5)*TILE:-9999;BAR.y=M.bar?(M.bar[1]+1)*TILE+8:-9999;$('taverna').classList.add('hidden');$('pedido').classList.add('hidden');setTalk(M);colSpawn(M);mundoVisto();save();} // bar e gente do salão da Guilda (20)
 function portalTick(dt){if(loading)return;if((P.portalCD||0)>0){P.portalCD-=dt;return;}
- for(const to in MAPS[CUR].portals){const p=portalPt(to);if(hyp(P.x-p.x,P.y-p.y)<12){changeMap(to,CUR);return;}}}
-function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;const p=portalPt(to);
+ for(const to in MAPS[CUR].portals){const p=portalPt(to);if(hyp(P.x-p.x,P.y-p.y)<12){if(seloFecha(to)){seloAviso();continue;}changeMap(to,CUR);return;}}} // seloFecha: a escada do Arquivo Selado (37)
+function drawPortals(tt){for(const to in MAPS[CUR].portals){if(MAPS[CUR].portals[to][2]==='porta')continue;if(to==='arquivo1'&&CUR==='torreArcadia'){seloDraw(to,tt);if(seloFecha(to))continue;}const p=portalPt(to);
  for(let k=0;k<3;k++){const r=9-k*2.5,a=tt*(2+k)+k;ctx.strokeStyle=['#ff5a3a','#ff9a4a','#ffe0a0'][k];ctx.globalAlpha=.8;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.5,0,a,a+4.2);ctx.stroke();}
  ctx.globalAlpha=1;if(R()<.3)parts.push({x:p.x+rf(-8,8),y:p.y+rf(-3,3),vx:0,vy:-25,g:0,life:.6,max:.6,color:pick(['#ff5a3a','#ffb060']),s:1});}}
 // portas não mostram nome: o símbolo da placa e o mouse (houseAt, em 13) identificam o lugar

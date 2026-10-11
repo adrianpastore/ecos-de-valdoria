@@ -15,12 +15,14 @@ function diaAbertas(){const L=[],q=P.quest,[mn,mw]=MENTN[mentorOf()];
   L.push({t:m.t,s:`Guilda de ${cidN(m.city)} • ${MAPS[m.map].n}`,p:have>=m.n?`Pronto! Volte ao mural da Guilda de ${cidN(m.city)}.`:m.txt,prog:[[LOOTM[m.mat].n,have,m.n]],ok:have>=m.n,cor:'#ffe3a0'});}
  for(const r of PEDS){if(P.ped[r.id]!==1)continue;const ok=pedState(r)==='pronta';
   L.push({t:r.t,s:`${r.n} • ${cidN(r.map)}`,p:ok?`Pronto! Volte a ${cidN(r.map)} e fale com ${r.n}.`:r.pede,prog:r.itens.map(([m,n])=>[LOOTM[m].n+(COLD[m]?' ('+Object.keys(COLD[m].maps).map(k=>MAPS[k].n.replace(/^Pirâmide de Sahrem • /,'pirâmide, ')).join(' e ')+')':''),P.mats[m]||0,n]),ok,cor:r.c});}
+ L.push(...seloDia(1)); // missão da Selene (37)
  return L;}
 function diaNovos(){return PEDS.filter(r=>!P.ped[r.id]&&r.lv<=P.lvl+3).map(r=>`<li><b>${r.n}</b>, em ${cidN(r.map)}, tem um pedido para você <small class="muted">(nível ${r.lv}+)</small></li>`).join('');}
 function diaFeitas(){const L=[],D=P.miss.done||{};
  if(P.spec)L.push({t:P.promo>=2?'Promovido a '+SPECS[P.spec].n:'Aprendiz de '+SPECS[P.spec].n,s:'Caminho da classe',p:SPECS[P.spec].d,cor:'#d9a0ff'});
  for(const r of PEDS)if(P.ped[r.id]===2)L.push({t:r.t,s:`${r.n} • ${cidN(r.map)}`,p:`"${r.ok}"`,cor:r.c});
  for(const m of MISS)if(D[m.id])L.push({t:m.t,s:`Guilda de ${cidN(m.city)} • ${MAPS[m.map].n}`,p:`Entregue ${D[m.id]>1?D[m.id]+' vezes':'1 vez'}.`,cor:'#ffe3a0'});
+ L.push(...seloDia(0));
  return L;}
 const diaCard=e=>`<div class="mcard${e.ok?' pronta':''}" style="border-left:5px solid ${e.cor}"><div class="mt"><b>${e.t}</b><small>${e.s}</small></div><p>${e.p}</p>`+
  (e.prog||[]).map(([n,a,b])=>`<div class="mr"><span>${n}</span><span>${Math.min(a,b)}/${b}${a>=b?' ✔':''}</span></div><div class="dbar"><i style="width:${Math.min(100,a/b*100)}%"></i></div>`).join('')+`</div>`;

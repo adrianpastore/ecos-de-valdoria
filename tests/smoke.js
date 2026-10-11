@@ -126,6 +126,27 @@
    if(!MAPS.sahrem.walls||MAPS.sahrem.wallStyle!=='arenito')throw 'Sahrem sem muralha de arenito';
    switchMapNow('dunasS',null);let alto=0;for(let i=0;i<W*H;i++)if(ground[i]===G.HIGH)alto++;if(alto<100)throw 'dunas sem morros ('+alto+' tiles altos)';
    const ms=MISS.filter(q=>q.city==='sahrem');if(ms.length<8)throw 'só '+ms.length+' missões em Sahrem';for(const q of ms)if(!des.includes(q.mat))throw q.id+' pede material de fora';info(ms.length+' missões em Sahrem');});
+  t('Arquivo Selado: escada selada no salão da Torre até a missão da Selene; 3 andares escuros com monstros próprios',()=>{const arq=['grimorio','fagulha','sentinelaR','aprendiz','ecoF'];
+   for(const id of['arquivo1','arquivo2','arquivo3']){const M=MAPS[id];if(!M.dark||M.mask!==arquivoMask||M.theme!==15)throw id+' não é andar escuro do Arquivo';for(const[tp]of M.mons)if(!arq.includes(tp))throw id+' tem '+tp;
+    switchMapNow(id,null);const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;if(!M.caveObj.some(k=>c[k]))throw id+' sem estantes, livros nem colunas';}
+   if(MAPS.arquivo1.lv[0]!==20||MAPS.arquivo3.lv[1]!==30)throw 'a masmorra devia ir do nível 20 ao 30';
+   switchMapNow('torreArcadia','arcadia');cura();P.ped={};P.lvl=19;if(seloQuer())throw 'a Selene pediu antes do nível 20';
+   P.lvl=20;const p=portalPt('arquivo1'),j=Math.floor(p.y/TILE)*W+Math.floor(p.x/TILE);if(solid[j]||!REACH[j])throw 'a escada fica num lugar sem passagem';
+   P.x=p.x;P.y=p.y;P.portalCD=0;loading=false;portalTick(.05);if(loading)throw 'desceu com o selo fechado';
+   const sel=TALK.find(t=>t.p.id==='selene');P.cls='guerreiro';interact({kind:'talk',o:sel});if($('pedido').classList.contains('hidden'))throw 'a Selene não ofereceu a missão';
+   seloAction('aceitar');if(P.ped.selo!==1||seloFecha('arquivo1'))throw 'aceitar não abriu o selo';$('pedido').classList.add('hidden');
+   if(!diaAbertas().some(e=>e.t===SELO.t))throw 'a missão não aparece no diário';render(.05,0);});
+  t('Mestre Ozren: devora magia, orbes do silêncio, ergue alunos, anéis do Vazio; derrotado, a Selene entrega a recompensa',()=>{switchMapNow('arquivo3',null);const b=mons.find(ehChefe);if(!b||b.type!=='ozren')throw 'o chefe não apareceu';
+   const j=Math.floor(b.y/TILE)*W+Math.floor(b.x/TILE);if(solid[j]||!REACH[j])throw 'nasceu em lugar bloqueado';
+   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();b.ai.fomeT=0;update(.05);if(!b.ai.avOn||b.fome>0)throw 'a Fome Arcana veio sem aviso';for(let i=0;i<22&&!(b.fome>0);i++){cura();update(.05);}if(!(b.fome>0))throw 'sem a Fome Arcana';
+   b.hp=b.maxHp/2+50;const h0=b.hp;hitMonster(b,3);if(b.hp<=h0)throw 'o golpe não curou durante a fome';b.fome=0;const h1=b.hp;hitMonster(b,3);if(b.hp>=h1)throw 'o golpe não doeu depois da fome';
+   b.ai.eco=0;cura();update(.05);if(!mons.some(c=>c.owner===b))throw 'não ergueu os alunos';
+   cura();const m0=P.mp;mproj.push({x:P.x,y:P.y-8,vx:0,vy:0,life:1,m:b,c:'#6a3aa0',mult:.6,sil:1});update(.05);if(P.mp>=m0)throw 'o silêncio não tirou mana';
+   b.hp=b.maxHp*.4;b.ai.vazio=0;teles.length=0;cura();update(.05);update(.05);if(!b.ai.rage||!teles.some(t=>t.ring&&t.m===b))throw 'sem os anéis do Vazio abaixo da metade';teles.length=0;
+   P.ped={selo:1};const g0=P.gold,i0=P.inv.length;killMonster(b);if(P.ped.selo!==2)throw 'derrotar Ozren não completou a missão';if(mons.some(c=>c.owner===b&&!c.dead))throw 'os alunos não sumiram';
+   switchMapNow('torreArcadia','arcadia');openSelo();seloAction('entregar');if(P.ped.selo!==3||P.gold!==g0+SELO.g||P.inv.length!==i0+1||P.inv.at(-1).rar<3)throw 'recompensa errada';
+   if(seloQuer()||!diaFeitas().some(e=>e.t===SELO.t))throw 'missão entregue continua aberta';seloTick();if(!GENTE.find(g=>g.id==='selene').f.includes(SELO.f[0]))throw 'a Selene não ganhou falas novas';
+   info('Ozren nv '+b.lvl+', '+b.maxHp+' de vida');});
   t('Sahrem: a porta da pirâmide leva à tumba de 3 andares, com urnas, colunas e monstros próprios',()=>{const p=MAPS.sahrem.portals.tumba1,[px,py]=MAPS.sahrem.piramide;
    if(!p||p[0]!==px||p[1]!==py+1||p[2]!=='porta')throw 'a porta da pirâmide não leva à tumba';const tum=['besouroT','mumia','sentinela','sacerdote'];
    for(const id of['tumba1','tumba2','tumba3']){const M=MAPS[id];if(!M.dark||M.mask!==tumbaMask)throw id+' não é tumba escura';for(const[tp]of M.mons)if(!tum.includes(tp))throw id+' tem '+tp;
@@ -184,7 +205,7 @@
    const p=portalPt('torreArcadia');if(p.y<o.py)throw 'a porta não fica embaixo da Torre';
    switchMapNow('torreArcadia','arcadia');const M=MAPS.torreArcadia;if(!M.round||!solid[(TC.y-6)*W+TC.x-9])throw 'o salão não é redondo (o canto deveria ser parede)';
    if(TALK.length!==1||TALK[0].p.n!=='Arquimaga Selene')throw 'a Selene não está no salão';cura();P.x=TALK[0].x;P.y=TALK[0].y+6;const it=nearestInteract();
-   if(!it||it.kind!=='talk')throw '[E] não conversa com a Selene';interact(it);if(!(TALK[0].until>time))throw 'a Selene não falou';
+   if(!it||it.kind!=='talk')throw '[E] não conversa com a Selene';P.ped.selo=3;interact(it);if(!(TALK[0].until>time))throw 'a Selene não falou';
    for(const q of SALAO)if(q.id==='selene')throw 'a Selene entrou no salão da Guilda';
    switchMapNow('arcadia','torreArcadia');if(P.y<=p.y||hyp(P.x-p.x,P.y-p.y)>3*TILE)throw 'ao sair, o herói não ficou na frente da porta';render(.05,0);
    info('Torre de 80×'+TORRE_H+' px, salão com '+M.deco.filter(d=>d[2]==='estante').length+' estantes; Selene: '+GENTE[0].f.length+' falas');});
@@ -402,7 +423,7 @@
    missAction('entregar',m.id);P.ped[r.id]=2;diaTab='feitas';renderDiario();if(!tx().includes(m.t)||!tx().includes(r.t)||!tx().includes('1 vez'))throw 'faltou o que foi concluído';
    diaTab='abertas';P.miss=JSON.parse(JSON.stringify({on:[],cd:{}}));renderDiario();closeAll();info('diário: '+diaAbertas().length+' abertas, '+diaFeitas().length+' concluídas');});
   t('mapa do mundo: abre no M, todo mapa de fora tem um quadro e o herói aparece no lugar certo',()=>{const L=mundoPos(),cel={};
-   for(const id in MAPS){const M=MAPS[id];if(M.interior||!(M.town||M.lv))continue;if(id.startsWith('tumba'))continue;if(!L.pos[id])throw id+' fora do mapa do mundo';const k=L.pos[id]+'';if(cel[k])throw id+' no mesmo quadro de '+cel[k];cel[k]=id;}
+   for(const id in MAPS){const M=MAPS[id];if(M.interior||!(M.town||M.lv))continue;if(id.startsWith('tumba')||id.startsWith('arquivo'))continue;if(!L.pos[id])throw id+' fora do mapa do mundo';const k=L.pos[id]+'';if(cel[k])throw id+' no mesmo quadro de '+cel[k];cel[k]=id;}
    switchMapNow('tumba2',null);if(mundoOnde()[0]!=='sahrem')throw 'na tumba, o herói devia aparecer em Sahrem';
    const gi=Object.keys(MAPS).find(k=>MAPS[k].interior&&MAPS[k].city==='pinheiral');if(gi){switchMapNow(gi,null);if(mundoOnde()[0]!=='pinheiral')throw 'num interior de Pinheiral, o herói devia aparecer em Pinheiral';}
    switchMapNow('orla',null);delete MUNDO_TH.orla;dispatchEvent(new KeyboardEvent('keydown',{key:'m'}));if($('mundo').classList.contains('hidden'))throw 'M não abriu o mapa do mundo';

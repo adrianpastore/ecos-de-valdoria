@@ -160,7 +160,8 @@ function recalc(){const c=CL[P.cls],L=P.lvl-1;const st=Object.assign(attrStats(c
 // ================== DANO ==================
 function dmgRoll(mult){let d=P.st.atk*mult*(1+P.st.dmgPct+P.st.rage*(1-P.hp/P.st.hp))*rf(.9,1.1);let crit=R()*100<P.st.crit;if(P.ambush){crit=true;d*=1.5;P.ambush=false;}if(crit)d*=1.8;return{d,crit};}
 function hitMonster(m,mult,o={}){if(m.dead)return 0;const{d,crit}=dmgRoll(mult);return dealMonster(m,d,crit,o);}
-function dealMonster(m,d,crit,o={}){if(m.dead)return 0;if(m.curse&&m.curse.t>0)d*=1+m.curse.amp;
+function dealMonster(m,d,crit,o={}){if(m.dead)return 0;if(m.fome>0)return fomeCura(m,d,o); // Ozren faminto: o golpe vira cura (37)
+ if(m.curse&&m.curse.t>0)d*=1+m.curse.amp;
  const f=Math.max(1,Math.round(d*60/(60+m.dfn)));m.hp-=f;m.hitT=.12;if(m.state==='idle')m.state='chase';P.combatT=time;
  addText(m.x+rf(-5,5),m.y-mh(m)-2,f,o.src==='ally'?'#bfffbf':crit?'#ffd23a':'#ffffff',crit);
  if(o.slow)m.slowT=o.slow;if(o.root)m.rootT=o.root;if(o.bleed)m.dot={t:4,acc:0,c:'#c0303a',dps:f*o.bleed/4*(60+m.dfn)/60};if(o.poison)m.dot={t:5,acc:0,c:'#7dff5a',dps:f*o.poison*(1+P.st.toxin)/5*(60+m.dfn)/60};
@@ -282,4 +283,4 @@ function nearestInteract(){let b=null,bd=26;for(const c of chests){if(c.open)con
  if(hyp(BOARD.x-P.x,BOARD.y-P.y)<Math.max(bd,30))b={kind:'board',o:BOARD};
  if(hyp(SMITH.x-P.x,SMITH.y-P.y)<Math.max(bd,30))b={kind:'smith',o:SMITH};
  if(hyp(BAR.x-P.x,BAR.y-P.y)<Math.max(bd,30))b={kind:'bar',o:BAR};return b;}
-function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='col')pickCol(it.o);else if(it.kind==='talk'){if(it.o.p.id===MENT_CLS[P.cls])openMentor(it.o.p.id);else if(it.o.p.ped)openPedido(it.o.p);else talkTo(it.o);}else openShop();}
+function interact(it){if(!it)return;if(it.kind==='chest')openChest(it.o);else if(it.kind==='nasc')purify(it.o);else if(it.kind==='mentor')openMentor();else if(it.kind==='board')openBoard();else if(it.kind==='smith')openSmith();else if(it.kind==='bar')openTaverna();else if(it.kind==='col')pickCol(it.o);else if(it.kind==='talk'){if(it.o.p.id==='selene'&&seloQuer())openSelo();else if(it.o.p.id===MENT_CLS[P.cls])openMentor(it.o.p.id);else if(it.o.p.ped)openPedido(it.o.p);else talkTo(it.o);}else openShop();}
