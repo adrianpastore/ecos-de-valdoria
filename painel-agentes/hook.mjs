@@ -4,7 +4,20 @@
 // o painel publicado (painel-agentes/index.html) lê de lá em tempo real.
 // Nunca atrapalha a sessão: qualquer falha é ignorada e o hook sai em até ~1,5 s.
 import { readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 import { normalizar } from './normalizar.mjs';
+
+// Na nuvem a internet só passa pelo proxy (HTTPS_PROXY), e o fetch do Node ignora
+// o proxy a menos que NODE_USE_ENV_PROXY=1. Sem isso nenhum evento chegava ao painel.
+// Então o hook se roda de novo com essa variável; no computador (sem proxy) nada muda.
+if ((process.env.HTTPS_PROXY || process.env.https_proxy) && !process.env.NODE_USE_ENV_PROXY) {
+  const filho = spawn(process.execPath, ['--no-warnings', ...process.argv.slice(1)], {
+    env: { ...process.env, NODE_USE_ENV_PROXY: '1' }, stdio: ['pipe', 'ignore', 'ignore'],
+  });
+  process.stdin.pipe(filho.stdin);
+  filho.on('exit', () => process.exit(0));
+  filho.on('error', () => process.exit(0));
+} else {
 
 const cfg = JSON.parse(readFileSync(new URL('./config.json', import.meta.url), 'utf8'));
 
@@ -30,3 +43,4 @@ process.stdin.on('end', async () => {
   }
   process.exit(0);
 });
+}
