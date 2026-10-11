@@ -240,7 +240,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação (o jogo nunc
 
 ## Onde paramos (11/10/2026)
 
-**Etapa 4 do plano de 08/10/2026, as regiões novas, feita na nuvem (branch `claude/project-thread-oxn5jn`, PR em rascunho; esperando o dono ver a prévia):**
+**Etapa 4 do plano de 08/10/2026, as regiões novas, feita na nuvem (branch `claude/project-thread-oxn5jn`, PR #1; **aprovada pelo dono em 11/10/2026**, falta só o "pode enviar" para ir ao site):**
 - **Porto de Maresia** (`35`): a Encosta 07 ganhou saída leste para a **Costa dos Ventos** (26 a 29), que desce até o Porto, à beira-mar. Ao sul, a **Praia dos Naufrágios** (29 a 32); ao norte, os **Rochedos da Maré** (31 a 34). 5 monstros do litoral, gente própria, 6 missões e 3 pedidos.
 - **Altaforja** (`36`): o Covil do Wyrm ganhou saída norte para o **Passo da Serra** (40 a 43), que sobe até Altaforja. A leste, os **Picos Gelados** (43 a 46); ao norte, a **Geleira Eterna** (46 a 50). 5 monstros da neve, gente própria, 6 missões e 3 pedidos. A Grande Forja de Brannar e a mina selada são, por enquanto, só cenário.
 - Nomes escolhidos pelo Claude (o dono pode trocar): Porto de Maresia, Costa dos Ventos, Praia dos Naufrágios, Rochedos da Maré, Altaforja, Passo da Serra, Picos Gelados, Geleira Eterna.
