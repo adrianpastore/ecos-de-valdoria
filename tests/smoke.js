@@ -53,7 +53,7 @@
     P.x=b.x+40;P.y=b.y;for(let i=0;i<300;i++){cura();update(.05);}render(.05,0);});
   t('Senhor dos Ossos: longe da escada, ergue servos que curam e somem com ele',()=>{switchMapNow('caverna3',null);const b=mons.find(ehChefe);if(!b||b.type!=='senhorOssos')throw 'o chefe não apareceu';
    const j=Math.floor(b.y/TILE)*W+Math.floor(b.x/TILE);if(solid[j]||!REACH[j])throw 'nasceu em lugar bloqueado';const e=portalPt('caverna2'),dist=hyp(b.x-e.x,b.y-e.y)/TILE;if(dist<25)throw 'perto demais da escada: '+dist.toFixed(0);
-   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();update(.05);const serv=mons.filter(c=>c.owner===b);if(serv.length<1)throw 'não ergueu esqueletos';
+   P.x=b.x+40;P.y=b.y;P.stealth=0;b.sx=b.x;b.sy=b.y;b.state='chase';b.ai.call=0;cura();update(.05);const serv=mons.filter(c=>c.owner===b);if(serv.length<1)throw 'não ergueu esqueletos';
    b.hp=b.maxHp*.6;const h=b.hp;for(let i=0;i<10;i++){cura();update(.05);}if(b.hp<=h)throw 'os servos não curaram o chefe';
    b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não se enfureceu na metade da vida';
    killMonster(b);if(serv.some(c=>!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.senhorOssos)throw 'sem material';
@@ -138,7 +138,7 @@
    if(!diaAbertas().some(e=>e.t===SELO.t))throw 'a missão não aparece no diário';render(.05,0);});
   t('Mestre Ozren: devora magia, orbes do silêncio, ergue alunos, anéis do Vazio; derrotado, a Selene entrega a recompensa',()=>{switchMapNow('arquivo3',null);const b=mons.find(ehChefe);if(!b||b.type!=='ozren')throw 'o chefe não apareceu';
    const j=Math.floor(b.y/TILE)*W+Math.floor(b.x/TILE);if(solid[j]||!REACH[j])throw 'nasceu em lugar bloqueado';
-   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();b.ai.fomeT=0;update(.05);if(!b.ai.avOn||b.fome>0)throw 'a Fome Arcana veio sem aviso';for(let i=0;i<22&&!(b.fome>0);i++){cura();update(.05);}if(!(b.fome>0))throw 'sem a Fome Arcana';
+   P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();b.ai.fomeT=0;update(.05);if(!b.ai.avOn||b.fome>0)throw 'a Fome Arcana veio sem aviso';for(let i=0;i<22&&!(b.fome>0);i++){cura();P.stealth=0;b.state='chase';b.sx=b.x;b.sy=b.y;update(.05);}if(!(b.fome>0))throw 'sem a Fome Arcana';
    b.hp=b.maxHp/2+50;const h0=b.hp;hitMonster(b,3);if(b.hp<=h0)throw 'o golpe não curou durante a fome';b.fome=0;const h1=b.hp;hitMonster(b,3);if(b.hp>=h1)throw 'o golpe não doeu depois da fome';
    b.ai.eco=0;cura();update(.05);if(!mons.some(c=>c.owner===b))throw 'não ergueu os alunos';
    cura();const m0=P.mp;mproj.push({x:P.x,y:P.y-8,vx:0,vy:0,life:1,m:b,c:'#6a3aa0',mult:.6,sil:1});update(.05);if(P.mp>=m0)throw 'o silêncio não tirou mana';

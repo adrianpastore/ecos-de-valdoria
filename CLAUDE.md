@@ -243,7 +243,7 @@ O teste roda **no navegador de verdade**, sem Node nem instalação (o jogo nunc
 
 ## Onde paramos (11/10/2026, à tarde)
 
-**Etapa 5 do plano de 08/10/2026, a masmorra sob a Torre, feita na nuvem (branch `claude/project-thread-jrd0y3`, esperando o ok do dono):** `js/37-arquivo-selado.js`.
+**Etapa 5 do plano de 08/10/2026, a masmorra sob a Torre, feita na nuvem (branch `claude/project-thread-jrd0y3`, PR #3; **aprovada pelo dono em 11/10/2026**, enviada ao site no mesmo dia):** `js/37-arquivo-selado.js`.
 - Plano sugerido ao dono (ele pode trocar): **Arquivo Selado**, 3 andares (Biblioteca Afundada 20 a 23, Salões do Eco 23 a 26, Prisão do Selo 26 a 30) e o chefe **Mestre Ozren, o Faminto** (nível 30), o próprio antigo mestre da Selene, enfraquecido pelo selo: mago velho de manto azul-noite rasgado, olhos brancos e o buraco escuro de Vorhan no peito.
 - A Selene pede no nível de Base 20 (todas as classes); antes de aceitar, a escada do salão da Torre fica selada. Ao entregar: 1500 de ouro, um equipamento épico e a XP de um nível 30; depois ela ganha falas sobre Ozren e o "silêncio" (primeira pista de Vorhan).
 - Medidor: Ozren leva ~85 s com o Mago, ~130 s com a Arqueira e ~9 min com o Guerreiro (o Guerreiro já era lento contra os chefes). O medidor agora não bate em Ozren enquanto ele está faminto, como um jogador faria.
