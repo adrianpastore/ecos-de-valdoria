@@ -131,8 +131,24 @@
    for(const id of['tumba1','tumba2','tumba3']){const M=MAPS[id];if(!M.dark||M.mask!==tumbaMask)throw id+' não é tumba escura';for(const[tp]of M.mons)if(!tum.includes(tp))throw id+' tem '+tp;
     switchMapNow(id,null);const c={};for(const r of objRows)for(const o of r)c[o.spr]=(c[o.spr]||0)+1;if(!c.urna&&!c.colunaT)throw id+' sem urnas nem colunas';}
    if(MAPS.tumba3.lv[1]!==40)throw 'o fundo devia ir até o nível 40';});
+  t('Porto de Maresia: o mar a leste, dois cais com navios, o farol no quebra-mar; Costa, Praia e Rochedos com monstros do litoral',()=>{const lit=['caranguejo','gaivota','aguaviva','corsario','polvo'];
+   if(!MAPS.encosta7.portals.costa||!MAPS.costa.portals.encosta7)throw 'a Encosta 07 não leva à Costa dos Ventos';
+   for(const id of['costa','naufragios','rochedos']){for(const[tp]of MAPS[id].mons)if(!lit.includes(tp))throw id+' tem '+tp;}
+   switchMapNow('porto',null);let mar=0,cais=0;for(let i=0;i<W*H;i++){if(ground[i]===G.WATER&&i%W>60)mar++;if(BRG[i])cais++;}if(mar<600)throw 'o Porto sem mar ('+mar+' tiles)';if(cais<16)throw 'sem cais de madeira ('+cais+')';
+   const sp={};for(const r of objRows)for(const o of r)sp[o.spr]=(sp[o.spr]||0)+1;if((sp.navio||0)<2)throw 'faltam os navios';if(!sp.farol)throw 'sem o farol';
+   for(const y0 of MAPS.porto.cais){const x=MAPS.porto.beira[y0]+8;if(!REACH[y0*W+x])throw 'o cais da linha '+y0+' não se alcança a pé';}
+   const y=MAPS.porto.quebraMar;if(!REACH[y*W+MAPS.porto.beira[y]+8])throw 'o quebra-mar não se alcança a pé';
+   for(const id of['naufragios','rochedos']){switchMapNow(id,null);let a=0,m=0;for(let i=0;i<W*H;i++){if(zoneMap[i]===11)a++;if(ground[i]===G.WATER&&zoneMap[i]===13)m++;}if(a<120||m<400)throw id+': praia '+a+', mar '+m;}
+   const ms=MISS.filter(q=>q.city==='porto');if(ms.length<5)throw 'só '+ms.length+' missões no Porto';for(const q of ms)if(!lit.includes(q.mat))throw q.id+' pede material de fora';info(ms.length+' missões no Porto');});
+  t('Altaforja: muralha de granito, a Grande Forja e a mina selada; Passo da Serra pelo norte do Covil; Picos e Geleira com monstros da neve',()=>{const nev=['cabra','loboN','ursoB','gaviao','nevasca'];
+   if(!MAPS.covil.portals.passo||!MAPS.passo.portals.covil)throw 'o Covil não leva ao Passo da Serra';
+   for(const id of['passo','picos','geleira']){for(const[tp]of MAPS[id].mons)if(!nev.includes(tp))throw id+' tem '+tp;if(MAPS[id].theme!==14)throw id+' sem neve';}
+   switchMapNow('altaforja',null);if(MAPS.altaforja.wallStyle!=='granito')throw 'sem muralha de granito';const sp={};for(const r of objRows)for(const o of r)sp[o.spr]=(sp[o.spr]||0)+1;
+   for(const k of['grandeForja','minaSelada','torreG','muroHG'])if(!sp[k])throw 'falta '+k;const[fx,fy]=MAPS.altaforja.forja;if(!REACH[(fy+1)*W+fx])throw 'a frente da Grande Forja não se alcança';
+   const L=mundoPos().pos;if(L.altaforja[0]<=L.arcadia[0]||L.altaforja[1]>=L.covil[1])throw 'Altaforja devia ficar acima do Covil e à direita de Arcádia';
+   const ms=MISS.filter(q=>q.city==='altaforja');if(ms.length<5)throw 'só '+ms.length+' missões em Altaforja';for(const q of ms)if(!nev.includes(q.mat))throw q.id+' pede material de fora';info(ms.length+' missões em Altaforja');});
   t('Teleporte do menu de testes (?dev): apelidos achados e chegada na praça das cidades',()=>{for(const a in TPA)if(!MAPS[TPA[a]])throw a+' leva a um mapa que não existe';
-   for(const[q,id]of[['sahrem','sahrem'],['sahrem_dungeon01','tumba1'],['sahrem_field04','dunasS'],['pinheiral_field07','encosta7'],['@x',null],['Pântano','pantano'],['torreArcadia','torreArcadia']])if(tpFind(q)!==id)throw q+' achou '+tpFind(q);
+   for(const[q,id]of[['sahrem','sahrem'],['sahrem_dungeon01','tumba1'],['sahrem_field04','dunasS'],['pinheiral_field07','encosta7'],['@x',null],['Pântano','pantano'],['torreArcadia','torreArcadia'],['porto_field02','naufragios'],['altaforja_field03','geleira']])if(tpFind(q)!==id)throw q+' achou '+tpFind(q);
    for(const c in TPREG){switchMapNow(c,'@centro');const j=Math.floor(P.y/TILE)*W+Math.floor(P.x/TILE);if(solid[j]||!REACH[j])throw 'em '+c+' o herói chega em lugar bloqueado';}
    switchMapNow('valdor',null);info(Object.keys(TPA).length+' apelidos');});
   t('Arcádia: fosso redondo, 4 pontes, a Torre no centro; Planalto com runas; portão norte em Valdor',()=>{switchMapNow('arcadia',null);const at=(x,y)=>y*W+x;
@@ -325,7 +341,7 @@
      if(COLD[m])for(const k in COLD[m].maps)if(!MAPS[k])throw m+': mapa '+k+' não existe';}}
    P.ped={};for(const cid of new Set(PEDS.map(q=>q.map))){switchMapNow(cid,null);for(const q of TALK.filter(t=>t.p.ped)){if(!SPR[q.p.id])throw q.p.n+' sem desenho';const[x,y]=q.p.at,j=(y+1)*W+x;if(solid[j]||!REACH[j]||ground[y*W+x]===G.PATH)throw q.p.n+': lugar ruim (na estrada ou sem passagem na frente)';
     cura();P.x=(x+.5)*TILE;P.y=(y+1.5)*TILE;const it=nearestInteract();if(!it||it.kind!=='talk'||it.o!==q)throw '[E] não fala com '+q.p.n;interact(it);if($('pedido').classList.contains('hidden'))throw 'a janela de '+q.p.n+' não abriu';closeAll();}}
-   for(const c of ['valdor','pinheiral','arcadia','sahrem'])if(PEDS.filter(q=>q.map===c).length<3)throw c+' com menos de 3 pedidos';
+   for(const c of Object.keys(MAPS).filter(k=>MAPS[k].town))if(PEDS.filter(q=>q.map===c).length<3)throw c+' com menos de 3 pedidos';
    render(.05,0);info(PEDS.map(q=>q.n+' ('+q.t+')').join(', '));});
   t('cópia do herói: exportar, importar, código pela metade e versão nova',()=>{
    saveReal();const s0=loadSave(),c=saveCode(s0);if(!c.startsWith('EV1.'))throw 'código sem o prefixo';

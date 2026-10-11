@@ -237,6 +237,8 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
   else if(M.lair){const d=hyp(x-TC.x,y-TC.y);if(d>10&&d<12.5&&c<.45)obj=c<.3?'pillar':'pillar2';else if(d>14&&c<.1)obj=c<.05?'rock':'tree';}
   else if(zt===1){if(a>.72)g=G.WATER;else if((b>.58&&c<.55)||c<.035)obj='tree';else if(c<.045)obj='rock';}
   else if(zt===2){if(a>.62)g=G.WATER;else if((b>.6&&c<.45)||c<.03)obj=rng()<.35?'dead':'tree';else if(c<.04)obj='rock';}
+  else if(zt===13){if(a>.8)g=G.WATER;else if((b>.6&&c<.3)||c<.025)obj='tree';else if(c<.05)obj='rock';} // litoral (Porto, 35): capim de beira-mar, pinheiros e rochas
+  else if(zt===14){if(a>.84)g=G.WATER;else if((b>.62&&c<.32)||c<.02)obj='tree';else if(c<.07)obj='rock';} // neve (Altaforja, 36): pinheiros nevados e muita pedra
   else if(zt===11){if(a>.86)g=G.WATER;else if(b>.72&&c<.16)obj='tree';else if(c<.008)obj=rng()<.5?'pillar':'pillar2';else if(c<.028)obj='rock';} // deserto (25): pouca planta, oásis raros
   else{if(a>.78)g=G.WATER;else if(b>.62&&c<.35)obj='tree';else if(c<.03)obj=rng()<.5?'pillar':'pillar2';else if(c<.05)obj='rock';}
   if(!CAV&&(x<2||y<2||x>=W-2||y>=H-2)&&!nearP(x,y)){obj='tree';g=G.GRASS;}
