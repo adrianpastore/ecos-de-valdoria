@@ -24,13 +24,13 @@ function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab(cidP().bar[0],BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
  const bang=(x,y)=>{ctx.font='800 24px Cinzel,serif';lab('!',x,y+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';};
  if(mentorAlert('elara'))bang(MENTOR.x,MENTOR.y-31);for(const q of TALK)if(MENTN[q.p.id]&&mentorAlert(q.p.id))bang(q.x,q.y-37); // mestres de classe (Selene, Kaya)
- portalLabels(lab);drawTalk(sx,sy,lab);pedMarks(lab,tt);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
+ portalLabels(lab);drawTalk(sx,sy,lab);pedMarks(lab,tt);seloMarks(lab,tt);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
 function promptText(it){return it.kind==='smith'?`[E] Falar com ${cidP().smith[0].replace(/^(\S+) (.+)/,(m,c,n)=>n+' ('+c.toLowerCase()+')')}`:it.kind==='bar'?`[E] Falar com a taverneira ${cidP().bar[0]}`:it.kind==='col'?`[E] ${COLD[it.o.mat].v} ${LOOTM[it.o.mat].n}`:it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]||it.o.p.ped&&pedState(it.o.p)!=='feito'?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
  const f=ptsFree(),fa=attrFree();$('treeBadge').textContent=f>0?f:'';$('attrBadge').textContent=fa>0?fa:'';
- if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}diaBadge();} // selo do diário (29)
+ if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}seloTick();diaBadge();} // selo do diário (29)
 
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;

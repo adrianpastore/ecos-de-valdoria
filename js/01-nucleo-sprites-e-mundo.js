@@ -193,7 +193,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
  // quando o mapa vizinho tem estrada, ela ainda entra alguns passos por este portal e some no mato
  const stub=(x1,y1,wob)=>{const L0=hyp(TC.x-x1,TC.y-y1)||1,dx=(TC.x-x1)/L0,dy=(TC.y-y1)/L0,L=9;
   for(let s=0;s<=L*2;s++){const t=s/2,off=Math.sin(t*.7+wob)*1.2*t/L,X=Math.round(x1+dx*t-dy*off),Y=Math.round(y1+dy*t+dx*off);if(t<4)paint(X,Y);else if(rng()<1-(t-4)/(L-4))paint(X,Y,0);}};
- for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(p[3]==='trilha')continue;if(M.road||M.interior){const v=M.via&&M.via[to];if(v){carve(v[0],v[1],wob);carve(p[0],p[1],wob,v[0],v[1]);}else carve(p[0],p[1],wob);}else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
+ for(const to in M.portals){const p=M.portals[to],wob=rng()*6;if(p[3]==='trilha'||p[3]==='escada')continue;if(M.road||M.interior){const v=M.via&&M.via[to];if(v){carve(v[0],v[1],wob);carve(p[0],p[1],wob,v[0],v[1]);}else carve(p[0],p[1],wob);}else if(MAPS[to]&&MAPS[to].road)stub(p[0],p[1],wob);} // interior: tapete reto da porta até o meio
  // portal com 'trilha' (ex.: a cabana da Kaya, 22): em vez da estrada até o centro, um caminho estreito da porta até a estrada mais
  // próxima fora da muralha. trail 1 = sem árvores (sempre dá para passar); 2 = chão de trilha, inteiro perto das pontas e aos pedaços no meio
  const trail=new Uint8Array(W*H),Wl=M.walls,inW=(x,y)=>Wl&&x>=Wl[0]-1&&x<=Wl[2]+1&&y>=Wl[1]-1&&y<=Wl[3]+1;
@@ -337,6 +337,7 @@ function genWorld(id){const M=MAPS[id],z=M.theme||0,rng=mulberry32(M.seed);const
    if(g===G.GRASS){const v=nf(tx+px/16,ty+py/16)+(rng()-.5)*.18;col=v>.55?gp[1]:gp[0];const r=rng();if(r<.08)col=gp[2];else if(r<.12)col=gp[3];
     if(z===8){const row=Math.floor(Y/6),seam=Y%6===0||(X+row*11)%29===0;col=seam?gp[2]:row%2?gp[0]:gp[1];if(!seam&&rng()<.04)col=gp[3];}
     if(z===10){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if(!seam&&rng()<.05)col=gp[3];} // lajes de pedra (Torre de Arcádia, 21)
+    if(z===15){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X>>4)%2^row%2?gp[0]:gp[1];if((tx*73+ty*151)%17===0&&((px===8&&py>3&&py<12)||(py===6&&px>5&&px<11)||(px-py===2&&px>7&&px<12)))col=[74,140,190];} // lajes azuladas com runas apagadas (Arquivo Selado, 37)
     if(z===12){const row=Math.floor(Y/8),seam=Y%8===0||(X+(row%2)*8)%16===0;col=seam?gp[2]:(X*3+Y*5)%37===0?gp[3]:row%3===1?gp[1]:gp[0];} // lajes de arenito (tumba de Sahrem, 25)
     if(z===4){const w=n2(tx+px/16,ty+py/16);if(Math.abs(w-.5)<.016)col=[255,110,30];else if(Math.abs(w-.5)<.03)col=[150,48,20];}}
    else if(g===G.PATH&&BRG[i])col=bridgeCol(i,px,py,z,gp);
