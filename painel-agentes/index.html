@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escritório de Agentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  /* Layout: palco em pixel art à esquerda, coluna da equipe e do registro à direita; empilha no celular.
+     Mundo único e noturno (escritório depois do expediente), por escolha: não segue o tema claro. */
+  :root {
+    --noite: #0e1320;
+    --painel: #161d2c;
+    --painel-2: #1c2538;
+    --linha: #2a3550;
+    --texto: #ebe5d6;
+    --suave: #93a0b8;
+    --ambar: #f3b94d;
+    --ok: #74d39a;
+    --erro: #ff7a6b;
+    --info: #79b8ff;
+    --lilas: #c29bff;
+    --f-display: 'Silkscreen', 'Courier New', monospace;
+    --f-corpo: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+    --f-pixel: 'VT323', 'Courier New', monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--noite);
+    color: var(--texto);
+    font-family: var(--f-corpo);
+    font-size: 15px;
+    padding-inline: 16px;
+    padding-block: 14px 20px;
+    box-sizing: border-box;
+  }
+  * { box-sizing: border-box; }
+
+  header {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+    max-width: 1280px; margin: 0 auto 12px;
+  }
+  h1 {
+    font-family: var(--f-display); font-weight: 400; font-size: 22px; margin: 0;
+    letter-spacing: 0.02em; text-wrap: balance;
+  }
+  h1 span { color: var(--ambar); }
+  .modo {
+    font-family: var(--f-pixel); font-size: 19px; line-height: 1;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 4px 10px 5px; border: 1px solid var(--linha); background: var(--painel);
+  }
+  .modo i { width: 8px; height: 8px; background: var(--suave); display: inline-block; }
+  .modo[data-modo="vivo"] i { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .modo[data-modo="sim"] i { background: var(--ambar); box-shadow: 0 0 8px var(--ambar); }
+  .tarefa {
+    flex: 1 1 260px; min-width: 0; color: var(--suave); font-size: 14px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tarefa b { color: var(--texto); font-weight: 700; }
+  .controles { display: flex; gap: 6px; }
+  button {
+    font-family: var(--f-pixel); font-size: 19px; line-height: 1; color: var(--texto);
+    background: var(--painel-2); border: 1px solid var(--linha); padding: 5px 11px 6px; cursor: pointer;
+    box-shadow: 0 2px 0 var(--linha);
+  }
+  button:hover { border-color: var(--ambar); }
+  button:active { transform: translateY(2px); box-shadow: none; }
+  button:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+
+  main {
+    display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  @media (max-width: 920px) { main { grid-template-columns: minmax(0, 1fr); } }
+
+  .palco {
+    position: relative; min-width: 0; align-self: start;
+    border: 2px solid var(--linha); background: #0a0e18;
+    box-shadow: 0 0 0 4px var(--painel), 0 18px 40px rgba(0,0,0,.45);
+  }
+  canvas#mundo {
+    display: block; width: 100%; height: auto; aspect-ratio: 480 / 288;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+  }
+  #camada { position: absolute; inset: 0; pointer-events: none; overflow: hidden; container-type: inline-size; }
+  .placa {
+    position: absolute; font-family: var(--f-display); font-size: clamp(7px, 1.6cqw, 12px);
+    color: var(--texto); background: rgba(14,19,32,.82); padding: 2px 6px 3px;
+    border-left: 3px solid var(--cor, var(--ambar)); letter-spacing: .04em; text-transform: uppercase;
+  }
+  .placa small { display: block; font-family: var(--f-pixel); text-transform: none; font-size: 1.15em; color: var(--suave); letter-spacing: 0; }
+  .boneco {
+    position: absolute; transform: translate(-50%, -100%);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    transition: opacity .8s;
+  }
+  .boneco .balao {
+    font-family: var(--f-pixel); font-size: clamp(11px, 2.4cqw, 17px); line-height: 1;
+    color: #1a1a22; background: #f5f0e2; padding: 2px 5px 3px; max-width: 20cqw;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    border: 1px solid #1a1a22; box-shadow: 2px 2px 0 rgba(0,0,0,.4);
+  }
+  .boneco .balao:empty { display: none; }
+  .boneco[data-estado="erro"] .balao { background: var(--erro); }
+  .boneco[data-estado="pronto"] .balao { background: var(--ok); }
+  .boneco .nome {
+    font-family: var(--f-pixel); font-size: clamp(10px, 2cqw, 15px); line-height: 1;
+    color: var(--texto); text-shadow: 1px 1px 0 #000, -1px 1px 0 #000;
+  }
+  @container (max-width: 520px) { .boneco .balao { max-width: 26cqw; } .placa small { display: none; } .placa { padding: 1px 4px; } }
+
+  aside { display: grid; gap: 14px; align-content: start; min-width: 0; }
+  @media (max-width: 920px) { aside { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
+  section.bloco { background: var(--painel); border: 1px solid var(--linha); min-width: 0; }
+  section.bloco h2 {
+    margin: 0; padding: 8px 12px; font-family: var(--f-display); font-weight: 400; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--suave);
+    border-bottom: 1px solid var(--linha); display: flex; justify-content: space-between;
+  }
+  #equipe { list-style: none; margin: 0; padding: 6px; display: grid; gap: 4px; }
+  #equipe li {
+    display: grid; grid-template-columns: 14px minmax(0,1fr) auto; gap: 4px 9px; align-items: center;
+    padding: 6px 7px; background: var(--painel-2);
+  }
+  #equipe .cor { width: 12px; height: 12px; }
+  #equipe .quem { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #equipe .onde { grid-column: 2 / 4; font-size: 12.5px; color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pilula {
+    font-family: var(--f-pixel); font-size: 16px; line-height: 1; padding: 1px 6px 2px;
+    border: 1px solid currentColor; color: var(--suave);
+  }
+  .pilula[data-e="digitando"], .pilula[data-e="lendo"], .pilula[data-e="testando"], .pilula[data-e="delegando"] { color: var(--info); }
+  .pilula[data-e="andando"] { color: var(--lilas); }
+  .pilula[data-e="pronto"] { color: var(--ok); }
+  .pilula[data-e="erro"] { color: var(--erro); }
+  .pilula[data-e="pensando"] { color: var(--ambar); }
+  #registro {
+    list-style: none; margin: 0; padding: 6px 10px 10px; max-height: 360px; overflow-y: auto;
+    font-family: var(--f-pixel); font-size: 17px; line-height: 1.15;
+  }
+  #registro li { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 8px; padding: 3px 0; border-bottom: 1px dashed var(--linha); }
+  #registro time { color: var(--suave); font-variant-numeric: tabular-nums; }
+  #registro .txt { overflow-wrap: anywhere; }
+  #registro .ag { font-weight: 400; }
+  .vazio { color: var(--suave); padding: 10px 12px; font-size: 13.5px; }
+  .vazio code { font-family: var(--f-pixel); font-size: 16px; color: var(--ambar); }
+  @media (prefers-reduced-motion: reduce) { .boneco { transition: none; } }
+</style>
+
+<header>
+  <h1>Escritório <span>de</span> Agentes</h1>
+  <span class="modo" id="modo" data-modo="conectando"><i></i><span id="modo-txt">conectando…</span></span>
+  <div class="tarefa" id="tarefa">Sem tarefa no momento</div>
+  <div class="controles" id="controles" hidden>
+    <button id="btn-pausa" type="button">Pausar</button>
+    <button id="btn-vel" type="button" title="Velocidade da simulação">1x</button>
+  </div>
+</header>
+
+<main>
+  <div class="palco">
+    <canvas id="mundo" width="480" height="288" aria-label="Escritório em pixel art com um boneco por agente"></canvas>
+    <div id="camada"></div>
+  </div>
+  <aside>
+    <section class="bloco">
+      <h2>Equipe <span id="contagem">0</span></h2>
+      <ul id="equipe"></ul>
+      <p class="vazio" id="equipe-vazia">Ninguém trabalhando ainda.</p>
+    </section>
+    <section class="bloco">
+      <h2>Registro</h2>
+      <ul id="registro"></ul>
+      <p class="vazio" id="registro-vazio">Aguardando eventos. No modo ao vivo, rode <code>npm run simular</code> ou um agente com os hooks ligados.</p>
+    </section>
+  </aside>
+</main>
+
+<script type="module" src="app.js"></script>
