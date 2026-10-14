@@ -33,6 +33,7 @@ function spawnBoss(announce){const M=MAPS[CUR],p=bossSpot(),b=makeMon(M.boss,p.x
  b.ai={swap:4,throw:2,quake:3,bolt:2,call:9,shot:1,nova:5,blink:8,rain:3};mons.push(b);
  if(announce){banner(`${b.name} apareceu!`,M.lair?'Algo ruge no covil.':M.boss==='reiSethkar'?'Areia escorre das paredes da câmara do rei.':M.boss==='ozren'?'Algo faminto se mexe atrás do selo.':M.cave?'Ossos estalam no fundo da caverna.':'Procure no alto das encostas.');log(`${b.name} apareceu em ${M.n}!`,'#ff6a4a');}}
 function bossDead(m){const M=MAPS[CUR];if(m.type==='ozren')ozrenDead(); // missão da Selene (37)
+ ecoPista(m);
  BOSSAT[CUR]=time+(M.lair?180:240);dropLoot(m.x,m.y,{kind:'item',item:genItem(m.lvl+2,4,null,3)});
  for(const c of mons)if(c.d.clone||c.owner===m){c.dead=true;burst(c.x,c.y-10,'#c8c8c8',12,40);}
  banner('MVP!',`${P.name} derrotou ${m.name}`);log(`MVP! Você derrotou ${m.name}.`,'#ff9a1f');shake(4);

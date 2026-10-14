@@ -23,14 +23,14 @@ function drawLabels(sx,sy,tt){ctx.font='700 13px "Alegreya Sans",sans-serif';ctx
  const lab=(t,x,y,c)=>{ctx.strokeText(t,sx(x),sy(y));ctx.fillStyle=c;ctx.fillText(t,sx(x),sy(y));};
  lab('Mestra Elara',MENTOR.x,MENTOR.y-24,'#d9a0ff');lab(cidP().bar[0],BAR.x,BAR.y-44,'#ffb070'); // taverneira do bar da Guilda (20)
  const bang=(x,y)=>{ctx.font='800 24px Cinzel,serif';lab('!',x,y+Math.sin(tt*4)*1.5,'#ffd24a');ctx.font='700 13px "Alegreya Sans",sans-serif';};
- if(mentorAlert('elara'))bang(MENTOR.x,MENTOR.y-31);for(const q of TALK)if(MENTN[q.p.id]&&mentorAlert(q.p.id))bang(q.x,q.y-37); // mestres de classe (Selene, Kaya)
+ if(mentorAlert('elara')||ecoQuer())bang(MENTOR.x,MENTOR.y-31);for(const q of TALK)if(MENTN[q.p.id]&&mentorAlert(q.p.id))bang(q.x,q.y-37); // mestres de classe (Selene, Kaya)
  portalLabels(lab);drawTalk(sx,sy,lab);pedMarks(lab,tt);seloMarks(lab,tt);for(const n of nascs)if(n.state!=='pure')lab('Nascente Corrompida',n.x,n.y-12,'#d9a0ff');}
 function promptText(it){return it.kind==='smith'?`[E] Falar com ${cidP().smith[0].replace(/^(\S+) (.+)/,(m,c,n)=>n+' ('+c.toLowerCase()+')')}`:it.kind==='bar'?`[E] Falar com a taverneira ${cidP().bar[0]}`:it.kind==='col'?`[E] ${COLD[it.o.mat].v} ${LOOTM[it.o.mat].n}`:it.kind==='talk'?`[E] ${it.o.p.id===MENT_CLS[P.cls]||it.o.p.ped&&pedState(it.o.p)!=='feito'?'Falar':'Conversar'} com ${it.o.p.n}`:it.kind==='board'?'[E] Ver o mural de missões':it.kind==='npc'?'[E] Falar com o mercador':it.kind==='mentor'?'[E] Falar com a Mestra Elara':it.kind==='nasc'?'[E] Purificar a nascente':`[E] Abrir ${CHN[it.o.mimic?2:it.o.tier]}`;}
 let hinted10=false;
 function hudExtra(){const q=P.quest,el=$('quest'),[mn,mw]=MENTN[mentorOf()];el.classList.toggle('hidden',!q);
  if(q)el.innerHTML=q.done?`<b>Prova concluída</b><br>Volte à ${mn}, ${mw}.`:`<b>${SPECS[q.spec].ap}</b><br>${SPECS[q.spec].trial.t}: ${q.prog}/${q.goal}`;
  const f=ptsFree(),fa=attrFree();$('treeBadge').textContent=f>0?f:'';$('attrBadge').textContent=fa>0?fa:'';
- if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}seloTick();diaBadge();} // selo do diário (29)
+ if(!hinted10&&mentorAlert()&&!P.spec){hinted10=true;log(`A ${mn} quer falar com você sobre o seu futuro. ${mentorOf()==='elara'?'Ela atende':'Ela espera'} ${mw}${mentorOf()==='selene'?', ao norte de Valdor':''}.`,'#d9a0ff');}seloTick();ecoTick();diaBadge();} // selo do diário (29)
 
 // ================== ÁRVORE ==================
 let treeTab='mago',treeSel=null;
@@ -77,8 +77,9 @@ const FALA={
   done:S=>`Boa caçada. Ilvara viu tudo. A trilha de ${S.n.toLowerCase()} é sua.`,promo:S=>`Você não é mais filhote. Em nome de Ilvara, aceite o título de ${S.n}.`,fim:S=>`Você domina a trilha de ${S.n.toLowerCase()}. Que Ilvara guie as suas flechas.`,
   rumo:'O caminho das Arqueiras passa pela floresta. A Caçadora Kaya, que caça em nome de Ilvara, vive numa cabana no canto nordeste de Pinheiral e vai conduzir',
   outra:'Sua prova começou com a Mestra Elara. Termine com ela. Depois, volte aqui: daqui em diante, quem guia a sua trilha é Ilvara.'}};
-function openMentor(w){MENT_W=w||'elara';$('mentor').querySelector('h2').textContent=MENTN[MENT_W][0];$('mentor').classList.remove('hidden');renderMentor();}
+function openMentor(w){MENT_W=w||'elara';ecoPasso=0;ecoRever=false;$('mentor').querySelector('h2').textContent=MENTN[MENT_W][0];$('mentor').classList.remove('hidden');renderMentor();}
 function renderMentor(){const b=$('mentorBody'),el=MENT_W==='elara',F=FALA[MENT_W],q_=t=>`<p class="flav">"${t}"</p>`;let h='';
+ {// a conversa dos ecos (38) vai no topo; as ações de sempre continuam embaixo
  const icons=t=>Object.keys(SK).filter(id=>SK[id].tree===t).map(id=>SK[id].ic).join(' ');
  if(el&&mentorOf()!=='elara')h=q_(`${FALA[mentorOf()].rumo} a sua ${P.spec?'promoção':'prova'}. Mas, se precisar redistribuir seus pontos, ainda posso ajudar.`);
  else if(!el&&mentorOf()!==MENT_W)h=q_(F.outra);
@@ -93,6 +94,7 @@ function renderMentor(){const b=$('mentorBody'),el=MENT_W==='elara',F=FALA[MENT_
    :q_(`Siga treinando, ${S.ap.toLowerCase()}. No nível de Classe 25 você estará pronto para a promoção e para a sua habilidade suprema.`);}
  if(hasTree(P.cls))h+=`<div class="shoprow"><span>Redistribuir todos os pontos da árvore</span><button class="btn sm" data-act="respec">${respecCost()}g</button></div>`;
  if(el)h+=`<div class="shoprow"><span>Redefinir os atributos (todos voltam a 1 e os pontos voltam para você)</span><button class="btn sm" data-act="attrReset">${ATTR_RESET}g</button></div>`;
+ if(el)h=ecoMentor()+h;}
  b.innerHTML=h;b.querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{const a=x.dataset.act;
-  if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();else if(a==='attrReset')attrReset();
+  if(a==='take')acceptTrial(x.dataset.spec);else if(a==='quit')abandonTrial();else if(a==='done')completeTrial();else if(a==='promo')promote();else if(a==='respec')respec();else if(a==='attrReset')attrReset();else ecoAction(a);
   renderMentor();if(!$('tree').classList.contains('hidden'))renderTree();});}

@@ -8,6 +8,7 @@ const cidN=c=>MAPS[c].n.replace(/^(Vila|Aldeia|Cidade) de /,'');
 function toggleDiario(){const el=$('diario'),show=el.classList.contains('hidden');if(show){closeAll();renderDiario();}el.classList.toggle('hidden',!show);}
 // cada linha: {t: título, s: subtítulo (onde), p: texto, prog: [[nome, tem, precisa]], ok: pronto para entregar, cor}
 function diaAbertas(){const L=[],q=P.quest,[mn,mw]=MENTN[mentorOf()];
+ if(ecoQuer())L.push({t:'Os Ecos de Vorhan',s:'Mestra Elara • Valdor',p:'A Mestra Elara quer falar com você. Ela atende na casa da estrela, em Valdor.',ok:true,cor:'#ffd24a'});
  if(q)L.push({t:SPECS[q.spec].ap,s:'Caminho da classe',p:q.done?`Prova concluída! Volte à ${mn}, ${mw}.`:SPECS[q.spec].trial.t+'.',prog:q.done?null:[['Progresso',q.prog,q.goal]],ok:q.done,cor:'#d9a0ff'});
  else if(mentorAlert())L.push({t:P.spec?'Promoção a '+SPECS[P.spec].n:'O seu futuro',s:'Caminho da classe',p:`A ${mn} quer falar com você. Ela ${mentorOf()==='elara'?'atende':'espera'} ${mw}.`,ok:true,cor:'#d9a0ff'});
  else if(P.spec&&P.promo<2&&hasTree(P.cls))L.push({t:'Promoção a '+SPECS[P.spec].n,s:'Caminho da classe',p:`Chegue ao nível de Classe 25 e fale com a ${mn}.`,prog:[['Nível de Classe',P.jlvl,25]],cor:'#d9a0ff'});
@@ -27,9 +28,9 @@ function diaFeitas(){const L=[],D=P.miss.done||{};
 const diaCard=e=>`<div class="mcard${e.ok?' pronta':''}" style="border-left:5px solid ${e.cor}"><div class="mt"><b>${e.t}</b><small>${e.s}</small></div><p>${e.p}</p>`+
  (e.prog||[]).map(([n,a,b])=>`<div class="mr"><span>${n}</span><span>${Math.min(a,b)}/${b}${a>=b?' ✔':''}</span></div><div class="dbar"><i style="width:${Math.min(100,a/b*100)}%"></i></div>`).join('')+`</div>`;
 function renderDiario(){const B=$('diarioBody'),A=diaAbertas(),F=diaFeitas(),nv=diaNovos();
- $('diarioTabs').innerHTML=[['abertas','Em andamento',A.length],['feitas','Concluídas',F.length]].map(([k,n,c])=>`<button class="btn sm tab${diaTab===k?' on':''}" data-d="${k}">${n} (${c})</button>`).join('');
+ $('diarioTabs').innerHTML=[['abertas','Em andamento',A.length],['feitas','Concluídas',F.length],['ecos','Os Ecos',ecoN()+'/7']].map(([k,n,c])=>`<button class="btn sm tab${diaTab===k?' on':''}" data-d="${k}">${n} (${c})</button>`).join('');
  $('diarioTabs').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{diaTab=b.dataset.d;renderDiario();});
- B.innerHTML=diaTab==='abertas'?(A.length?A.map(diaCard).join(''):`<p class="flav">Nenhuma tarefa em andamento. O mural da Guilda de cada cidade sempre tem trabalho, e quem tem um "!" em cima pede ajuda.</p>`)+(nv?`<h3 class="dsub">Quem precisa de ajuda</h3><ul class="dnov">${nv}</ul>`:'')
+ B.innerHTML=diaTab==='ecos'?ecoDiario():diaTab==='abertas'?(A.length?A.map(diaCard).join(''):`<p class="flav">Nenhuma tarefa em andamento. O mural da Guilda de cada cidade sempre tem trabalho, e quem tem um "!" em cima pede ajuda.</p>`)+(nv?`<h3 class="dsub">Quem precisa de ajuda</h3><ul class="dnov">${nv}</ul>`:'')
   :F.length?F.map(diaCard).join(''):`<p class="flav">Nada concluído ainda. Toda grande história começa com uma tarefa pequena.</p>`;}
 // selo no botão: quantas coisas estão prontas para entregar (chamada pelo hudExtra do 04)
 function diaBadge(){if(!P)return;const n=diaAbertas().filter(e=>e.ok).length,el=$('diaBadge'),t=n?String(n):'';if(el.textContent!==t)el.textContent=t;}

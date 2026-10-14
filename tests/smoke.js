@@ -63,8 +63,8 @@
    P.x=b.x+40;P.y=b.y;b.state='chase';b.ai.call=0;cura();update(.05);const serv=mons.filter(c=>c.owner===b);if(serv.length<1)throw 'não ergueu servos';
    b.ai.areia=0;const t0=teles.length;cura();update(.05);if(teles.length<t0+6)throw 'sem a fileira da tempestade de areia';teles.length=0;
    let x0=0;for(let k=0;k<30&&!x0;k++){const p={x:P.x+60,y:P.y};if(!blocked(p.x,p.y,4)){P.x=p.x;x0=1;}else P.x-=8;}
-   const d0=hyp(P.x-b.x,P.y-b.y);sethkarPull(b);for(let i=0;i<16;i++){cura();update(.05);}if(hyp(P.x-b.x,P.y-b.y)>=d0-4)throw 'as ataduras não puxaram ('+d0.toFixed(0)+' px)';if(!teles.some(t=>t.m===b&&t.r>=50))throw 'sem o círculo depois do puxão';
-   b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não invocou Kharzen na metade da vida';b.ai.shot=0;mproj.length=0;cura();update(.05);if(!mproj.some(p=>p.curse))throw 'sem os orbes da maldição';
+   const d0=hyp(P.x-b.x,P.y-b.y);b.state='chase';b.sx=b.x;b.sy=b.y;sethkarPull(b);for(let i=0;i<16;i++){cura();P.stealth=0;b.state='chase';update(.05);}if(hyp(P.x-b.x,P.y-b.y)>=d0-4)throw 'as ataduras não puxaram ('+d0.toFixed(0)+' px)';if(!teles.some(t=>t.m===b&&t.r>=50))throw 'sem o círculo depois do puxão';
+   b.state='chase';b.sx=b.x;b.sy=b.y;b.hp=b.maxHp*.4;cura();update(.05);if(!b.ai.rage)throw 'não invocou Kharzen na metade da vida ('+b.state+')';b.ai.shot=0;mproj.length=0;cura();update(.05);if(!mproj.some(p=>p.curse))throw 'sem os orbes da maldição';
    killMonster(b);if(mons.some(c=>c.owner===b&&!c.dead))throw 'os servos não sumiram com o chefe';if(!LOOTM.reiSethkar||!SPR.mat_reiSethkar)throw 'sem material';
    if(MISS.filter(q=>q.city==='sahrem'&&/^tumba/.test(q.map)).length<3)throw 'sem missões da tumba';
    info(serv.length+' servos, puxou de '+d0.toFixed(0)+' px');});
@@ -142,11 +142,47 @@
    b.hp=b.maxHp/2+50;const h0=b.hp;hitMonster(b,3);if(b.hp<=h0)throw 'o golpe não curou durante a fome';b.fome=0;const h1=b.hp;hitMonster(b,3);if(b.hp>=h1)throw 'o golpe não doeu depois da fome';
    b.ai.eco=0;cura();update(.05);if(!mons.some(c=>c.owner===b))throw 'não ergueu os alunos';
    cura();const m0=P.mp;mproj.push({x:P.x,y:P.y-8,vx:0,vy:0,life:1,m:b,c:'#6a3aa0',mult:.6,sil:1});update(.05);if(P.mp>=m0)throw 'o silêncio não tirou mana';
-   b.hp=b.maxHp*.4;b.ai.vazio=0;teles.length=0;cura();update(.05);update(.05);if(!b.ai.rage||!teles.some(t=>t.ring&&t.m===b))throw 'sem os anéis do Vazio abaixo da metade';teles.length=0;
+   b.state='chase';b.sx=b.x;b.sy=b.y;P.stealth=0;b.hp=b.maxHp*.4;b.ai.vazio=0;teles.length=0;cura();update(.05);update(.05);if(!b.ai.rage||!teles.some(t=>t.ring&&t.m===b))throw 'sem os anéis do Vazio abaixo da metade';teles.length=0;
    P.ped={selo:1};const g0=P.gold,i0=P.inv.length;killMonster(b);if(P.ped.selo!==2)throw 'derrotar Ozren não completou a missão';if(mons.some(c=>c.owner===b&&!c.dead))throw 'os alunos não sumiram';
    switchMapNow('torreArcadia','arcadia');openSelo();seloAction('entregar');if(P.ped.selo!==3||P.gold!==g0+SELO.g||P.inv.length!==i0+1||P.inv.at(-1).rar<3)throw 'recompensa errada';
    if(seloQuer()||!diaFeitas().some(e=>e.t===SELO.t))throw 'missão entregue continua aberta';seloTick();if(!GENTE.find(g=>g.id==='selene').f.includes(SELO.f[0]))throw 'a Selene não ganhou falas novas';
    info('Ozren nv '+b.lvl+', '+b.maxHp+' de vida');});
+  t('Os Ecos: a Elara conta o objetivo e os chefes deixam pistas',()=>{const ped0=P.ped,tab0=diaTab,w0=MENT_W,timer0=setTimeout,pend=[];
+   try{for(const M of Object.values(MAPS))if(M.boss&&!ECOS.p[M.boss])throw 'chefe sem pista: '+M.boss;
+    for(const[k,e]of Object.entries(ECOS.p))if(!MAPS[e.m]||MAPS[e.m].boss!==k)throw 'mapa da pista errado: '+k;
+    P.ped=undefined;if(!ecoQuer()||ecoN()!==0)throw 'save antigo sem ped não funciona';P.ped={};
+    if(!ecoQuer()||!diaAbertas().some(e=>e.t==='Os Ecos de Vorhan'))throw 'sem chamado da Elara';
+    diaTab='ecos';renderDiario();if($('diarioBody').textContent.includes('???'))throw 'pistas expostas antes da conversa';
+    openMentor('elara');for(const fala of ECOS.intro){if(!$('mentorBody').textContent.includes(fala))throw 'fala da Elara ausente';$('mentorBody').querySelector('[data-act="ecoAvanca"]').click();}
+    if(P.ped.ecoIntro!==1||ecoQuer()||!$('mentorBody').querySelector('[data-act="ecoRever"]'))throw 'conversa não concluiu';
+    $('mentorBody').querySelector('[data-act="ecoRever"]').click();for(let i=0;i<ECOS.intro.length;i++)$('mentorBody').querySelector('[data-act="ecoAvanca"]').click();
+    if(P.ped.ecoIntro!==1||ecoRever)throw 'rever não voltou ao conteúdo normal';$('mentor').classList.add('hidden');
+    setTimeout=(f,ms)=>{if(ms===2500)pend.push([f,ms]);return 0;};switchMapNow('encosta3',null);let b=mons.find(ehChefe);if(!b||b.dead){spawnBoss(false);b=mons.filter(ehChefe).at(-1);}killMonster(b);
+    if(P.ped.eco_mestreMasc!==1||ecoN()!==1)throw 'chefe não deixou pista';killMonster(b);ecoPista(b);
+    if(ecoN()!==1||pend.length!==1||pend[0][1]!==2500)throw 'pista ou banner duplicado';const morto=P.dead;cura();pend[0][0]();if($('bT').textContent!=='Pista encontrada!')throw 'sem banner da pista (morto antes: '+morto+')';
+    const heroi=P;try{P=null;pend[0][0]();}finally{P=heroi;}
+    renderDiario();if(!$('diarioTabs').textContent.includes('1/7')||!$('diarioBody').textContent.includes('???')||!$('diarioBody').textContent.includes(ECOS.obj))throw 'aba Os Ecos incompleta';
+   }finally{setTimeout=timer0;P.ped=ped0;diaTab=tab0;MENT_W=w0;ecoPasso=0;ecoRever=false;closeAll();}});
+  t('Os Ecos: save antigo, resets da Elara, sete pistas e outras mestras',()=>{const p0=P,ped0=P.ped,tab0=diaTab,w0=MENT_W,passo0=ecoPasso,rever0=ecoRever,map0=CUR,estado0={...P},aliados0=allies.slice(),cam0=[cam.x,cam.y],aviso0=ecoAvisou,hint0=hinted10;
+   try{const b={v:3,name:'Velho dos Ecos',cls:P.cls,lvl:1,xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'};
+    enter(b);if(!ecoQuer())throw 'save antigo carregado por enter não chama a Elara';openMentor('elara');
+    if(!$('mentorBody').textContent.includes(ECOS.intro[0]))throw 'save antigo não abriu a conversa';
+    if(!$('mentorBody').querySelector('[data-act="attrReset"]'))throw 'a conversa escondeu os serviços da Elara';
+    if(mentorOf()==='elara'&&hasTree(P.cls)){P.quest={spec:CT().specs[0],prog:1,goal:1,done:true};openMentor('elara');
+     if(!$('mentorBody').querySelector('[data-act="done"]'))throw 'a conversa escondeu a entrega da prova';P.quest=null;openMentor('elara');}
+    for(let i=0;i<ECOS.intro.length;i++)$('mentorBody').querySelector('[data-act="ecoAvanca"]').click();
+    if(P.ped.ecoIntro!==1||ecoQuer())throw 'save antigo não concluiu a conversa';openMentor('elara');
+    if(hasTree(P.cls)&&!$('mentorBody').querySelector('[data-act="respec"]'))throw 'Elara perdeu o reset da árvore após a conversa';
+    if(!$('mentorBody').querySelector('[data-act="attrReset"]'))throw 'Elara perdeu o reset de atributos após a conversa';
+    if(Object.keys(ECOS.p).length!==7)throw 'esperadas sete pistas';for(const k of Object.keys(ECOS.p))P.ped['eco_'+k]=1;
+    diaTab='ecos';renderDiario();if(!$('diarioTabs').querySelector('[data-d="ecos"]').textContent.includes('7/7'))throw 'aba não contou sete pistas';
+    if($('diarioBody').textContent.includes('???'))throw 'pista desconhecida após encontrar todas';
+    for(const e of Object.values(ECOS.p))if(!$('diarioBody').textContent.includes(e.x))throw 'pista completa ausente: '+e.t;
+    openMentor('elara');if(!$('mentorBody').textContent.includes(ECOS.depois(7)))throw 'Elara não reconheceu as sete pistas';
+    P.ped={};for(const w of ['selene','kaya']){if(!ecoQuer())throw 'pré-condição: conversa ainda não feita';openMentor(w);
+     if($('mentorBody').querySelector('[data-act="ecoAvanca"],[data-act="ecoRever"]'))throw w+' mostrou botão dos Ecos';
+     if(ECOS.intro.some(f=>$('mentorBody').textContent.includes(f)))throw w+' contou a introdução da Elara';}
+   }finally{P=p0;P.ped=ped0;switchMapNow(map0,null);Object.assign(P,estado0);allies.splice(0,allies.length,...aliados0);[cam.x,cam.y]=cam0;diaTab=tab0;MENT_W=w0;ecoPasso=passo0;ecoRever=rever0;ecoAvisou=aviso0;hinted10=hint0;closeAll();}});
   t('Sahrem: a porta da pirâmide leva à tumba de 3 andares, com urnas, colunas e monstros próprios',()=>{const p=MAPS.sahrem.portals.tumba1,[px,py]=MAPS.sahrem.piramide;
    if(!p||p[0]!==px||p[1]!==py+1||p[2]!=='porta')throw 'a porta da pirâmide não leva à tumba';const tum=['besouroT','mumia','sentinela','sacerdote'];
    for(const id of['tumba1','tumba2','tumba3']){const M=MAPS[id];if(!M.dark||M.mask!==tumbaMask)throw id+' não é tumba escura';for(const[tp]of M.mons)if(!tum.includes(tp))throw id+' tem '+tp;
@@ -214,7 +250,7 @@
   t(`mestre de classe: ${cls} faz a prova e a promoção com ${MENTN[w][0]}; a Elara manda até lá`,()=>{const N=MENTN[w][0];
    const acts=()=>[...$('mentorBody').querySelectorAll('[data-act]')].map(b=>b.dataset.act),clica=a=>$('mentorBody').querySelector(`[data-act="${a}"]`).click();
    const mestre=()=>{switchMapNow(casa,city);cura();const q=TALK.find(q=>q.p.id===w);if(!q)throw N+' não está em '+casa;P.x=q.x;P.y=q.y+6;return nearestInteract();};
-   enter({cls,name:'Mestre'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));
+   enter({cls,name:'Mestre'});P.ped.ecoIntro=1;for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));
    if(mentorOf()!==w||!mentorAlert(w)||mentorAlert('elara'))throw `o "!" na Classe 10 devia ficar em ${N}`;
    openMentor('elara');if(acts().includes('take')||!new RegExp(lugar).test($('mentorBody').textContent)||!acts().includes('attrReset'))throw `a Elara devia mandar para ${lugar} e continuar com os atributos`;
    let it=mestre();if(promptText(it)!=='[E] Falar com '+N)throw 'texto: '+promptText(it);interact(it);
@@ -224,7 +260,7 @@
    P.quest.prog=P.quest.goal;questCheck();hudExtra();if(!$('quest').textContent.includes(N))throw 'o HUD não manda voltar a '+N;
    interact(mestre());clica('done');if(P.spec!==s)throw 'não virou aprendiz com '+N;for(let i=0;i<200&&P.jlvl<25;i++)gainXp(jobNeed(P.jlvl));
    if(!mentorAlert(w))throw 'sem "!" na promoção';renderMentor();clica('promo');if(P.promo!==2)throw 'sem promoção com '+N;$('mentor').classList.add('hidden');
-   enter({cls,name:'Antigo'});for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));P.quest={spec:s,prog:1,goal:1,done:true}; // prova aceita com a Elara num save antigo
+   enter({cls,name:'Antigo'});P.ped.ecoIntro=1;for(let i=0;i<40&&P.jlvl<10;i++)gainXp(xpNeed(P.lvl));P.quest={spec:s,prog:1,goal:1,done:true}; // prova aceita com a Elara num save antigo
    if(mentorOf()!=='elara')throw 'prova antiga devia terminar com a Elara';interact(mestre());if(acts().includes('done'))throw N+' concluiu prova da Elara';
    openMentor('elara');if(!acts().includes('done'))throw 'a Elara não concluiu a prova antiga';clica('done');if(mentorOf()!==w)throw 'depois da prova antiga, a promoção devia ser com '+N;
    $('mentor').classList.add('hidden');enter({cls:'guerreiro',name:'Visita'});interact(mestre());const q=TALK.find(q=>q.p.id===w);
@@ -268,7 +304,7 @@
    }finally{[P.cls,P.lvl,P.attr]=sv;recalc();}info(out.join(' • '));});
   t('atributos: Mestra Elara redefine por 1000 (tudo volta a 1)',()=>{P.gold=500;if(attrReset())throw 'resetou sem ouro';P.gold=1500;if(!attrReset()||P.gold!==500)throw 'não cobrou 1000';
    if(ATTR.some(([k])=>P.attr[k]!==1)||attrFree()!==attrTotal()||attrTotal()!==24+27)throw 'depois do reset: '+JSON.stringify(P.attr)+' livres '+attrFree();
-   openMentor();if(!$('mentorBody').querySelector('[data-act="attrReset"]'))throw 'sem botão na Mestra Elara';$('mentor').classList.add('hidden');});
+   const eco0=P.ped.ecoIntro;try{P.ped.ecoIntro=1;openMentor();if(!$('mentorBody').querySelector('[data-act="attrReset"]'))throw 'sem botão na Mestra Elara';}finally{if(eco0===undefined)delete P.ped.ecoIntro;else P.ped.ecoIntro=eco0;$('mentor').classList.add('hidden');}});
   t('atributos: Agilidade dá esquiva',()=>{P.attr.agil=99;recalc();if(!(P.st.dodge>.2))throw 'esquiva '+P.st.dodge;let z=0;for(let i=0;i<200;i++)if(preHurt(10,null,2)===0)z++;if(z<20)throw 'só esquivou '+z+' de 200';P.attr.agil=1;recalc();});
   t('níveis: save antigo ganha nível de Classe e mantém os pontos',()=>{const b={v:3,name:'Velho',cls:'guerreiro',xp:0,gold:10,inv:[],equip:{},pots:{hp:2,mp:1},x:(TC.x+.5)*TILE,y:(TC.y+2.5)*TILE,map:'valdor'};
    enter(Object.assign({},b,{lvl:20,spec:'paladino',promo:1,ranks:{giro:5,vigor:5,grito:5,pele:5}}));if(P.jlvl!==11||ptsFree()!==0||rk('pele')!==5)throw 'aprendiz nv 20: Classe '+P.jlvl+', livres '+ptsFree();
